@@ -390,6 +390,46 @@
   .slot-btn:hover{border-color:var(--cyan);color:var(--cyan);}
   .slot-btn:disabled{opacity:.35;cursor:not-allowed;}
   .slot-btn:disabled:hover{border-color:var(--line-bright);color:var(--ink);}
+  .slot-menu-wrap{position:relative;}
+  .preset-menu{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    min-width:280px;
+    max-height:320px;
+    overflow-y:auto;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    box-shadow:0 12px 28px rgba(0,0,0,.5);
+    z-index:50;
+    display:none;
+    padding:6px;
+  }
+  .preset-menu.open{display:block;}
+  .preset-item{
+    width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:7px 8px;
+    background:transparent;
+    border:none;
+    color:var(--ink);
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    text-align:left;
+    cursor:pointer;
+  }
+  .preset-item:hover{background:var(--stat-bg);color:var(--cyan);}
+  .preset-tag{
+    flex:none;
+    font-family:var(--mono);
+    font-size:8.5px;
+    letter-spacing:.14em;
+    color:var(--amber);
+    border:1px solid var(--amber);
+    padding:1px 5px;
+    text-transform:uppercase;
+  }
   .crew-card{
     background:var(--crew-bg);
     border:1px solid var(--line);
@@ -404,6 +444,22 @@
     font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--amber);
     padding:10px 10px 4px;text-transform:uppercase;letter-spacing:.02em;
   }
+  .cname-row{
+    display:flex;align-items:center;gap:6px;
+    padding-right:10px;
+  }
+  .cname-row .cname{flex:1;min-width:0;}
+  .crew-tag-btn{
+    flex:none;
+    font-size:14px;
+    line-height:1;
+    color:var(--amber);
+    cursor:pointer;
+    opacity:0;
+    transition:opacity .15s;
+    font-family:var(--mono);
+  }
+  .crew-tag-btn.on{opacity:1;}
   .crew-card textarea{
     flex:1;resize:none;padding:2px 10px 10px;font-size:13px;line-height:1.5;color:var(--ink-mid);
   }
@@ -639,22 +695,26 @@
         <div class="slot-controls">
           <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="removeCrewSlot()" title="Remove last slot">−</button>
           <button type="button" class="slot-btn" onclick="addCrewSlot()" title="Add slot">+</button>
+          <div class="slot-menu-wrap">
+            <button type="button" class="slot-btn" onclick="togglePresetMenu(event)" title="Add from catalog">☰</button>
+            <div class="preset-menu" id="presetMenu"></div>
+          </div>
         </div>
       </div>
       <div class="crew-grid" id="crewGrid" style="margin-top:12px;">
         <div class="crew-card">
           <div class="ch">Slot 01</div>
-          <input class="cname" placeholder="TRAIT / CREW NAME">
+          <div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
           <textarea placeholder="Effect or role..."></textarea>
         </div>
         <div class="crew-card">
           <div class="ch">Slot 02</div>
-          <input class="cname" placeholder="TRAIT / CREW NAME">
+          <div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
           <textarea placeholder="Effect or role..."></textarea>
         </div>
         <div class="crew-card">
           <div class="ch">Slot 03</div>
-          <input class="cname" placeholder="TRAIT / CREW NAME">
+          <div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
           <textarea placeholder="Effect or role..."></textarea>
         </div>
       </div>
@@ -694,7 +754,7 @@
     card.className = 'crew-card';
     card.innerHTML =
       '<div class="ch">' + slotLabel(n) + '</div>' +
-      '<input class="cname" placeholder="TRAIT / CREW NAME">' +
+      '<div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>' +
       '<textarea placeholder="Effect or role..."></textarea>';
     grid.appendChild(card);
     refreshSlotControls();
@@ -713,6 +773,84 @@
       cards[i].querySelector('.ch').textContent = slotLabel(i + 1);
     }
   }
+
+  var PRESETS = [
+    {name:'Ambassador Kamar', text_description:'You have the legal right to travel into People’s Star space.<b><c>Diplomacy</c></b>', combat_only:false},
+    {name:'Arc Agent Tha’n', text_description:'You have the legal right to travel into Vedlu space. <b><c>Leadership<c></b>', combat_only:false},
+    {name:'Captain Janson', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
+    {name:'Co-leadership', text_description:'When assigning a Move value you may instead roll to assign it randomly. It does not cost energy to assign this way.', combat_only:true},
+    {name:'Conservative', text_description:'At the start of a round, if you did not play any “Offense” technology cards last round, gain 2 shields.', combat_only:true},
+    {name:'Hoarding', text_description:'+4', combat_only:false},
+    {name:'Motherly', text_description:'When an allied ship within scanning range takes shield damage, you may take that damage instead.', combat_only:true},
+    {name:'Peace Loving', text_description:'When you fail a diplomacy check that would initiate combat, you may reroll.', combat_only:false},
+    {name:'Scrappy', text_description:'Once per round, when you take Hull damage, you may make an Engineering Check against the enemy’s DC to negate the damage.', combat_only:true},
+    {name:'The Sky Walker', text_description:'Checks for piloting and navigation are made with advantage. <b><c>Navigation</c></b>', combat_only:true},
+    {name:'Watchful', text_description:'Your scan range is doubled.', combat_only:true},
+    {name:'Zealots', text_description:'Expedition penalties are ignored. When you would receive any type of Crew Penalty gain an Inspiration.', combat_only:false}
+  ];
+  PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
+
+  function stripTags(html){
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent.trim();
+  }
+  function buildPresetMenu(){
+    var menu = document.getElementById('presetMenu');
+    menu.innerHTML = '';
+    PRESETS.forEach(function(p){
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'preset-item';
+      var label = document.createElement('span');
+      label.textContent = p.name;
+      item.appendChild(label);
+      if(p.combat_only){
+        var tag = document.createElement('span');
+        tag.className = 'preset-tag';
+        tag.textContent = 'combat';
+        item.appendChild(tag);
+      }
+      item.onclick = function(){
+        pickPreset(p);
+        closePresetMenu();
+      };
+      menu.appendChild(item);
+    });
+  }
+  function togglePresetMenu(e){
+    e.stopPropagation();
+    document.getElementById('presetMenu').classList.toggle('open');
+  }
+  function closePresetMenu(){
+    document.getElementById('presetMenu').classList.remove('open');
+  }
+  function pickPreset(p){
+    addCrewSlot();
+    var card = document.getElementById('crewGrid').lastElementChild;
+    card.querySelector('.cname').value = p.name;
+    card.querySelector('textarea').value = stripTags(p.text_description);
+    var tag = card.querySelector('.crew-tag-btn');
+    if(p.combat_only) setCombatTag(tag, true);
+  }
+  function toggleCombatTag(el){
+    setCombatTag(el, el.getAttribute('data-combat') === '0');
+  }
+  function setCombatTag(el, on){
+    el.setAttribute('data-combat', on ? '1' : '0');
+    el.classList.toggle('on', on);
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('presetMenu');
+    if(menu.classList.contains('open') && !menu.contains(e.target)){
+      closePresetMenu();
+    }
+  });
+  document.getElementById('crewGrid').addEventListener('click', function(e){
+    var el = e.target.closest('.crew-tag-btn');
+    if(el) toggleCombatTag(el);
+  });
+  buildPresetMenu();
   refreshSlotControls();
 
   /* ===== Export / Import ===== */
@@ -743,7 +881,8 @@
       var card = grid.children[i];
       out.push({
         name: card.querySelector('.cname').value,
-        text: card.querySelector('textarea').value
+        text: card.querySelector('textarea').value,
+        combat: card.querySelector('.crew-tag-btn').getAttribute('data-combat') === '1'
       });
     }
     return out;
@@ -759,6 +898,7 @@
       var item = (crew && crew[i]) ? crew[i] : {};
       card.querySelector('.cname').value = item.name || '';
       card.querySelector('textarea').value = item.text || '';
+      setCombatTag(card.querySelector('.crew-tag-btn'), item.combat === true);
     }
     relabelSlots();
   }
