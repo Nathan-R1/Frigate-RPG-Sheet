@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Starship Dossier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="dark"]{
+    --void:#080b13;
+    --panel:#10151f;
+    --panel-alt:#141b28;
+    --line:#28334a;
+    --line-bright:#3d4d6e;
+    --cyan:#4fd8c9;
+    --cyan-dim:#2b6e68;
+    --amber:#e8a94a;
+    --red:#d75b4e;
+    --red-dim:#5e2a26;
+    --ink:#eef2f8;
+    --ink-mid:#9aa8c4;
+    --ink-dim:#5a6684;
+    --stat-bg:var(--void);
+    --crew-bg:var(--void);
+    --dc-bg:var(--cyan);
+    --dc-text:var(--void);
+    --dc-border:var(--cyan);
+    --move-arrow:#e8ceb0;
+    --icon-hull:#7fd88a;
+    --icon-shield:#59b9e8;
+    --icon-energy:#c98ee8;
+    --icon-amber:#e8a94a;
+    --icon-cyan:#4fd8c9;
+    --hex-fore-fill:#d75b4e;   --hex-fore-stroke:#3a1815;
+    --hex-flank-fill:#e9edf4; --hex-flank-stroke:#28334a;
+    --hex-core-fill:#0d1017;  --hex-core-stroke:#3d4d6e;
+    --hex-aft-fill:#8a93a6;   --hex-aft-stroke:#3a4258;
+    --bg-radial:
+      radial-gradient(ellipse at 20% -10%, #142032 0%, transparent 55%),
+      radial-gradient(ellipse at 100% 110%, #131c2c 0%, transparent 50%);
+    --bg-grid-color: rgba(79,216,201,0.035);
+    --mono: 'JetBrains Mono', monospace;
+    --disp: 'Orbitron', sans-serif;
+    --body: 'Rajdhani', sans-serif;
+  }
+  [data-theme="light"]{
+    --void:#ffffff;
+    --panel:#ffffff;
+    --panel-alt:#ffffff;
+    --line:#c7cedb;
+    --line-bright:#9aa4b8;
+    --cyan:#0e8f83;
+    --cyan-dim:#0e8f83;
+    --amber:#a06a17;
+    --red:#b8382a;
+    --red-dim:#b8382a;
+    --ink:#12151c;
+    --ink-mid:#4a5468;
+    --ink-dim:#828da2;
+    --stat-bg:#ffffff;
+    --crew-bg:#ffffff;
+    --dc-bg:transparent;
+    --dc-text:#0e8f83;
+    --dc-border:#0e8f83;
+    --move-arrow:#8a6a3d;
+    --icon-hull:#2f7a4d;
+    --icon-shield:#215f8c;
+    --icon-energy:#764795;
+    --icon-amber:#a06a17;
+    --icon-cyan:#0e8f83;
+    --hex-fore-fill:none;   --hex-fore-stroke:#b8382a;
+    --hex-flank-fill:none;  --hex-flank-stroke:#4a5468;
+    --hex-core-fill:none;   --hex-core-stroke:#12151c;
+    --hex-aft-fill:none;    --hex-aft-stroke:#4a5468;
+    --bg-radial: none;
+    --bg-grid-color: rgba(20,30,45,0.045);
+    --mono: 'JetBrains Mono', monospace;
+    --disp: 'Orbitron', sans-serif;
+    --body: 'Rajdhani', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background-color:var(--void);
+    background-image:
+      var(--bg-radial),
+      linear-gradient(var(--bg-grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 1px);
+    background-size:auto, 34px 34px, 34px 34px;
+    font-family:var(--body);
+    color:var(--ink);
+    padding:28px 18px 60px;
+    transition:background-color .2s ease, color .2s ease;
+  }
+  .sheet{max-width:1220px;margin:0 auto;}
+
+  input, textarea{
+    background:transparent;
+    border:none;
+    color:var(--ink);
+    font-family:inherit;
+    outline:none;
+  }
+  input::placeholder, textarea::placeholder{color:var(--ink-dim);}
+  input:focus, textarea:focus{color:var(--cyan);}
+
+  /* ===== corner-bracket panel, the signature device ===== */
+  .panel{
+    position:relative;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line);
+    padding:20px 22px 22px;
+  }
+  .panel::before, .panel::after,
+  .panel .bl, .panel .br{
+    content:"";
+    position:absolute;
+    width:14px;height:14px;
+    border:2px solid var(--cyan-dim);
+    opacity:.85;
+  }
+  .panel::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .panel::after{top:-1px;right:-1px;border-left:none;border-bottom:none;}
+  .panel .bl{bottom:-1px;left:-1px;border-right:none;border-top:none;}
+  .panel .br{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+  .panel:hover::before,.panel:hover::after,.panel:hover .bl,.panel:hover .br{border-color:var(--cyan);}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.22em;
+    color:var(--cyan);
+    text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:6px;
+  }
+  .eyebrow::before{content:"";width:6px;height:6px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+  .panel-title{
+    font-family:var(--disp);
+    font-weight:700;
+    letter-spacing:.06em;
+    font-size:15px;
+    color:var(--ink);
+    text-transform:uppercase;
+  }
+
+  /* ===== header ===== */
+  .topbar{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:16px;
+    margin-bottom:16px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--line);
+  }
+  .classline{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--ink-dim);text-transform:uppercase;margin-bottom:6px;}
+  .shiptitle{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;}
+  .shiptitle .kind{
+    font-family:var(--disp);font-weight:900;font-size:34px;letter-spacing:.03em;
+    color:var(--ink);text-transform:uppercase;
+  }
+  .shiptitle .dash{color:var(--ink-dim);font-family:var(--disp);font-size:34px;}
+  .shiptitle input.name{
+    font-family:var(--disp);font-weight:700;font-size:26px;
+    border-bottom:2px solid var(--line-bright);
+    padding:2px 4px 4px;
+    min-width:260px;
+    color:var(--cyan);
+  }
+  .shiptitle input.name:focus{border-color:var(--cyan);}
+  .subline{margin-top:8px;font-family:var(--mono);font-size:11.5px;color:var(--ink-mid);display:flex;gap:18px;flex-wrap:wrap;align-items:center;}
+  .subline b{color:var(--ink);}
+  .subline input{
+    font-family:var(--mono);font-size:11.5px;color:var(--ink);
+    border-bottom:1px dashed var(--line-bright);
+    padding:0 2px 2px;
+    min-width:120px;
+  }
+  .subline input:focus{border-bottom-color:var(--cyan);}
+
+  .dc-badge{
+    display:flex;align-items:center;gap:12px;
+    padding:8px 16px;
+    border:1px solid var(--line-bright);
+    background:var(--panel);
+  }
+  .dc-hex{
+    width:46px;height:46px;position:relative;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--dc-bg);
+    box-shadow:inset 0 0 0 2px var(--dc-border);
+    clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    color:var(--dc-text);font-family:var(--disp);font-weight:900;font-size:20px;
+  }
+  .dc-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--ink-mid);text-transform:uppercase;}
+  .dc-word{font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:var(--ink);}
+
+  /* ===== grid layout ===== */
+  .grid{
+    display:grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap:16px;
+    margin-top:16px;
+  }
+  .row2{
+    display:grid;
+    grid-template-columns: 0.62fr 1.93fr;
+    gap:16px;
+    margin-top:16px;
+  }
+  @media (max-width:880px){
+    .grid, .row2{grid-template-columns:1fr;}
+  }
+
+  /* ===== class/stats panel ===== */
+  .class-select{
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;
+  }
+  .class-select select{
+    background:var(--stat-bg);
+    border:1px solid var(--line-bright);
+    color:var(--amber);
+    font-family:var(--disp);
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:.04em;
+    padding:6px 12px;
+    text-transform:uppercase;
+  }
+
+  .stat-strip{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .stat{
+    background:var(--stat-bg);
+    border:1px solid var(--line);
+    padding:10px 6px 8px;
+    text-align:center;
+    position:relative;
+  }
+  .stat .icon{width:26px;height:26px;margin:0 auto 6px;display:block;}
+  .stat .val{
+    font-family:var(--mono);font-weight:700;font-size:15px;
+    display:flex;align-items:center;justify-content:center;gap:2px;
+  }
+  .stat .val input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:15px;
+    color:var(--ink);
+  }
+  .stat .val .sep{color:var(--ink-dim);}
+  .stat .lbl{
+    margin-top:5px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;
+    color:var(--ink-mid);text-transform:uppercase;
+  }
+  .stat.hull .val{color:var(--icon-hull);}
+  .stat.shield .val{color:var(--icon-shield);}
+  .stat.energy .val{color:var(--icon-energy);}
+  .stat.speed .val{color:var(--cyan);}
+
+  .rules-block{
+    background:var(--stat-bg);
+    border-left:2px solid var(--cyan-dim);
+    padding:12px 14px;
+    margin-bottom:16px;
+  }
+  .rules-block .rhead{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;color:var(--cyan);
+    text-transform:uppercase;margin-bottom:8px;
+  }
+  .rules-block ul{margin:0;padding-left:16px;}
+  .rules-block li{
+    font-size:14px;line-height:1.55;color:var(--ink-mid);margin-bottom:3px;
+  }
+  .rules-block li b{color:var(--ink);font-weight:600;}
+  .kw-icon{
+    width:15px;height:15px;
+    display:inline-block;
+    vertical-align:-3px;
+    margin:0 1px 0 2px;
+  }
+
+  .move-track{
+    display:flex;gap:10px;
+  }
+  .move{
+    flex:1;
+    background:var(--stat-bg);
+    border:1px solid var(--line);
+    padding:10px 8px;
+    text-align:center;
+  }
+  .move .n{
+    width:46px;
+    text-align:center;
+    font-family:var(--disp);font-weight:900;font-size:20px;color:var(--ink);
+    border-bottom:2px solid var(--line-bright);
+    padding-bottom:2px;
+  }
+  .move .n:focus{border-color:var(--cyan);}
+  .move .arrow{width:20px;height:20px;margin:4px auto;display:block;}
+  .move .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink-mid);text-transform:uppercase;}
+  .move-note{
+    margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--ink-dim);
+    font-style:italic;line-height:1.5;
+  }
+
+  /* ===== skills panel ===== */
+  table.skills{width:100%;border-collapse:collapse;margin-top:4px;}
+  table.skills th{
+    text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+    color:var(--ink-dim);text-transform:uppercase;padding:0 0 8px 2px;
+    border-bottom:1px solid var(--line-bright);
+  }
+  table.skills th.pt{text-align:center;}
+  table.skills td{
+    padding:8px 2px;font-size:15px;font-weight:600;
+    border-bottom:1px solid var(--line);
+  }
+  table.skills td.pt{text-align:center;font-family:var(--mono);width:56px;}
+  table.skills td.pt input{
+    width:32px;text-align:center;font-family:var(--mono);font-weight:700;font-size:14px;
+    border:1px solid var(--line);background:var(--stat-bg);padding:3px 0;color:var(--cyan);
+  }
+  table.skills tr:last-child td{border-bottom:none;}
+  table.skills tr:hover td{background:rgba(79,216,201,0.03);}
+
+  /* ===== ship arcs panel ===== */
+  .arcs-wrap{display:flex;flex-direction:column;align-items:center;}
+  .arcs-caption{
+    margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--ink-dim);
+    text-align:center;font-style:italic;line-height:1.5;
+  }
+  .arc-hex{
+    cursor:pointer;
+    transition:fill .12s ease, filter .12s ease;
+  }
+  .arc-hex:hover{filter:brightness(1.18);}
+  .arc-hex.active{
+    fill:var(--red) !important;
+    stroke:var(--red-dim) !important;
+  }
+
+  /* ===== traits/crew panel ===== */
+  .crew-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    gap:12px;
+  }
+  .slot-controls{display:flex;gap:6px;}
+  .slot-btn{
+    width:24px;height:24px;
+    background:var(--stat-bg);
+    border:1px solid var(--line-bright);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
+  }
+  .slot-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .slot-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .slot-btn:disabled:hover{border-color:var(--line-bright);color:var(--ink);}
+  .crew-card{
+    background:var(--crew-bg);
+    border:1px solid var(--line);
+    min-height:190px;
+    display:flex;flex-direction:column;
+  }
+  .crew-card .ch{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:8px 10px 6px;border-bottom:1px solid var(--line);
+  }
+  .crew-card input.cname{
+    font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--amber);
+    padding:10px 10px 4px;text-transform:uppercase;letter-spacing:.02em;
+  }
+  .crew-card textarea{
+    flex:1;resize:none;padding:2px 10px 10px;font-size:13px;line-height:1.5;color:var(--ink-mid);
+  }
+
+  footer{
+    text-align:center;margin-top:22px;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-dim);
+    text-transform:uppercase;
+  }
+
+  .theme-toggle{
+    position:fixed;top:16px;right:16px;z-index:50;
+    display:flex;align-items:center;gap:8px;
+    background:var(--panel);
+    border:1px solid var(--line-bright);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    padding:9px 15px;
+    cursor:pointer;
+    text-transform:uppercase;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .theme-toggle:hover{border-color:var(--cyan);color:var(--cyan);}
+  @media print{
+    .theme-toggle{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- HEADER -->
+  <div class="topbar">
+    <div>
+      <div class="classline">Fleet Registry &nbsp;·&nbsp; Vessel Dossier</div>
+      <div class="shiptitle">
+        <span class="kind">Frigate</span>
+        <span class="dash">—</span>
+        <input class="name" type="text" placeholder="SHIP NAME" value="">
+      </div>
+      <div class="subline">
+        <span>CAPTAIN: <input type="text" placeholder="—" value=""></span>
+        <span>COMMISSIONED: <input type="text" placeholder="—" value=""></span>
+      </div>
+    </div>
+    <div class="dc-badge">
+      <div class="dc-hex">6</div>
+      <div>
+        <div class="dc-label">Difficulty</div>
+        <div class="dc-word">Class Check</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 1 -->
+  <div class="grid">
+
+    <!-- CLASSIFICATION / STATS -->
+    <div class="panel">
+      <div class="bl"></div><div class="br"></div>
+      <div class="eyebrow">Hull Classification</div>
+      <div class="class-select">
+        <select>
+          <option selected>Unclassified</option>
+          <option>Support Class</option>
+          <option>Jump Class</option>
+          <option>Striker Class</option>
+          <option>Discovery Class</option>
+        </select>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat hull">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div class="val"><input value="5" maxlength="2"><span class="sep">/</span><input value="5" maxlength="2"></div>
+          <div class="lbl">Hull HP</div>
+        </div>
+        <div class="stat shield">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div class="val"><input value="6" maxlength="2"><span class="sep">/</span><input value="6" maxlength="2"></div>
+          <div class="lbl">Base Shield</div>
+        </div>
+        <div class="stat energy">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div class="val"><input value="6" maxlength="2"><span class="sep">/</span><input value="6" maxlength="2"></div>
+          <div class="lbl">Energy</div>
+        </div>
+        <div class="stat">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div class="val" style="justify-content:center"><input value="0" maxlength="2" style="width:26px"></div>
+          <div class="lbl">Storage</div>
+        </div>
+        <div class="stat">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--icon-cyan)" stroke-width="1.6"/><path d="M12 12 18 7" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <div class="val" style="justify-content:center"><input value="2" maxlength="2" style="width:26px"></div>
+          <div class="lbl">Scanning</div>
+        </div>
+        <div class="stat">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-3-6.2" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round"/><path d="M20 3v4h-4" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="val" style="justify-content:center"><input value="1" maxlength="2" style="width:26px"></div>
+          <div class="lbl">Turning</div>
+        </div>
+        <div class="stat speed">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="val" style="justify-content:center"><input value="X" maxlength="2" style="width:26px"></div>
+          <div class="lbl">Speed</div>
+        </div>
+      </div>
+
+      <div class="rules-block">
+        <div class="rhead">At the start of your turn</div>
+        <ul>
+          <li>Resolve <b>Charged</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="7" y="3.5" width="10" height="18" rx="2" stroke="var(--icon-cyan)" stroke-width="1.8"/><rect x="9.5" y="1" width="5" height="3" rx="1" fill="var(--icon-cyan)"/><path d="M13.2 8 9.5 14h2.8l-1 4.5 4-6.2h-2.9l0.8-4.3Z" fill="var(--icon-cyan)"/></svg> abilities</li>
+          <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></li>
+          <li>Move / activate / resolve any <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.8"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg></li>
+          <li>Update your <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> with <b>Move 1</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+          <li>If <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> ≤ Navigation, you may Turn (max. <b>Turning</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-3-6.2" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 3v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>)</li>
+          <li>Your ship travels forward equal to its new <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+          <li>Cycle your <b>Moves</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> and set a new <b>Move 3</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> value to +1 / 0 / −1</li>
+        </ul>
+      </div>
+
+      <div class="move-track">
+        <div class="move">
+          <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input class="n" value="1" maxlength="2">
+          <div class="lbl">Move 1</div>
+        </div>
+        <div class="move">
+          <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input class="n" value="2" maxlength="2">
+          <div class="lbl">Move 2</div>
+        </div>
+        <div class="move">
+          <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input class="n" value="3" maxlength="2">
+          <div class="lbl">Move 3</div>
+        </div>
+      </div>
+      <div class="move-note">When you set a Move value to X, pay X energy.</div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="panel">
+      <div class="bl"></div><div class="br"></div>
+      <div class="eyebrow">Crew Skills</div>
+      <table class="skills">
+        <tr><th>Name</th><th class="pt">Points</th><th class="pt">Penalty</th></tr>
+        <tr><td>Cyber</td><td class="pt"><input value="1"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Diplomacy</td><td class="pt"><input value="0"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Engineering</td><td class="pt"><input value="3"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Leadership</td><td class="pt"><input value="0"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Logistics</td><td class="pt"><input value="2"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Navigation</td><td class="pt"><input value="3"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Piloting</td><td class="pt"><input value="3"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Sensors</td><td class="pt"><input value="2"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+        <tr><td>Science</td><td class="pt"><input value="-1"></td><td class="pt"><input value="" placeholder="—"></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row2">
+
+    <!-- SHIP ARCS -->
+    <div class="panel">
+      <div class="bl"></div><div class="br"></div>
+      <div class="eyebrow">Ship Arcs</div>
+      <div class="arcs-wrap">
+        <svg width="220" height="305" viewBox="0 0 260 360">
+          <text x="130" y="95" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2">FORE</text>
+
+          <!-- fore -->
+          <polygon class="arc-hex" onclick="toggleArc(this)" points="172,147.25 151,110.88 109,110.88 88,147.25 109,183.62 151,183.62" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
+
+          <!-- fore port / fore starboard -->
+          <polygon class="arc-hex" onclick="toggleArc(this)" points="109,183.63 88,147.26 46,147.26 25,183.63 46,220 88,220" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
+          <polygon class="arc-hex" onclick="toggleArc(this)" points="235,183.63 214,147.26 172,147.26 151,183.63 172,220 214,220" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
+
+          <!-- reactor core (fixed, not clickable) -->
+          <polygon points="172,220 151,183.63 109,183.63 88,220 109,256.37 151,256.37" fill="var(--hex-core-fill)" stroke="var(--hex-core-stroke)" stroke-width="2"/>
+
+          <!-- aft port / aft starboard -->
+          <polygon class="arc-hex" onclick="toggleArc(this)" points="109,256.37 88,220 46,220 25,256.37 46,292.74 88,292.74" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
+          <polygon class="arc-hex" onclick="toggleArc(this)" points="235,256.37 214,220 172,220 151,256.37 172,292.74 214,292.74" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
+
+          <!-- aft -->
+          <polygon class="arc-hex" onclick="toggleArc(this)" points="172,292.75 151,256.38 109,256.38 88,292.75 109,329.12 151,329.12" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
+
+          <text x="130" y="345" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2">AFT</text>
+          <text x="10" y="220" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2" transform="rotate(-90 10 220)">PORT</text>
+          <text x="250" y="220" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2" transform="rotate(90 250 220)">STARBOARD</text>
+        </svg>
+      </div>
+      <div class="arcs-caption">Click an arc to toggle it active. Attacks fire out of any active (red) arc.</div>
+    </div>
+
+    <!-- TRAITS / CREW -->
+    <div class="panel">
+      <div class="bl"></div><div class="br"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="eyebrow" style="margin-bottom:0;">Traits &amp; Crew</div>
+        <div class="slot-controls">
+          <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="removeCrewSlot()" title="Remove last slot">−</button>
+          <button type="button" class="slot-btn" onclick="addCrewSlot()" title="Add slot">+</button>
+        </div>
+      </div>
+      <div class="crew-grid" id="crewGrid" style="margin-top:12px;">
+        <div class="crew-card">
+          <div class="ch">Slot 01</div>
+          <input class="cname" placeholder="TRAIT / CREW NAME">
+          <textarea placeholder="Effect or role..."></textarea>
+        </div>
+        <div class="crew-card">
+          <div class="ch">Slot 02</div>
+          <input class="cname" placeholder="TRAIT / CREW NAME">
+          <textarea placeholder="Effect or role..."></textarea>
+        </div>
+        <div class="crew-card">
+          <div class="ch">Slot 03</div>
+          <input class="cname" placeholder="TRAIT / CREW NAME">
+          <textarea placeholder="Effect or role..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Fleet Command &nbsp;//&nbsp; Vessel Operations Manual &nbsp;//&nbsp; Sheet rev. 01</footer>
+</div>
+
+<button id="themeToggle" class="theme-toggle" onclick="toggleTheme()">☀ Light Mode</button>
+
+<script>
+  function toggleArc(el){
+    el.classList.toggle('active');
+  }
+  function updateToggleLabel(theme){
+    var btn = document.getElementById('themeToggle');
+    btn.textContent = theme === 'dark' ? '☀ Light Mode' : '☾ Dark Mode';
+  }
+  function toggleTheme(){
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme') || 'dark';
+    var next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    updateToggleLabel(next);
+  }
+
+  function slotLabel(n){
+    return 'Slot ' + (n < 10 ? '0' + n : n);
+  }
+  function refreshSlotControls(){
+    var grid = document.getElementById('crewGrid');
+    document.getElementById('slotRemoveBtn').disabled = grid.children.length <= 1;
+  }
+  function addCrewSlot(){
+    var grid = document.getElementById('crewGrid');
+    var n = grid.children.length + 1;
+    var card = document.createElement('div');
+    card.className = 'crew-card';
+    card.innerHTML =
+      '<div class="ch">' + slotLabel(n) + '</div>' +
+      '<input class="cname" placeholder="TRAIT / CREW NAME">' +
+      '<textarea placeholder="Effect or role..."></textarea>';
+    grid.appendChild(card);
+    refreshSlotControls();
+  }
+  function removeCrewSlot(){
+    var grid = document.getElementById('crewGrid');
+    if(grid.children.length > 1){
+      grid.removeChild(grid.lastElementChild);
+    }
+    refreshSlotControls();
+  }
+  refreshSlotControls();
+</script>
+</body>
+</html>
