@@ -207,7 +207,7 @@
   }
   .row2{
     display:grid;
-    grid-template-columns: 0.62fr 1.93fr;
+    grid-template-columns: 0.55fr 1.4fr 1.4fr;
     gap:16px;
     margin-top:16px;
   }
@@ -462,6 +462,76 @@
   .crew-tag-btn.on{opacity:1;}
   .crew-card textarea{
     flex:1;resize:none;padding:2px 10px 10px;font-size:13px;line-height:1.5;color:var(--ink-mid);
+  }
+
+  .tech-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:12px;
+  }
+  .tech-card{
+    background:var(--crew-bg);
+    border:1px solid var(--line);
+    min-height:210px;
+    display:flex;flex-direction:column;
+  }
+  .tech-card .ch{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:8px 10px 6px;border-bottom:1px solid var(--line);
+  }
+  .tech-card input.tname{
+    font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--cyan);
+    padding:10px 10px 2px;text-transform:uppercase;letter-spacing:.02em;
+  }
+  .tsub{
+    display:flex;align-items:center;gap:6px;
+    padding-right:10px;
+  }
+  .tsub input.ttraits{
+    flex:1;min-width:0;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
+    padding:2px 10px 6px;
+  }
+  .ttype-btn{
+    flex:none;cursor:pointer;font-size:12px;line-height:1;
+    min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;
+    color:var(--ink-mid);
+  }
+  .ttype-btn:hover{color:var(--cyan);}
+  .tech-card textarea{
+    flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
+  }
+  .tfoot{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 8px 8px;border-top:1px solid var(--line);
+  }
+  .tticker{
+    flex:none;cursor:pointer;font-size:15px;line-height:1;
+  }
+  .tstorage{
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);
+  }
+  .tstorage input.tstorage-input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  }
+  .tdepbtn{
+    flex:none;cursor:pointer;font-size:14px;line-height:1;opacity:0;transition:opacity .15s;
+  }
+  .tdepbtn.on{opacity:1;}
+  .tdiamond{
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    width:34px;height:34px;
+    border:1px solid var(--icon-energy);color:var(--icon-energy);
+    transform:rotate(45deg);
+    margin-left:auto;
+  }
+  .tdiamond .ticon,.tdiamond input{transform:rotate(-45deg);}
+  .tdiamond .ticon{width:14px;height:14px;flex:none;}
+  .tdiamond input.tcost{
+    width:16px;text-align:center;font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-energy);
+    background:transparent;border:none;padding:0;
   }
 
   footer{
@@ -719,6 +789,36 @@
         </div>
       </div>
     </div>
+
+    <!-- TECHNOLOGIES -->
+    <div class="panel tech-panel">
+      <div class="bl"></div><div class="br"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="eyebrow" style="margin-bottom:0;">Technologies</div>
+        <div class="slot-controls">
+          <button type="button" class="slot-btn" id="techSlotRemoveBtn" onclick="removeTechSlot()" title="Remove last slot">−</button>
+          <button type="button" class="slot-btn" onclick="addTechSlot()" title="Add slot">+</button>
+          <div class="slot-menu-wrap">
+            <button type="button" class="slot-btn" onclick="toggleTechPresetMenu(event)" title="Add from catalog">☰</button>
+            <div class="preset-menu" id="techPresetMenu"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-grid" id="techGrid" style="margin-top:12px;">
+        <div class="tech-card">
+          <div class="ch">Slot 01</div>
+          <input class="tname" placeholder="TECH NAME">
+          <div class="tsub"><input class="ttraits" placeholder="TRAITS — active 1, charged 1"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>
+          <textarea placeholder="Description..."></textarea>
+          <div class="tfoot">
+            <span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>
+            <span class="tstorage" title="Storage cost">📦<input class="tstorage-input" maxlength="3"></span>
+            <span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>
+            <span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <footer>Fleet Command &nbsp;//&nbsp; Vessel Operations Manual &nbsp;//&nbsp; Sheet rev. 01</footer>
@@ -853,6 +953,157 @@
   buildPresetMenu();
   refreshSlotControls();
 
+  /* ===== Technologies ===== */
+  var TECH_TYPES = [
+    {key:'offense', icon:'⚔', label:'Offense'},
+    {key:'defense', icon:'🛡', label:'Defense'},
+    {key:'movement', icon:'➤', label:'Movement'},
+    {key:'science', icon:'🔬', label:'Science'}
+  ];
+  var CARD_TYPES = [
+    {key:'standard', icon:'', label:'Standard'},
+    {key:'reuse', icon:'🔄', label:'Reuse'},
+    {key:'exhaust', icon:'🗑', label:'Exhaust'},
+    {key:'passive', icon:'⏳', label:'Passive'}
+  ];
+  var TECHP_RESETS = [
+    {name:'Active Targeting', traits:'active 1', text:'On hit, the target gains a Lock token. Offense check vs its DC.', tt:'offense', type:'standard', energy:'1', storage:'1', deploy:false},
+    {name:'Defense Grid', traits:'', text:'While this card is loaded, each ally in this arc gains +2 shields at round start.', tt:'defense', type:'passive', energy:'2', storage:'2', deploy:false},
+    {name:'Ion Booster', traits:'charged 1', text:'Spend during movement to add +2 Move this turn.', tt:'movement', type:'reuse', energy:'1', storage:'1', deploy:false},
+    {name:'Scan Array', traits:'active 1', text:'When revealed, scan every ship in this arc and identify its defenses.', tt:'science', type:'exhaust', energy:'1', storage:'1', deploy:false}
+  ];
+  function techTypeMeta(key){
+    for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
+    return TECH_TYPES[0];
+  }
+  function cardTypeMeta(index){
+    index = ((index % CARD_TYPES.length)+CARD_TYPES.length)%CARD_TYPES.length;
+    return CARD_TYPES[index];
+  }
+  function techSlotLabel(n){ return 'Slot ' + (n < 10 ? '0' + n : n); }
+  function refreshTechSlotControls(){
+    var grid = document.getElementById('techGrid');
+    document.getElementById('techSlotRemoveBtn').disabled = grid.children.length <= 1;
+  }
+  function addTechSlot(){
+    var grid = document.getElementById('techGrid');
+    var n = grid.children.length + 1;
+    var card = document.createElement('div');
+    card.className = 'tech-card';
+    card.innerHTML =
+      '<div class="ch">' + techSlotLabel(n) + '</div>' +
+      '<input class="tname" placeholder="TECH NAME">' +
+      '<div class="tsub"><input class="ttraits" placeholder="TRAITS — active 1, charged 1"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>' +
+      '<textarea placeholder="Description..."></textarea>' +
+      '<div class="tfoot">' +
+        '<span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>' +
+        '<span class="tstorage" title="Storage cost">📦<input class="tstorage-input" maxlength="3"></span>' +
+        '<span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>' +
+        '<span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>' +
+      '</div>';
+    grid.appendChild(card);
+    refreshTechSlotControls();
+  }
+  function removeTechSlot(){
+    var grid = document.getElementById('techGrid');
+    if(grid.children.length > 1){
+      grid.removeChild(grid.lastElementChild);
+    }
+    refreshTechSlotControls();
+  }
+  function relabelTechSlots(){
+    var grid = document.getElementById('techGrid');
+    var cards = grid.children;
+    for(var i = 0; i < cards.length; i++){
+      cards[i].querySelector('.ch').textContent = techSlotLabel(i + 1);
+    }
+  }
+  function buildTechPresetMenu(){
+    var menu = document.getElementById('techPresetMenu');
+    menu.innerHTML = '';
+    var sorted = TECHP_RESETS.slice().sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
+    sorted.forEach(function(p){
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'preset-item';
+      var label = document.createElement('span');
+      label.textContent = p.name;
+      item.appendChild(label);
+      var icon = document.createElement('span');
+      icon.className = 'preset-tag';
+      icon.textContent = techTypeMeta(p.tt).icon;
+      item.appendChild(icon);
+      item.onclick = function(){
+        pickTechPreset(p);
+        closeTechPresetMenu();
+      };
+      menu.appendChild(item);
+    });
+  }
+  function toggleTechPresetMenu(e){
+    e.stopPropagation();
+    document.getElementById('techPresetMenu').classList.toggle('open');
+  }
+  function closeTechPresetMenu(){
+    document.getElementById('techPresetMenu').classList.remove('open');
+  }
+  function pickTechPreset(p){
+    addTechSlot();
+    var card = document.getElementById('techGrid').lastElementChild;
+    card.querySelector('.tname').value = p.name;
+    card.querySelector('.ttraits').value = p.traits || '';
+    card.querySelector('textarea').value = p.text || '';
+    card.querySelector('.tstorage-input').value = p.storage || '';
+    card.querySelector('.tcost').value = p.energy || '';
+    setTechType(card.querySelector('.tticker'), p.tt);
+    setCardType(card.querySelector('.ttype-btn'), p.type);
+    setTechDeploy(card.querySelector('.tdepbtn'), !!p.deploy);
+  }
+  function setTechType(el, key){
+    var meta = techTypeMeta(key);
+    el.setAttribute('data-tt', meta.key);
+    el.textContent = meta.icon;
+    el.title = 'Tech type: ' + meta.label;
+  }
+  function cycleTechType(el){
+    var keys = TECH_TYPES.map(function(t){return t.key;});
+    var idx = keys.indexOf(el.getAttribute('data-tt'));
+    var next = keys[(idx + 1) % keys.length];
+    setTechType(el, next);
+  }
+  function setCardType(el, key){
+    var idx = 0;
+    for(var i=0;i<CARD_TYPES.length;i++){ if(CARD_TYPES[i].key===key){ idx=i; break; } }
+    var meta = cardTypeMeta(idx);
+    el.setAttribute('data-type', idx);
+    el.textContent = meta.icon;
+    el.title = 'Type: ' + meta.label;
+  }
+  function cycleCardType(el){
+    var next = cardTypeMeta(parseInt(el.getAttribute('data-type'),10) + 1);
+    setCardType(el, next.key);
+  }
+  function setTechDeploy(el, on){
+    el.setAttribute('data-deploy', on ? '1' : '0');
+    el.classList.toggle('on', on);
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('techPresetMenu');
+    if(menu.classList.contains('open') && !menu.contains(e.target)){
+      closeTechPresetMenu();
+    }
+  });
+  document.getElementById('techGrid').addEventListener('click', function(e){
+    var tk = e.target.closest('.tticker');
+    if(tk){ cycleTechType(tk); return; }
+    var ct = e.target.closest('.ttype-btn');
+    if(ct){ cycleCardType(ct); return; }
+    var dp = e.target.closest('.tdepbtn');
+    if(dp){ setTechDeploy(dp, dp.getAttribute('data-deploy')==='0'); }
+  });
+  buildTechPresetMenu();
+  refreshTechSlotControls();
+
   /* ===== Export / Import ===== */
   function readSkills(){
     var out = {};
@@ -902,6 +1153,44 @@
     }
     relabelSlots();
   }
+  function readTech(){
+    var grid = document.getElementById('techGrid');
+    var out = [];
+    for(var i = 0; i < grid.children.length; i++){
+      var card = grid.children[i];
+      out.push({
+        name: card.querySelector('.tname').value,
+        traits: card.querySelector('.ttraits').value,
+        text: card.querySelector('textarea').value,
+        energy: card.querySelector('.tcost').value,
+        techType: card.querySelector('.tticker').getAttribute('data-tt'),
+        cardType: CARD_TYPES[parseInt(card.querySelector('.ttype-btn').getAttribute('data-type'),10)].key,
+        storage: card.querySelector('.tstorage-input').value,
+        deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy') === '1'
+      });
+    }
+    return out;
+  }
+  function writeTech(tech){
+    var grid = document.getElementById('techGrid');
+    var count = Array.isArray(tech) ? tech.length : 1;
+    var target = Math.max(1, count);
+    while(grid.children.length < target) addTechSlot();
+    while(grid.children.length > target) removeTechSlot();
+    for(var i = 0; i < grid.children.length; i++){
+      var card = grid.children[i];
+      var item = (tech && tech[i]) ? tech[i] : {};
+      card.querySelector('.tname').value = item.name || '';
+      card.querySelector('.ttraits').value = item.traits || '';
+      card.querySelector('textarea').value = item.text || '';
+      card.querySelector('.tcost').value = item.energy || '';
+      card.querySelector('.tstorage-input').value = item.storage || '';
+      setTechType(card.querySelector('.tticker'), item.techType);
+      setCardType(card.querySelector('.ttype-btn'), item.cardType);
+      setTechDeploy(card.querySelector('.tdepbtn'), item.deploy === true);
+    }
+    relabelTechSlots();
+  }
   function readArcs(){
     var out = [];
     var arcs = document.querySelectorAll('.arcs-wrap .arc-hex');
@@ -934,6 +1223,7 @@
       moves: { move1: v('move1'), move2: v('move2'), move3: v('move3') },
       skills: readSkills(),
       crew: readCrew(),
+      tech: readTech(),
       arcs: readArcs()
     };
   }
@@ -956,6 +1246,7 @@
     set('move1', m.move1); set('move2', m.move2); set('move3', m.move3);
     writeSkills(json.skills);
     writeCrew(json.crew);
+    writeTech(json.tech);
     writeArcs(json.arcs);
   }
   function exportSheet(){
