@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Starship Dossier</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -93,6 +94,7 @@
     transition:background-color .2s ease, color .2s ease;
   }
   .sheet{max-width:1220px;margin:0 auto;}
+  .theme-wrap{text-align:center;margin-bottom:16px;}
 
   input, textarea{
     background:transparent;
@@ -110,6 +112,7 @@
     background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
     border:1px solid var(--line);
     padding:20px 22px 22px;
+    display:flex;flex-direction:column;
   }
   .panel::before, .panel::after,
   .panel .bl, .panel .br{
@@ -210,6 +213,28 @@
   }
   @media (max-width:880px){
     .grid, .row2{grid-template-columns:1fr;}
+    .stat-strip{grid-template-columns:repeat(4,1fr);}
+  }
+  @media (max-width:640px){
+    body{padding:16px 10px 48px;}
+    .panel{padding:16px 14px;}
+    .sheet{padding-top:52px;}
+    .topbar{
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    .dc-badge{justify-content:space-between;}
+    .shiptitle .kind,.shiptitle .dash,.shiptitle input.name{font-size:24px;}
+    .shiptitle input.name{min-width:0;width:100%;}
+    .stat-strip{grid-template-columns:repeat(3,1fr);gap:8px;}
+    .move-track{flex-wrap:wrap;}
+    .move{flex:1 1 30%;}
+    .subline{gap:12px;}
+    table.skills th{padding-left:0;}
+  }
+  @media (max-width:420px){
+    .stat-strip{grid-template-columns:repeat(2,1fr);}
+    .theme-toggle{bottom:14px;top:auto;right:50%;transform:translateX(50%);}
   }
 
   /* ===== class/stats panel ===== */
@@ -308,6 +333,7 @@
   }
 
   /* ===== skills panel ===== */
+  .skills-panel{flex:1;}
   table.skills{width:100%;border-collapse:collapse;margin-top:4px;}
   table.skills th{
     text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.15em;
@@ -329,6 +355,7 @@
 
   /* ===== ship arcs panel ===== */
   .arcs-wrap{display:flex;flex-direction:column;align-items:center;}
+  .arc-hex-svg{width:100%;max-width:260px;height:auto;}
   .arcs-caption{
     margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--ink-dim);
     text-align:center;font-style:italic;line-height:1.5;
@@ -390,15 +417,15 @@
   }
 
   .theme-toggle{
-    position:fixed;top:16px;right:16px;z-index:50;
     display:flex;align-items:center;gap:8px;
+    margin:0 auto 0 auto;
     background:var(--panel);
     border:1px solid var(--line-bright);
     color:var(--ink);
     font-family:var(--mono);
     font-size:11px;
     letter-spacing:.1em;
-    padding:9px 15px;
+    padding:6px 12px;
     cursor:pointer;
     text-transform:uppercase;
     transition:border-color .15s ease, color .15s ease;
@@ -410,6 +437,9 @@
 </style>
 </head>
 <body>
+<div class="theme-wrap">
+  <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()">☀ Light Mode</button>
+</div>
 <div class="sheet">
 
   <!-- HEADER -->
@@ -524,7 +554,7 @@
     </div>
 
     <!-- SKILLS -->
-    <div class="panel">
+    <div class="panel skills-panel">
       <div class="bl"></div><div class="br"></div>
       <div class="eyebrow">Crew Skills</div>
       <table class="skills">
@@ -550,7 +580,7 @@
       <div class="bl"></div><div class="br"></div>
       <div class="eyebrow">Ship Arcs</div>
       <div class="arcs-wrap">
-        <svg width="220" height="305" viewBox="0 0 260 360">
+        <svg class="arc-hex-svg" viewBox="0 0 260 360">
           <text x="130" y="95" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2">FORE</text>
 
           <!-- fore -->
@@ -610,8 +640,6 @@
 
   <footer>Fleet Command &nbsp;//&nbsp; Vessel Operations Manual &nbsp;//&nbsp; Sheet rev. 01</footer>
 </div>
-
-<button id="themeToggle" class="theme-toggle" onclick="toggleTheme()">☀ Light Mode</button>
 
 <script>
   function toggleArc(el){
