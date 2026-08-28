@@ -291,9 +291,16 @@
   }
   .rules-block .rhead{
     font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;color:var(--cyan);
-    text-transform:uppercase;margin-bottom:8px;
+    text-transform:uppercase;cursor:pointer;user-select:none;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
   }
+  .rules-block .rhead:hover{color:var(--ink);}
+  .rules-block .collapse-ind{
+    flex:none;transition:transform .15s ease;
+  }
+  .rules-block.collapsed .collapse-ind{transform:rotate(-90deg);}
   .rules-block ul{margin:0;padding-left:16px;}
+  .rules-block.collapsed ul{display:none;}
   .rules-block li{
     font-size:14px;line-height:1.55;color:var(--ink-mid);margin-bottom:3px;
   }
@@ -512,6 +519,7 @@
     display:flex;align-items:center;gap:3px;
     font-size:12px;color:var(--ink-dim);
   }
+  .tstorage .ticon{width:14px;height:14px;flex:none;}
   .tstorage input.tstorage-input{
     width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
     background:var(--stat-bg);border:1px solid var(--line);padding:1px;
@@ -622,7 +630,7 @@
       <div class="bl"></div><div class="br"></div>
       <div class="eyebrow">Hull Classification</div>
       <div class="class-select">
-        <select id="shipClass">
+        <select id="shipClass" onchange="onShipClassChange()">
           <option selected>Unclassified</option>
           <option>Support Class</option>
           <option>Jump Class</option>
@@ -669,8 +677,8 @@
         </div>
       </div>
 
-      <div class="rules-block">
-        <div class="rhead">At the start of your turn</div>
+      <div class="rules-block" id="turnBox">
+        <div class="rhead" onclick="toggleTurnBox(this)">At the start of your turn <span class="collapse-ind">▼</span></div>
         <ul>
           <li>Resolve <b>Charged</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="7" y="3.5" width="10" height="18" rx="2" stroke="var(--icon-cyan)" stroke-width="1.8"/><rect x="9.5" y="1" width="5" height="3" rx="1" fill="var(--icon-cyan)"/><path d="M13.2 8 9.5 14h2.8l-1 4.5 4-6.2h-2.9l0.8-4.3Z" fill="var(--icon-cyan)"/></svg> abilities</li>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></li>
@@ -808,11 +816,11 @@
         <div class="tech-card">
           <div class="ch">Slot 01</div>
           <input class="tname" placeholder="TECH NAME">
-          <div class="tsub"><input class="ttraits" placeholder="TRAITS — active 1, charged 1"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>
+          <div class="tsub"><input class="ttraits" placeholder="TRAITS"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>
           <textarea placeholder="Description..."></textarea>
           <div class="tfoot">
             <span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>
-            <span class="tstorage" title="Storage cost">📦<input class="tstorage-input" maxlength="3"></span>
+            <span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>
             <span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>
             <span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>
           </div>
@@ -827,6 +835,10 @@
 <script>
   function toggleArc(el){
     el.classList.toggle('active');
+  }
+  function toggleTurnBox(rhead){
+    var box = rhead.parentNode;
+    box.classList.toggle('collapsed');
   }
   function updateToggleLabel(theme){
     var btn = document.getElementById('themeToggle');
@@ -967,10 +979,18 @@
     {key:'passive', icon:'⏳', label:'Passive'}
   ];
   var TECHP_RESETS = [
-    {name:'Active Targeting', traits:'active 1', text:'On hit, the target gains a Lock token. Offense check vs its DC.', tt:'offense', type:'standard', energy:'1', storage:'1', deploy:false},
-    {name:'Defense Grid', traits:'', text:'While this card is loaded, each ally in this arc gains +2 shields at round start.', tt:'defense', type:'passive', energy:'2', storage:'2', deploy:false},
-    {name:'Ion Booster', traits:'charged 1', text:'Spend during movement to add +2 Move this turn.', tt:'movement', type:'reuse', energy:'1', storage:'1', deploy:false},
-    {name:'Scan Array', traits:'active 1', text:'When revealed, scan every ship in this arc and identify its defenses.', tt:'science', type:'exhaust', energy:'1', storage:'1', deploy:false}
+    {name:'Flame Cannon', traits:'', text:'Target an object.', tt:'offense', type:'reuse', energy:'2', storage:'0', deploy:false},
+    {name:'Rotating Cannon', traits:'', text:'Your Cannons gain +1 Dmg and Range.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
+    {name:'Ion Torpedoes', traits:'', text:'You gain 1 Arc. This lasts until you Target an object.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
+    {name:'Ioun Torpedos', traits:'', text:'[Deployable] Hull: 1, Duration: 1, Speed: 0\nAfter targeting an enemy, remove this.\nRange: 8, Check: Sensors, \nDmg: 3⚡ (SHIELD ONLY)', tt:'offense', type:'exhaust', energy:'2', storage:'2', deploy:true},
+    {name:'P.D.', traits:'active 1', text:'If an object enters Range 1, or a Deployable Targets you, you may Target it. This lasts until used or the duration (1 round).', tt:'defense', type:'reuse', energy:'2', storage:'0', deploy:false},
+    {name:'Tract Beam', traits:'', text:'Target an object.', tt:'science', type:'reuse', energy:'3', storage:'0', deploy:false},
+    {name:'Full Volley', traits:'', text:'Play all "Cannon" and "P.D." cards for free.', tt:'offense', type:'standard', energy:'2', storage:'0', deploy:false},
+    {name:'Rocket Array', traits:'charged 1', text:'When charged, Target an object.', tt:'offense', type:'standard', energy:'0', storage:'0', deploy:false},
+    {name:'Shield Generator', traits:'charged 1', text:'When charged: An ally Gains 2 shields', tt:'defense', type:'reuse', energy:'2', storage:'0', deploy:false},
+    {name:'Drop Portals', traits:'ammo 2', text:'[Deployable] Hull: ∞ | Duration: ∞ | Speed = 0\nSpaces with Drop Portals are considered adjacent for movement.', tt:'movement', type:'standard', energy:'3', storage:'0', deploy:true},
+    {name:'Experimental Reconnaissance', traits:'', text:'Once per combat, when an enemy ship is destroyed. You gain 1 random tech card from their deck.', tt:'science', type:'passive', energy:'', storage:'0', deploy:false},
+    {name:'Targeting Computer', traits:'', text:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', tt:'offense', type:'passive', energy:'', storage:'0', deploy:false}
   ];
   function techTypeMeta(key){
     for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
@@ -993,11 +1013,11 @@
     card.innerHTML =
       '<div class="ch">' + techSlotLabel(n) + '</div>' +
       '<input class="tname" placeholder="TECH NAME">' +
-      '<div class="tsub"><input class="ttraits" placeholder="TRAITS — active 1, charged 1"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>' +
+      '<div class="tsub"><input class="ttraits" placeholder="TRAITS"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>' +
       '<textarea placeholder="Description..."></textarea>' +
       '<div class="tfoot">' +
         '<span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>' +
-        '<span class="tstorage" title="Storage cost">📦<input class="tstorage-input" maxlength="3"></span>' +
+        '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
         '<span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>' +
         '<span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>' +
       '</div>';
@@ -1048,16 +1068,19 @@
     document.getElementById('techPresetMenu').classList.remove('open');
   }
   function pickTechPreset(p){
+    addTechFromData(p);
+  }
+  function addTechFromData(t){
     addTechSlot();
     var card = document.getElementById('techGrid').lastElementChild;
-    card.querySelector('.tname').value = p.name;
-    card.querySelector('.ttraits').value = p.traits || '';
-    card.querySelector('textarea').value = p.text || '';
-    card.querySelector('.tstorage-input').value = p.storage || '';
-    card.querySelector('.tcost').value = p.energy || '';
-    setTechType(card.querySelector('.tticker'), p.tt);
-    setCardType(card.querySelector('.ttype-btn'), p.type);
-    setTechDeploy(card.querySelector('.tdepbtn'), !!p.deploy);
+    card.querySelector('.tname').value = t.name || '';
+    card.querySelector('.ttraits').value = t.traits || '';
+    card.querySelector('textarea').value = t.text || '';
+    card.querySelector('.tstorage-input').value = (t.storage !== undefined && t.storage !== null) ? t.storage : '';
+    card.querySelector('.tcost').value = (t.energy !== undefined && t.energy !== null) ? t.energy : '';
+    setTechType(card.querySelector('.tticker'), t.tt);
+    setCardType(card.querySelector('.ttype-btn'), t.type);
+    setTechDeploy(card.querySelector('.tdepbtn'), !!t.deploy);
   }
   function setTechType(el, key){
     var meta = techTypeMeta(key);
@@ -1086,6 +1109,62 @@
   function setTechDeploy(el, on){
     el.setAttribute('data-deploy', on ? '1' : '0');
     el.classList.toggle('on', on);
+  }
+
+  var CLASS_PRESETS = {
+    'Support Class': {
+      stats: {hull:2, shield:2, storage:2},
+      techName: 'Shield Generator'
+    },
+    'Jump Class': {
+      stats: {turning:1},
+      techName: 'Drop Portals'
+    },
+    'Discovery Class': {
+      stats: {storage:4, scanning:2},
+      techName: 'Experimental Reconnaissance'
+    },
+    'Striker Class': {
+      stats: {storage:2},
+      techName: 'Targeting Computer'
+    }
+  };
+  function findTechByName(name){
+    for(var i=0;i<TECHP_RESETS.length;i++){
+      if(TECHP_RESETS[i].name === name) return TECHP_RESETS[i];
+    }
+    return null;
+  }
+  function bumpStat(id, delta){
+    var el = document.getElementById(id);
+    if(!el || delta === 0) return el ? el.value : '';
+    var num = parseInt(el.value, 10);
+    if(isNaN(num)) num = 0;
+    el.value = String(num + delta);
+    return el.value;
+  }
+  function onShipClassChange(){
+    var sel = document.getElementById('shipClass');
+    var cls = sel.options[sel.selectedIndex].text;
+    var preset = CLASS_PRESETS[cls];
+    if(!preset) return;
+    if(!confirm('Add stats and technology of this ' + cls.toLowerCase() + '?')) return;
+    var s = preset.stats || {};
+    if(s.hull){
+      bumpStat('hullCur', s.hull);
+      bumpStat('hullMax', s.hull);
+    }
+    if(s.shield){
+      bumpStat('shieldCur', s.shield);
+      bumpStat('shieldMax', s.shield);
+    }
+    if(s.storage) bumpStat('storage', s.storage);
+    if(s.scanning) bumpStat('scanning', s.scanning);
+    if(s.turning) bumpStat('turning', s.turning);
+    if(preset.techName){
+      var t = findTechByName(preset.techName);
+      if(t) addTechFromData(t);
+    }
   }
   document.addEventListener('click', function(e){
     var menu = document.getElementById('techPresetMenu');
