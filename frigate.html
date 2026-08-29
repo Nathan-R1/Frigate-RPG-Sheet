@@ -521,7 +521,7 @@
     padding:2px 10px 6px;
   }
   .tsecs{display:flex;flex-direction:column;flex:1;min-height:0;}
-  .tsec{border-top:1px solid var(--line);display:flex;flex-direction:column;}
+  .tsec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
   .tsec.hid{display:none;}
   .tsec-head{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -531,6 +531,8 @@
   .tsec textarea{
     flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
   }
+  .tsec.dep textarea{background:rgba(120,40,170,.30);}
+  .tsec.mod textarea{background:rgba(14,120,90,.30);}
   .tsecedit{
     flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
     text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
@@ -1050,7 +1052,7 @@
   ];
   var TECHP_RESETS = [
     {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Your Cannon Modules gain +1 Dmg and Range.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Cannon', traits:'[Module]', onbuild:'', passive:'', onactivate:'Hull: 1, Req: Adjacent to Core\n---- Active ----\n2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', tt:'offense', onactivateenergy:'0', storage:'0', deploy:'module'},
+    {name:'Cannon', traits:'[Module]', onbuild:'Create Module\nHull: 1, Req: Adjacent to Core\n\n---- On Activate ----\nExhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', passive:'', onactivate:'', tt:'offense', onbuildenergy:'0', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Move a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Ion Torpedoes', traits:'', onbuild:'', passive:'', onactivate:'You gain 1 Arc. This lasts until you Target an object.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Ioun Torpedos', traits:'', onbuild:'', passive:'', onactivate:'[Deployable] Hull: 1, Duration: 1, Speed: 0\nAfter targeting an enemy, remove this.\nRange: 8, Check: Sensors, \nDmg: 3⚡ (SHIELD ONLY)', tt:'offense', onactivateenergy:'2', storage:'2', deploy:true},
@@ -1245,6 +1247,11 @@
           var hasVal = inp && inp.value.trim() !== '';
           diamond.classList.toggle('hid', !hasVal && !editing);
         }
+        var secText = field ? field.value : '';
+        var hasDep = /deployable/i.test(secText);
+        var hasMod = /module/i.test(secText);
+        secs[i].classList.toggle('dep', hasDep);
+        secs[i].classList.toggle('mod', hasMod && !hasDep);
     }
     var traits = card.querySelector('.ttraits');
     if(traits){
