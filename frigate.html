@@ -307,6 +307,13 @@
     font-size:14px;line-height:1.55;color:var(--ink-mid);margin-bottom:3px;
   }
   .rules-block li b{color:var(--ink);font-weight:600;}
+  .rules-block ul.sub{
+    padding-left:22px;margin-top:3px;margin-bottom:2px;
+  }
+  .rules-block ul.sub li{
+    font-size:13px;color:var(--ink-mid);
+    list-style:circle;margin-bottom:1px;
+  }
   .kw-icon{
     width:15px;height:15px;
     display:inline-block;
@@ -693,10 +700,18 @@
           <li>Resolve <b>Charged</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="7" y="3.5" width="10" height="18" rx="2" stroke="var(--icon-cyan)" stroke-width="1.8"/><rect x="9.5" y="1" width="5" height="3" rx="1" fill="var(--icon-cyan)"/><path d="M13.2 8 9.5 14h2.8l-1 4.5 4-6.2h-2.9l0.8-4.3Z" fill="var(--icon-cyan)"/></svg> abilities</li>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
           <li>Move / activate / resolve any <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.8"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg></li>
-          <li>Update your <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> with <b>Move 1</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
-          <li>If <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> ≤ Navigation, you may Turn (max. <b>Turning</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-3-6.2" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 3v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>)</li>
-          <li>Your ship travels forward equal to its new <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
-          <li>Cycle your <b>Moves</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> and set a new <b>Move 3</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> value to +1 / 0 / −1</li>
+          <li>Update Moves <button type="button" class="rule-btn" onclick="advanceMove()" title="Add Move 1 to Speed, then cycle moves">↻</button>
+            <ul class="sub">
+              <li>Update your <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> with <b>Move 1</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+              <li>Cycle your <b>Moves</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> and set a new <b>Move 3</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> value to +1 / 0 / −1</li>
+            </ul>
+          </li>
+          <li>Resolve Moves
+            <ul class="sub">
+              <li>If <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> ≤ Navigation, you may Turn (max. <b>Turning</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-3-6.2" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 3v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>)</li>
+              <li>Your ship travels forward equal to its new <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+            </ul>
+          </li>
         </ul>
       </div>
 
@@ -854,6 +869,21 @@
     var cur = document.getElementById('energyCur');
     var max = document.getElementById('energyMax');
     if(cur && max) cur.value = max.value;
+  }
+  function advanceMove(){
+    var speed = document.getElementById('speed');
+    var move1 = document.getElementById('move1');
+    var move2 = document.getElementById('move2');
+    var move3 = document.getElementById('move3');
+    if(!speed || !move1 || !move2 || !move3) return;
+    var add = parseInt(move1.value, 10);
+    if(isNaN(add)) add = 0;
+    var cur = parseInt(speed.value, 10);
+    if(isNaN(cur)) cur = 0;
+    speed.value = String(cur + add);
+    move1.value = move2.value;
+    move2.value = move3.value;
+    move3.value = '';
   }
   function updateToggleLabel(theme){
     var btn = document.getElementById('themeToggle');
