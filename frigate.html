@@ -447,6 +447,15 @@
     padding:6px;
   }
   .preset-menu.open{display:block;}
+  #slotPicker.preset-menu{
+    position:fixed;
+    top:auto;right:auto;
+    max-height:280px;
+  }
+  .slot-picker-title{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:4px 8px 6px;
+  }
   .preset-item{
     width:100%;
     display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -813,7 +822,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div class="eyebrow" style="margin-bottom:0;">Traits &amp; Crew</div>
         <div class="slot-controls">
-          <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="removeCrewSlot()" title="Remove last slot">−</button>
+          <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="showSlotPicker(event, this, 'crewGrid', '.cname')" title="Remove a slot">−</button>
           <button type="button" class="slot-btn" onclick="addCrewSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
             <button type="button" class="slot-btn" onclick="togglePresetMenu(event)" title="Add from catalog">☰</button>
@@ -846,7 +855,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div class="eyebrow" style="margin-bottom:0;">Technologies</div>
         <div class="slot-controls">
-          <button type="button" class="slot-btn" id="techSlotRemoveBtn" onclick="removeTechSlot()" title="Remove last slot">−</button>
+          <button type="button" class="slot-btn" id="techSlotRemoveBtn" onclick="showSlotPicker(event, this, 'techGrid', '.tname')" title="Remove a slot">−</button>
           <button type="button" class="slot-btn" onclick="addTechSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
             <button type="button" class="slot-btn" onclick="toggleTechPresetMenu(event)" title="Add from catalog">☰</button>
@@ -1117,6 +1126,61 @@
     }
     refreshTechSlotControls();
   }
+  function showSlotPicker(e, btn, gridId, nameSel){
+    e.stopPropagation();
+    var grid = document.getElementById(gridId);
+    if(grid.children.length <= 1) return;
+    var menu = document.getElementById('slotPicker');
+    menu.innerHTML = '';
+    var title = document.createElement('div');
+    title.className = 'slot-picker-title';
+    title.textContent = 'Remove which slot?';
+    menu.appendChild(title);
+    for(var i = 0; i < grid.children.length; i++){
+      var card = grid.children[i];
+      var nameEl = card.querySelector(nameSel);
+      var display = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : (gridId === 'crewGrid' ? slotLabel(i + 1) : techSlotLabel(i + 1));
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'preset-item';
+      var span = document.createElement('span');
+      span.textContent = '#' + (i + 1) + '  ' + display;
+      item.appendChild(span);
+      item.onclick = (function(idx){
+        return function(){
+          deleteSlotAt(gridId, idx);
+          closeSlotPicker();
+        };
+      })(i);
+      menu.appendChild(item);
+    }
+    var r = btn.getBoundingClientRect();
+    menu.style.left = r.left + 'px';
+    menu.style.top = (r.bottom + 6) + 'px';
+    menu.classList.add('open');
+  }
+  function deleteSlotAt(gridId, idx){
+    var grid = document.getElementById(gridId);
+    if(grid.children.length <= 1) return;
+    var card = grid.children[idx];
+    if(card) grid.removeChild(card);
+    if(gridId === 'crewGrid'){
+      refreshSlotControls();
+      relabelSlots();
+    }else{
+      refreshTechSlotControls();
+      relabelTechSlots();
+    }
+  }
+  function closeSlotPicker(){
+    document.getElementById('slotPicker').classList.remove('open');
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('slotPicker');
+    if(menu.classList.contains('open') && !menu.contains(e.target)){
+      closeSlotPicker();
+    }
+  });
   function relabelTechSlots(){
     var grid = document.getElementById('techGrid');
     var cards = grid.children;
@@ -1452,5 +1516,6 @@
   }
 </script>
 <div id="skillPopover"></div>
+<div class="preset-menu" id="slotPicker"></div>
 </body>
 </html>
