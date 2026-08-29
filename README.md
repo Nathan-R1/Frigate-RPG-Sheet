@@ -8,7 +8,7 @@ A single-file, web-based character sheet for a tabletop RPG I designed, centered
 - Crew skills (Cyber, Diplomacy, Engineering, Leadership, Logistics, Navigation, Piloting, Sensors, Science)
 - Ship arcs (click to toggle active firing arcs)
 - Traits & Crew: add slots, add combat-only tags, and pick from a preset catalog
-- Technologies: name, description, energy cost, tech type, traits, storage, card type and deployable flags — pick from the hamburger catalog or get class techs auto-added by selecting a hull class
+- Technologies: name, description, energy cost, tech type, traits, storage and deployable flags — pick from the hamburger catalog or get class techs auto-added by selecting a hull class
 - Difficulty Class (DC) for class checks
 
 ## How to use it

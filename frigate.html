@@ -520,12 +520,6 @@
     font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
     padding:2px 10px 6px;
   }
-  .ttype-btn{
-    flex:none;cursor:pointer;font-size:12px;line-height:1;
-    min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;
-    color:var(--ink-mid);
-  }
-  .ttype-btn:hover{color:var(--cyan);}
   .tsecs{display:flex;flex-direction:column;flex:1;min-height:0;}
   .tsec{border-top:1px solid var(--line);display:flex;flex-direction:column;}
   .tsec.hid{display:none;}
@@ -544,25 +538,8 @@
   }
   .tsecedit:hover{color:var(--cyan);border-color:var(--cyan);}
   .tech-card.editing .tsec.hid{display:flex;}
-  .tech-card .tinfo{
-    border-top:1px solid var(--line);
-  }
-  .tech-card .tinfo-head{
-    font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink-mid);
-    text-transform:uppercase;padding:6px 10px;cursor:pointer;user-select:none;
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-  }
-  .tech-card .tinfo-head:hover{color:var(--ink);}
-  .tech-card .tinfo-body{display:none;padding:2px 10px 10px;}
-  .tech-card .tinfo.open .tinfo-body{display:block;}
-  .tech-card .tinfo-head .collapse-ind{font-size:8px;transition:transform .15s ease;}
-  .tech-card .tinfo.open .collapse-ind{transform:rotate(-90deg);}
-  .tech-card .tinfo ul{margin:0;padding-left:14px;}
-  .tech-card .tinfo li{
-    font-size:11.5px;line-height:1.45;color:var(--ink-mid);margin-bottom:3px;
-  }
-  .tech-card .tinfo li b{color:var(--ink);font-weight:600;}
-  .tech-card .tinfo-icon{margin-right:4px;}
+  .tech-card .ttraits.hid{display:none;}
+  .tech-card .tstorage.hid{display:none;}
   .tfoot{
     display:flex;align-items:center;gap:8px;
     padding:6px 8px 8px;border-top:1px solid var(--line);
@@ -858,9 +835,9 @@
       </div>
       <div class="tech-grid" id="techGrid" style="margin-top:12px;">
         <div class="tech-card">
-          <div class="ch"><span>Slot 01</span><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
+          <div class="ch"><span class="tlabel">Slot 01</span><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
           <input class="tname" placeholder="TECH NAME">
-          <div class="tsub"><input class="ttraits" placeholder="TRAITS"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>
+          <div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>
           <div class="tsecs">
             <div class="tsec onbuild hid">
               <div class="tsec-head"><span>On Build</span><span class="tdiamond" title="On Build energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div>
@@ -880,10 +857,6 @@
             <span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>
             <span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>
           </div>
-          <div class="tinfo">
-            <div class="tinfo-head" onclick="toggleTechInfo(this)">Card Type <span class="collapse-ind">▼</span></div>
-            <div class="tinfo-body"></div>
-          </div>
         </div>
       </div>
     </div>
@@ -899,10 +872,6 @@
   function toggleTurnBox(rhead){
     var box = rhead.parentNode;
     box.classList.toggle('collapsed');
-  }
-  function toggleTechInfo(head){
-    var info = head.parentNode;
-    info.classList.toggle('open');
   }
   function rechargeEnergy(){
     var cur = document.getElementById('energyCur');
@@ -1079,42 +1048,32 @@
     {key:'movement', icon:'➤', label:'Movement'},
     {key:'science', icon:'⚛︎', label:'Science'}
   ];
-  var CARD_TYPES = [
-    {key:'standard', icon:'', label:'Standard', desc:'Standard Technologies can be used once per turn and then are Exhausted.'},
-    {key:'reuse', icon:'🔄', label:'Reusable', desc:'Reusable Technologies can be used any number of times and remain in hand after use.'},
-    {key:'exhaust', icon:'🗑', label:'Single Use', desc:'Single Use Technologies are discarded after use and are not usually redrawn this combat.'},
-    {key:'passive', icon:'⏳', label:'Passive', desc:'Passive Technologies are automatically in play from the time they are drawn onwards.'}
-  ];
   var TECHP_RESETS = [
-    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Your Cannon Modules gain +1 Dmg and Range.', tt:'offense', type:'standard', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Cannon', traits:'[Module]', onbuild:'', passive:'', onactivate:'Hull: 1, Req: Adjacent to Core\n---- Active ----\n2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', tt:'offense', type:'passive', onactivateenergy:'0', storage:'0', deploy:'module'},
-    {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Move a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', type:'standard', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Ion Torpedoes', traits:'', onbuild:'', passive:'', onactivate:'You gain 1 Arc. This lasts until you Target an object.', tt:'offense', type:'reuse', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Ioun Torpedos', traits:'', onbuild:'', passive:'', onactivate:'[Deployable] Hull: 1, Duration: 1, Speed: 0\nAfter targeting an enemy, remove this.\nRange: 8, Check: Sensors, \nDmg: 3⚡ (SHIELD ONLY)', tt:'offense', type:'exhaust', onactivateenergy:'2', storage:'2', deploy:true},
-    {name:'P.D.', traits:'[Module]', onbuild:'', passive:'', onactivate:'Hull: 1, Req: Adjacent to any\n---- Passive ----\nIf a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.\n---- Active ----\n2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2', tt:'defense', type:'passive', onactivateenergy:'2', storage:'0', deploy:'module'},
-    {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Target an object:\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n* Move the object 1 space', tt:'science', type:'standard', onactivateenergy:'3', storage:'0', deploy:false},
-    {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free.', tt:'offense', type:'exhaust', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Rocket Array', traits:'charge 0', onbuild:'', passive:'', onactivate:'Add a charge or remove a charge to Target an object:\nRange: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', type:'exhaust', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Shield Generator', traits:'charged 1', onbuild:'', passive:'', onactivate:'When charged: An ally Gains 2 shields', tt:'defense', type:'reuse', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Drop Portals', traits:'ammo 2', onbuild:'', passive:'', onactivate:'[Deployable] Hull: ∞ | Duration: ∞ | Speed = 0\nSpaces with Drop Portals are considered adjacent for movement.', tt:'movement', type:'standard', onactivateenergy:'3', storage:'0', deploy:true},
-    {name:'Experimental Reconnaissance', traits:'', onbuild:'', passive:'', onactivate:'Once per combat, when an enemy ship is destroyed. You gain 1 random tech card from their deck.', tt:'science', type:'passive', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Targeting Computer', traits:'', onbuild:'', passive:'', onactivate:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', tt:'offense', type:'passive', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Graviton Engine', traits:'', onbuild:'', passive:'', onactivate:'Increase or decrease a Move value by 1.', tt:'offense', type:'reuse', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'When charged: Gain 2 Shield.', tt:'defense', type:'reuse', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Scan', traits:'', onbuild:'', passive:'', onactivate:'Range: Scanning, Check: Sensors, Dmg: 0. Scan the target.', tt:'science', type:'reuse', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'When charged: Turn 1.', tt:'offense', type:'reuse', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Checks from enemy Deployables fail.', tt:'defense', type:'exhaust', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'AI Piloting', traits:'', onbuild:'', passive:'', onactivate:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', tt:'offense', type:'exhaust', onactivateenergy:'R', storage:'0', deploy:false},
-    {name:'Scanning Shot', traits:'', onbuild:'', passive:'', onactivate:'When you deal damage, you immediately may Scan the target.', tt:'science', type:'reuse', onactivateenergy:'R', storage:'0', deploy:false},
-    {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Set any of your Move values.', tt:'science', type:'exhaust', onactivateenergy:'1', storage:'0', deploy:false}
+    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Your Cannon Modules gain +1 Dmg and Range.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Cannon', traits:'[Module]', onbuild:'', passive:'', onactivate:'Hull: 1, Req: Adjacent to Core\n---- Active ----\n2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', tt:'offense', onactivateenergy:'0', storage:'0', deploy:'module'},
+    {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Move a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Ion Torpedoes', traits:'', onbuild:'', passive:'', onactivate:'You gain 1 Arc. This lasts until you Target an object.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Ioun Torpedos', traits:'', onbuild:'', passive:'', onactivate:'[Deployable] Hull: 1, Duration: 1, Speed: 0\nAfter targeting an enemy, remove this.\nRange: 8, Check: Sensors, \nDmg: 3⚡ (SHIELD ONLY)', tt:'offense', onactivateenergy:'2', storage:'2', deploy:true},
+    {name:'P.D.', traits:'[Module]', onbuild:'', passive:'', onactivate:'Hull: 1, Req: Adjacent to any\n---- Passive ----\nIf a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.\n---- Active ----\n2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2', tt:'defense', onactivateenergy:'2', storage:'0', deploy:'module'},
+    {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Target an object:\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
+    {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
+    {name:'Rocket Array', traits:'charge 0', onbuild:'', passive:'', onactivate:'Add a charge or remove a charge to Target an object:\nRange: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
+    {name:'Shield Generator', traits:'charged 1', onbuild:'', passive:'', onactivate:'When charged: An ally Gains 2 shields', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Drop Portals', traits:'ammo 2', onbuild:'', passive:'', onactivate:'[Deployable] Hull: ∞ | Duration: ∞ | Speed = 0\nSpaces with Drop Portals are considered adjacent for movement.', tt:'movement', onactivateenergy:'3', storage:'0', deploy:true},
+    {name:'Experimental Reconnaissance', traits:'', onbuild:'', passive:'', onactivate:'Once per combat, when an enemy ship is destroyed. You gain 1 random tech card from their deck.', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Targeting Computer', traits:'', onbuild:'', passive:'', onactivate:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Graviton Engine', traits:'', onbuild:'', passive:'', onactivate:'Increase or decrease a Move value by 1.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'When charged: Gain 2 Shield.', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Scan', traits:'', onbuild:'', passive:'', onactivate:'Range: Scanning, Check: Sensors, Dmg: 0. Scan the target.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'When charged: Turn 1.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Checks from enemy Deployables fail.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'AI Piloting', traits:'', onbuild:'', passive:'', onactivate:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', tt:'offense', onactivateenergy:'R', storage:'0', deploy:false},
+    {name:'Scanning Shot', traits:'', onbuild:'', passive:'', onactivate:'When you deal damage, you immediately may Scan the target.', tt:'science', onactivateenergy:'R', storage:'0', deploy:false},
+    {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Set any of your Move values.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
   ];
   function techTypeMeta(key){
     for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
     return TECH_TYPES[0];
-  }
-  function cardTypeMeta(index){
-    index = ((index % CARD_TYPES.length)+CARD_TYPES.length)%CARD_TYPES.length;
-    return CARD_TYPES[index];
   }
   function techSlotLabel(n){ return 'Slot ' + (n < 10 ? '0' + n : n); }
   function refreshTechSlotControls(){
@@ -1127,9 +1086,9 @@
     var card = document.createElement('div');
     card.className = 'tech-card';
     card.innerHTML =
-      '<div class="ch"><span>' + techSlotLabel(n) + '</span><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="ch"><span class="tlabel">' + techSlotLabel(n) + '</span><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
       '<input class="tname" placeholder="TECH NAME">' +
-      '<div class="tsub"><input class="ttraits" placeholder="TRAITS"><span class="ttype-btn" data-type="0" title="Type: Standard"></span></div>' +
+      '<div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>' +
       '<div class="tsecs">' +
         '<div class="tsec onbuild hid"><div class="tsec-head"><span>On Build</span><span class="tdiamond" title="On Build energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div><textarea placeholder="On Build..."></textarea></div>' +
         '<div class="tsec passive hid"><div class="tsec-head"><span>Passive</span></div><textarea placeholder="Passive..."></textarea></div>' +
@@ -1139,14 +1098,8 @@
         '<span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>' +
         '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
         '<span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>' +
-      '</div>' +
-      '<div class="tinfo">' +
-        '<div class="tinfo-head" onclick="toggleTechInfo(this)">Card Type <span class="collapse-ind">▼</span></div>' +
-        '<div class="tinfo-body">' +
-        '</div>' +
       '</div>';
     grid.appendChild(card);
-    renderTechInfo(card);
     refreshTechSections(card);
     refreshTechSlotControls();
   }
@@ -1216,7 +1169,7 @@
     var grid = document.getElementById('techGrid');
     var cards = grid.children;
     for(var i = 0; i < cards.length; i++){
-      cards[i].querySelector('.ch').textContent = techSlotLabel(i + 1);
+      cards[i].querySelector('.ch .tlabel').textContent = techSlotLabel(i + 1);
     }
   }
   function buildTechPresetMenu(){
@@ -1263,7 +1216,6 @@
     card.querySelector('.tcost-onbuild').value = (t.onbuildenergy !== undefined && t.onbuildenergy !== null) ? t.onbuildenergy : '';
     card.querySelector('.tcost-onactivate').value = (t.onactivateenergy !== undefined && t.onactivateenergy !== null) ? t.onactivateenergy : '';
     setTechType(card.querySelector('.tticker'), t.tt);
-    setCardType(card.querySelector('.ttype-btn'), t.type);
     setTechDeploy(card.querySelector('.tdepbtn'), t.deploy);
     refreshTechSections(card);
   }
@@ -1279,24 +1231,6 @@
     var next = keys[(idx + 1) % keys.length];
     setTechType(el, next);
   }
-  function setCardType(el, key){
-    var idx = 0;
-    for(var i=0;i<CARD_TYPES.length;i++){ if(CARD_TYPES[i].key===key){ idx=i; break; } }
-    var meta = cardTypeMeta(idx);
-    el.setAttribute('data-type', idx);
-    el.textContent = meta.icon;
-    el.title = 'Type: ' + meta.label;
-    renderTechInfo(el.closest('.tech-card'));
-  }
-  function renderTechInfo(card){
-    if(!card) return;
-    var btn = card.querySelector('.ttype-btn');
-    var meta = cardTypeMeta(parseInt(btn.getAttribute('data-type'),10));
-    var body = card.querySelector('.tinfo-body');
-    if(!body) return;
-    var icon = meta.icon ? '<span class="tinfo-icon">' + meta.icon + '</span>' : '';
-    body.innerHTML = '<ul><li>' + icon + ' <b>' + meta.label + '</b> Technologies ' + meta.desc + '</li></ul>';
-  }
   function refreshTechSections(card){
     if(!card) return;
     var editing = card.classList.contains('editing');
@@ -1305,12 +1239,23 @@
       var field = secs[i].querySelector('textarea');
       var hasText = field && field.value.trim() !== '';
       secs[i].classList.toggle('hid', !hasText && !editing);
-      var diamond = secs[i].querySelector('.tdiamond');
-      if(diamond){
-        var inp = diamond.querySelector('input');
-        var hasVal = inp && inp.value.trim() !== '';
-        diamond.classList.toggle('hid', !hasVal && !editing);
-      }
+        var diamond = secs[i].querySelector('.tdiamond');
+        if(diamond){
+          var inp = diamond.querySelector('input');
+          var hasVal = inp && inp.value.trim() !== '';
+          diamond.classList.toggle('hid', !hasVal && !editing);
+        }
+    }
+    var traits = card.querySelector('.ttraits');
+    if(traits){
+      traits.classList.toggle('hid', traits.value.trim() === '' && !editing);
+    }
+    var storage = card.querySelector('.tstorage');
+    if(storage){
+      var sInp = storage.querySelector('.tstorage-input');
+      var sVal = sInp ? parseInt(sInp.value,10) : 0;
+      var isZero = isNaN(sVal) || sVal === 0;
+      storage.classList.toggle('hid', isZero && !editing);
     }
   }
   function toggleTechEdit(btn){
@@ -1318,10 +1263,6 @@
     card.classList.toggle('editing');
     btn.textContent = card.classList.contains('editing') ? 'Done' : 'Edit';
     refreshTechSections(card);
-  }
-  function cycleCardType(el){
-    var next = cardTypeMeta(parseInt(el.getAttribute('data-type'),10) + 1);
-    setCardType(el, next.key);
   }
   var DEPLOY_STATES = [
     {key:'normal', icon:'', label:'Normal'},
@@ -1416,13 +1357,11 @@
   document.getElementById('techGrid').addEventListener('click', function(e){
     var tk = e.target.closest('.tticker');
     if(tk){ cycleTechType(tk); return; }
-    var ct = e.target.closest('.ttype-btn');
-    if(ct){ cycleCardType(ct); return; }
     var dp = e.target.closest('.tdepbtn');
     if(dp){ cycleTechDeploy(dp); }
   });
   document.getElementById('techGrid').addEventListener('input', function(e){
-    if(e.target.closest && e.target.closest('.tsec')){
+    if(e.target.closest && e.target.closest('.tech-card')){
       refreshTechSections(e.target.closest('.tech-card'));
     }
   });
@@ -1492,7 +1431,6 @@
         onbuildenergy: card.querySelector('.tcost-onbuild').value,
         onactivateenergy: card.querySelector('.tcost-onactivate').value,
         techType: card.querySelector('.tticker').getAttribute('data-tt'),
-        cardType: CARD_TYPES[parseInt(card.querySelector('.ttype-btn').getAttribute('data-type'),10)].key,
         storage: card.querySelector('.tstorage-input').value,
         deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy')
       });
@@ -1517,7 +1455,6 @@
       card.querySelector('.tcost-onactivate').value = item.onactivateenergy || '';
       card.querySelector('.tstorage-input').value = item.storage || '';
       setTechType(card.querySelector('.tticker'), item.techType);
-      setCardType(card.querySelector('.ttype-btn'), item.cardType);
       setTechDeploy(card.querySelector('.tdepbtn'), item.deploy);
       refreshTechSections(card);
     }
@@ -1620,7 +1557,6 @@
   (function(){
     var cards = document.querySelectorAll('.tech-card');
     for(var i=0;i<cards.length;i++){
-      renderTechInfo(cards[i]);
       setTechDeploy(cards[i].querySelector('.tdepbtn'), cards[i].querySelector('.tdepbtn').getAttribute('data-deploy'));
       refreshTechSections(cards[i]);
     }
