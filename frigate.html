@@ -692,9 +692,25 @@
         <div class="rhead" onclick="toggleTurnBox(this)">At the start of your turn <span class="collapse-ind">▼</span></div>
         <ul>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
+          <li>Refresh any exhausted <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 4v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
           <li>Move / activate / resolve any <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.8"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg></li>
           <li>Move any <b>Modules</b> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
           <li>Destroy any <b>Modules</b> that do not meet their requirements</li>
+          <li>Draw any 1 <b>Technology</b> from your <b>Deck</b></li>
+        </ul>
+      </div>
+
+      <div class="rules-block" id="duringBox">
+        <div class="rhead" onclick="toggleTurnBox(this)">During your turn <span class="collapse-ind">▼</span></div>
+        <ul>
+          <li>Spend <b>Energy</b> to activate <b>Technologies</b>
+            <ul class="sub">
+              <li>Standard Technologies can be used once per turn and then are Exhausted.</li>
+              <li>Reusable Technologies can be used any number of times and remain in hand after use.</li>
+              <li>Single Use Technologies are discarded after use and are not usually redrawn this combat.</li>
+              <li>Passive Technologies are automatically in play from the time they are drawn onwards.</li>
+            </ul>
+          </li>
         </ul>
       </div>
       </div>
