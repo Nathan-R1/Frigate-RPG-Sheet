@@ -587,6 +587,7 @@
     flex:none;cursor:pointer;font-size:14px;line-height:1;opacity:0;transition:opacity .15s;
   }
   .tdepbtn.on{opacity:1;}
+  .tech-card.editing .tdepbtn{opacity:1;}
   .tdiamond{
     display:flex;align-items:center;justify-content:center;gap:3px;
     width:24px;height:24px;
@@ -883,7 +884,7 @@
             <span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>
             <span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>
             <span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>
-            <span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>
+            <span class="tdepbtn" data-deploy="normal" title="Normal">⍙</span>
           </div>
         </div>
       </div>
@@ -1123,7 +1124,7 @@
         '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
         '<span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>' +
         '<span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>' +
-        '<span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>' +
+        '<span class="tdepbtn" data-deploy="normal" title="Normal">⍙</span>' +
       '</div>';
     grid.appendChild(card);
     refreshTechSections(card);
@@ -1201,13 +1202,13 @@
       var label = document.createElement('span');
       label.textContent = p.name;
       item.appendChild(label);
-      var deployIcon = '';
-      if(p.deploy === 'module'){ deployIcon = '⬡'; }
-      else if(p.deploy === true || p.deploy === 'true' || p.deploy === 1 || p.deploy === '1'){ deployIcon = '🛸'; }
-      if(deployIcon){
+      var deploySvg = '';
+      if(p.deploy === 'module'){ deploySvg = DEPLOY_STATES[2].svg; }
+      else if(p.deploy === true || p.deploy === 'true' || p.deploy === 1 || p.deploy === '1'){ deploySvg = DEPLOY_STATES[1].svg; }
+      if(deploySvg){
         var dtag = document.createElement('span');
         dtag.className = 'preset-tag preset-deploy';
-        dtag.textContent = deployIcon;
+        dtag.innerHTML = deploySvg;
         item.appendChild(dtag);
       }
       var icon = document.createElement('span');
@@ -1325,9 +1326,9 @@
     refreshTechSections(card);
   }
   var DEPLOY_STATES = [
-    {key:'normal', icon:'', label:'Normal'},
-    {key:'deployable', icon:'🛸', label:'Deployable'},
-    {key:'module', icon:'⬡', label:'Module'}
+    {key:'normal', icon:'◉', svg:'', label:'Normal'},
+    {key:'deployable', icon:'⍙', svg:'<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg>', label:'Deployable'},
+    {key:'module', icon:'⬡', svg:'<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg>', label:'Module'}
   ];
   function setTechDeploy(el, state){
     var idx = 0;
@@ -1343,7 +1344,8 @@
     idx = ((idx % DEPLOY_STATES.length)+DEPLOY_STATES.length)%DEPLOY_STATES.length;
     var meta = DEPLOY_STATES[idx];
     el.setAttribute('data-deploy', meta.key);
-    el.textContent = meta.icon;
+    if(meta.svg){ el.innerHTML = meta.svg; }
+    else { el.textContent = meta.icon; }
     el.title = meta.label;
     el.classList.toggle('on', meta.key !== 'normal');
   }
@@ -1356,14 +1358,13 @@
   var CLASS_PRESETS = {
     'Support Class': {
       stats: {hull:2, shield:2, storage:2},
-      techName: 'Shield Generator'
+      techName: 'Repulsor Field'
     },
     'Jump Class': {
-      stats: {turning:1},
-      techName: 'Drop Portals'
+      techName: 'Phantom'
     },
     'Discovery Class': {
-      stats: {storage:4, scanning:2},
+      stats: {storage:4},
       techName: 'Experimental Reconnaissance'
     },
     'Striker Class': {
@@ -1401,8 +1402,6 @@
       bumpStat('shieldMax', s.shield);
     }
     if(s.storage) bumpStat('storage', s.storage);
-    if(s.scanning) bumpStat('scanning', s.scanning);
-    if(s.turning) bumpStat('turning', s.turning);
     if(preset.techName){
       var t = findTechByName(preset.techName);
       if(t) addTechFromData(t);
