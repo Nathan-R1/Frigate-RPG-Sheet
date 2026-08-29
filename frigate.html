@@ -548,6 +548,8 @@
   .tech-card.editing .tsec.hid{display:flex;}
   .tech-card .ttraits.hid{display:none;}
   .tech-card .tstorage.hid{display:none;}
+  .tech-card .thull.hid{display:none;}
+  .tech-card .tcharges.hid{display:none;}
   .tfoot{
     display:flex;align-items:center;gap:8px;
     padding:6px 8px 8px;border-top:1px solid var(--line);
@@ -561,6 +563,16 @@
   }
   .tstorage .ticon{width:14px;height:14px;flex:none;}
   .tstorage input.tstorage-input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  }
+  .thull,.tcharges{
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);cursor:pointer;
+  }
+  .thull .ticon{width:14px;height:14px;flex:none;}
+  .tcharges .ticon{width:14px;height:14px;flex:none;}
+  .thull input.thull-input,.tcharges input.tcharges-input{
     width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
     background:var(--stat-bg);border:1px solid var(--line);padding:1px;
   }
@@ -862,6 +874,8 @@
           <div class="tfoot">
             <span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>
             <span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>
+            <span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>
+            <span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>
             <span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>
           </div>
         </div>
@@ -1102,6 +1116,8 @@
       '<div class="tfoot">' +
         '<span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>' +
         '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
+        '<span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>' +
+        '<span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>' +
         '<span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>' +
       '</div>';
     grid.appendChild(card);
@@ -1210,6 +1226,8 @@
     card.querySelector('.tsec.passive textarea').value = t.passive || '';
     card.querySelector('.tsec.onactivate textarea').value = t.onactivate || '';
     card.querySelector('.tstorage-input').value = (t.storage !== undefined && t.storage !== null) ? t.storage : '';
+    card.querySelector('.thull-input').value = (t.hull !== undefined && t.hull !== null) ? t.hull : '';
+    card.querySelector('.tcharges-input').value = (t.charges !== undefined && t.charges !== null) ? t.charges : '';
     card.querySelector('.tcost-onbuild').value = (t.onbuildenergy !== undefined && t.onbuildenergy !== null) ? t.onbuildenergy : '';
     card.querySelector('.tcost-onactivate').value = (t.onactivateenergy !== undefined && t.onactivateenergy !== null) ? t.onactivateenergy : '';
     setTechType(card.querySelector('.tticker'), t.tt);
@@ -1264,6 +1282,25 @@
       var sVal = sInp ? parseInt(sInp.value,10) : 0;
       var isZero = isNaN(sVal) || sVal === 0;
       storage.classList.toggle('hid', isZero && !editing);
+      if(sInp) sInp.disabled = !editing;
+    }
+    var hull = card.querySelector('.thull');
+    if(hull){
+      var hInp = hull.querySelector('.thull-input');
+      var hEmpty = !hInp || hInp.value.trim() === '';
+      hull.classList.toggle('hid', hEmpty && !editing);
+      if(hInp) hInp.disabled = !editing;
+    }
+    var charges = card.querySelector('.tcharges');
+    if(charges){
+      var cInp = charges.querySelector('.tcharges-input');
+      var cEmpty = !cInp || cInp.value.trim() === '';
+      charges.classList.toggle('hid', cEmpty && !editing);
+      if(cInp) cInp.disabled = !editing;
+    }
+    var diamonds = card.querySelectorAll('.tdiamond input');
+    for(var d=0; d<diamonds.length; d++){
+      diamonds[d].disabled = !editing;
     }
   }
   function toggleTechEdit(btn){
@@ -1363,6 +1400,27 @@
     }
   });
   document.getElementById('techGrid').addEventListener('click', function(e){
+    var card = e.target.closest('.tech-card');
+    if(!card) return;
+    var editing = card.classList.contains('editing');
+    var hl = e.target.closest('.thull');
+    var ch = e.target.closest('.tcharges');
+    if(hl || ch){
+      if(editing) return;
+      var inp = (hl ? hl : ch).querySelector('input');
+      if(!inp) return;
+      var v = parseInt(inp.value, 10);
+      if(isNaN(v)) v = 0;
+      if(hl){
+        v = Math.max(0, v - 1);
+      } else {
+        v = v + 1;
+      }
+      inp.value = v;
+      refreshTechSections(card);
+      return;
+    }
+    if(!editing) return;
     var tk = e.target.closest('.tticker');
     if(tk){ cycleTechType(tk); return; }
     var dp = e.target.closest('.tdepbtn');
@@ -1440,6 +1498,8 @@
         onactivateenergy: card.querySelector('.tcost-onactivate').value,
         techType: card.querySelector('.tticker').getAttribute('data-tt'),
         storage: card.querySelector('.tstorage-input').value,
+        hull: card.querySelector('.thull-input').value,
+        charges: card.querySelector('.tcharges-input').value,
         deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy')
       });
     }
@@ -1462,6 +1522,8 @@
       card.querySelector('.tcost-onbuild').value = item.onbuildenergy || '';
       card.querySelector('.tcost-onactivate').value = item.onactivateenergy || '';
       card.querySelector('.tstorage-input').value = item.storage || '';
+      card.querySelector('.thull-input').value = item.hull || '';
+      card.querySelector('.tcharges-input').value = item.charges || '';
       setTechType(card.querySelector('.tticker'), item.techType);
       setTechDeploy(card.querySelector('.tdepbtn'), item.deploy);
       refreshTechSections(card);
