@@ -26,7 +26,6 @@
     --dc-bg:var(--cyan);
     --dc-text:var(--void);
     --dc-border:var(--cyan);
-    --move-arrow:#e8ceb0;
     --icon-hull:#7fd88a;
     --icon-shield:#59b9e8;
     --icon-energy:#c98ee8;
@@ -63,7 +62,6 @@
     --dc-bg:transparent;
     --dc-text:#0e8f83;
     --dc-border:#0e8f83;
-    --move-arrow:#8a6a3d;
     --icon-hull:#2f7a4d;
     --icon-shield:#215f8c;
     --icon-energy:#764795;
@@ -228,8 +226,6 @@
     .shiptitle .kind,.shiptitle .dash,.shiptitle input.name{font-size:24px;}
     .shiptitle input.name{min-width:0;width:100%;}
     .stat-strip{grid-template-columns:repeat(3,1fr);gap:8px;}
-    .move-track{flex-wrap:wrap;}
-    .move{flex:1 1 30%;}
     .subline{gap:12px;}
     table.skills th{padding-left:0;}
   }
@@ -253,9 +249,13 @@
     text-transform:uppercase;
   }
 
+  .class-body{
+    display:flex;flex-direction:column;align-items:stretch;
+    width:100%;max-width:380px;
+  }
   .stat-strip{
     display:grid;
-    grid-template-columns:repeat(7,1fr);
+    grid-template-columns:repeat(5,1fr);
     gap:10px;
     margin-bottom:18px;
   }
@@ -267,6 +267,8 @@
     position:relative;
   }
   .stat .icon{width:26px;height:26px;margin:0 auto 6px;display:block;}
+  .stat .icon.dec{cursor:pointer;}
+  .stat .icon.dec:hover{opacity:.65;}
   .stat .val{
     font-family:var(--mono);font-weight:700;font-size:15px;
     display:flex;align-items:center;justify-content:center;gap:2px;
@@ -346,32 +348,7 @@
     pointer-events:none;white-space:nowrap;
   }
 
-  .move-track{
-    display:flex;gap:10px;
-  }
-  .move{
-    flex:1;
-    background:var(--stat-bg);
-    border:1px solid var(--line);
-    padding:10px 8px;
-    text-align:center;
-  }
-  .move .n{
-    width:46px;
-    text-align:center;
-    font-family:var(--disp);font-weight:900;font-size:20px;color:var(--ink);
-    border-bottom:2px solid var(--line-bright);
-    padding-bottom:2px;
-  }
-  .move .n:focus{border-color:var(--cyan);}
-  .move .arrow{width:20px;height:20px;margin:4px auto;display:block;}
-  .move .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink-mid);text-transform:uppercase;}
-  .move-note{
-    margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--ink-dim);
-    font-style:italic;line-height:1.5;
-  }
-
-  /* ===== skills panel ===== */
+        /* ===== skills panel ===== */
   .skills-panel{flex:1;}
   table.skills{width:100%;border-collapse:collapse;margin-top:4px;}
   table.skills th{
@@ -682,19 +659,20 @@
         </select>
       </div>
 
+      <div class="class-body">
       <div class="stat-strip">
         <div class="stat hull">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg class="icon dec" onclick="decrementStat('hullCur')" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.6" stroke-linejoin="round"/></svg>
           <div class="val"><input id="hullCur" value="5" maxlength="2"><span class="sep">/</span><input id="hullMax" value="5" maxlength="2"></div>
           <div class="lbl">Hull HP</div>
         </div>
         <div class="stat shield">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg class="icon dec" onclick="decrementStat('shieldCur')" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linejoin="round"/></svg>
           <div class="val"><input id="shieldCur" value="6" maxlength="2"><span class="sep">/</span><input id="shieldMax" value="6" maxlength="2"></div>
           <div class="lbl">Base Shield</div>
         </div>
         <div class="stat energy">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg class="icon dec" onclick="decrementStat('energyCur')" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.6" stroke-linejoin="round"/></svg>
           <div class="val"><input id="energyCur" value="6" maxlength="2"><span class="sep">/</span><input id="energyMax" value="6" maxlength="2"></div>
           <div class="lbl">Energy</div>
         </div>
@@ -702,16 +680,6 @@
           <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg>
           <div class="val" style="justify-content:center"><input id="storage" value="0" maxlength="2" style="width:26px"></div>
           <div class="lbl">Storage</div>
-        </div>
-        <div class="stat">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--icon-cyan)" stroke-width="1.6"/><path d="M12 12 18 7" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <div class="val" style="justify-content:center"><input id="scanning" value="2" maxlength="2" style="width:26px"></div>
-          <div class="lbl">Scanning</div>
-        </div>
-        <div class="stat">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-3-6.2" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round"/><path d="M20 3v4h-4" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="val" style="justify-content:center"><input id="turning" value="1" maxlength="2" style="width:26px"></div>
-          <div class="lbl">Turning</div>
         </div>
         <div class="stat speed">
           <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -723,42 +691,13 @@
       <div class="rules-block" id="turnBox">
         <div class="rhead" onclick="toggleTurnBox(this)">At the start of your turn <span class="collapse-ind">▼</span></div>
         <ul>
-          <li>Resolve <b>Charged</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="7" y="3.5" width="10" height="18" rx="2" stroke="var(--icon-cyan)" stroke-width="1.8"/><rect x="9.5" y="1" width="5" height="3" rx="1" fill="var(--icon-cyan)"/><path d="M13.2 8 9.5 14h2.8l-1 4.5 4-6.2h-2.9l0.8-4.3Z" fill="var(--icon-cyan)"/></svg> abilities</li>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
           <li>Move / activate / resolve any <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.8"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg></li>
-          <li>Update Moves <button type="button" class="rule-btn" onclick="advanceMove()" title="Add Move 1 to Speed, then cycle moves">↻</button>
-            <ul class="sub">
-              <li>Update your <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> with <b>Move 1</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
-              <li>Cycle your <b>Moves</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> and set a new <b>Move 3</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> value to +1 / 0 / −1</li>
-            </ul>
-          </li>
-          <li>Resolve Moves
-            <ul class="sub">
-              <li>If <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> ≤ Navigation <button type="button" class="info-btn" onclick="showSkillInfo(event, this, 'Navigation')" title="Navigation total">ℹ</button>, you may Turn (max. <b>Turning</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-3-6.2" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 3v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>)</li>
-              <li>Your ship travels forward equal to its new <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
-            </ul>
-          </li>
+          <li>Move any <b>Modules</b> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
+          <li>Destroy any <b>Modules</b> that do not meet their requirements</li>
         </ul>
       </div>
-
-      <div class="move-track">
-        <div class="move">
-          <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="move1" class="n" value="1" maxlength="2">
-          <div class="lbl">Move 1</div>
-        </div>
-        <div class="move">
-          <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="move2" class="n" value="2" maxlength="2">
-          <div class="lbl">Move 2</div>
-        </div>
-        <div class="move">
-          <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M12 20V4M6 10l6-6 6 6" stroke="var(--move-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="move3" class="n" value="3" maxlength="2">
-          <div class="lbl">Move 3</div>
-        </div>
       </div>
-      <div class="move-note">When you set a Move value to X, pay X energy.</div>
     </div>
 
     <!-- SKILLS -->
@@ -895,6 +834,13 @@
     var cur = document.getElementById('energyCur');
     var max = document.getElementById('energyMax');
     if(cur && max) cur.value = max.value;
+  }
+  function decrementStat(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    var v = parseInt(el.value, 10);
+    if(isNaN(v)) v = 0;
+    if(v > 0) el.value = v - 1;
   }
   function showSkillInfo(e, btn, skillName){
     e.stopPropagation();
@@ -1066,7 +1012,7 @@
     {key:'passive', icon:'⏳', label:'Passive'}
   ];
   var TECHP_RESETS = [
-    {name:'Flame Cannon', traits:'', text:'Target an object.', tt:'offense', type:'reuse', energy:'2', storage:'0', deploy:false},
+    {name:'Flame Cannon', traits:'active 1', text:'Your Cannons gain +1 Dmg and Range.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
     {name:'Rotating Cannon', traits:'', text:'Your Cannons gain +1 Dmg and Range.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
     {name:'Ion Torpedoes', traits:'', text:'You gain 1 Arc. This lasts until you Target an object.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
     {name:'Ioun Torpedos', traits:'', text:'[Deployable] Hull: 1, Duration: 1, Speed: 0\nAfter targeting an enemy, remove this.\nRange: 8, Check: Sensors, \nDmg: 3⚡ (SHIELD ONLY)', tt:'offense', type:'exhaust', energy:'2', storage:'2', deploy:true},
