@@ -457,6 +457,13 @@
     padding:1px 5px;
     text-transform:uppercase;
   }
+  .preset-tag.preset-deploy{
+    margin-left:auto;
+    color:var(--cyan);
+    border-color:var(--cyan);
+    font-size:11px;
+    padding:0 4px;
+  }
   .crew-card{
     background:var(--crew-bg);
     border:1px solid var(--line);
@@ -728,7 +735,7 @@
           <li>Refresh any exhausted <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 4v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
           <li>Move any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
           <li>Destroy any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> that do not meet their requirements</li>
-          <li>Draw any 1 <b>Technology</b> from your <b>Deck</b></li>
+          <li>Build any 1 <b>Technology</b> from your <b>Hand</b> (apply its On Build effect)</li>
         </ul>
       </div>
 
@@ -1070,26 +1077,24 @@
     {key:'science', icon:'⚛︎', label:'Science'}
   ];
   var TECHP_RESETS = [
-    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Your Cannon Modules gain +1 Dmg and Range.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nYour Cannons gain +1 Dmg and Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Cannon', traits:'[Module]', onbuild:'Create Module\nHull: 1, Req: Adjacent to Core\n\n---- On Activate ----\nExhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', passive:'', onactivate:'', tt:'offense', onbuildenergy:'0', storage:'0', deploy:'module'},
-    {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Move a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nMove a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Ion Torpedo', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Deploy 1 Torpedo:\nHull: 1, Duration: 1, Speed: 0\n\n---- On Activate ----\nRemove this deployable to Target an object:\nRange: 8 from self, Check: Sensors,\nDmg: 3 (SHIELD ONLY)', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:true},
     {name:'P.D.', traits:'[Module]', onbuild:'', passive:'', onactivate:'Hull: 1, Req: Adjacent to any\n---- Passive ----\nIf a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.\n---- Active ----\n2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2', tt:'defense', onactivateenergy:'2', storage:'0', deploy:'module'},
-    {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Target an object:\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
-    {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Rocket Array', traits:'charge 0', onbuild:'', passive:'', onactivate:'Add a charge or remove a charge to Target an object:\nRange: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Shield Generator', traits:'charged 1', onbuild:'', passive:'', onactivate:'When charged: An ally Gains 2 shields', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Drop Portals', traits:'ammo 2', onbuild:'', passive:'', onactivate:'[Deployable] Hull: ∞ | Duration: ∞ | Speed = 0\nSpaces with Drop Portals are considered adjacent for movement.', tt:'movement', onactivateenergy:'3', storage:'0', deploy:true},
-    {name:'Experimental Reconnaissance', traits:'', onbuild:'', passive:'', onactivate:'Once per combat, when an enemy ship is destroyed. You gain 1 random tech card from their deck.', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Targeting Computer', traits:'', onbuild:'', passive:'', onactivate:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Graviton Engine', traits:'', onbuild:'', passive:'', onactivate:'Increase or decrease a Move value by 1.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'When charged: Gain 2 Shield.', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Scan', traits:'', onbuild:'', passive:'', onactivate:'Range: Scanning, Check: Sensors, Dmg: 0. Scan the target.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'When charged: Turn 1.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Checks from enemy Deployables fail.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'AI Piloting', traits:'', onbuild:'', passive:'', onactivate:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', tt:'offense', onactivateenergy:'R', storage:'0', deploy:false},
-    {name:'Scanning Shot', traits:'', onbuild:'', passive:'', onactivate:'When you deal damage, you immediately may Scan the target.', tt:'science', onactivateenergy:'R', storage:'0', deploy:false},
-    {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Set any of your Move values.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
+    {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 3 ⚡to Target an object:\n\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
+    {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Trash.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
+    {name:'Rocket Array', traits:'charge 0', onbuild:'Place 1 charge on this card', passive:'', onactivate:'Exhaust to A) remove 1 charge, or B) if there are no charges Target an object: Range: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
+    {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module (Hull 4, Req. Adjacent to any).\n\n---- On Activate ----\nExhaust and pay 2E to add a charge to this OR remove a charge and give 4 shield to a ship within Sensor range from this.', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'0', deploy:'module'},
+    {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, exhaust to Move 1.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck. Trash.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Targeting Computer', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Graviton Engine', traits:'[Module]', onbuild:'Create Module (Hull:1, Req. Adjacent to any).\n\n---- Passive ----\nGain +2 Speed.', passive:'', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:'module'},
+    {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E. For 1 round Checks from enemy Deployables fail. After 1 round trash this.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'AI Piloting', traits:'', onbuild:'', passive:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge token to this card OR remove 2 charge tokens to immediately Move 2 for any Modules.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
   ];
   function techTypeMeta(key){
     for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
@@ -1196,6 +1201,15 @@
       var label = document.createElement('span');
       label.textContent = p.name;
       item.appendChild(label);
+      var deployIcon = '';
+      if(p.deploy === 'module'){ deployIcon = '⬡'; }
+      else if(p.deploy === true || p.deploy === 'true' || p.deploy === 1 || p.deploy === '1'){ deployIcon = '🛸'; }
+      if(deployIcon){
+        var dtag = document.createElement('span');
+        dtag.className = 'preset-tag preset-deploy';
+        dtag.textContent = deployIcon;
+        item.appendChild(dtag);
+      }
       var icon = document.createElement('span');
       icon.className = 'preset-tag';
       icon.textContent = techTypeMeta(p.tt).icon;
@@ -1263,7 +1277,8 @@
         }
         var secText = field ? field.value : '';
         var hasDep = /deployable/i.test(secText);
-        var hasMod = /module/i.test(secText);
+        var isOnBuild = secs[i].classList.contains('onbuild');
+        var hasMod = isOnBuild && /module/i.test(secText);
         secs[i].classList.toggle('dep', hasDep);
         secs[i].classList.toggle('mod', hasMod && !hasDep);
     }
