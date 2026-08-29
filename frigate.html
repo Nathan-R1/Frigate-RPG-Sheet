@@ -194,7 +194,9 @@
     box-shadow:inset 0 0 0 2px var(--dc-border);
     clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     color:var(--dc-text);font-family:var(--disp);font-weight:900;font-size:20px;
+    text-align:center;border:none;cursor:pointer;
   }
+  .dc-hex:focus{outline:none;}
   .dc-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--ink-mid);text-transform:uppercase;}
   .dc-word{font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:var(--ink);}
 
@@ -614,7 +616,7 @@
       </div>
     </div>
     <div class="dc-badge">
-      <div class="dc-hex">6</div>
+      <input class="dc-hex" id="dcHex" type="text" value="6" maxlength="2" title="Difficulty Class Check">
       <div>
         <div class="dc-label">Difficulty</div>
         <div class="dc-word">Class Check</div>
@@ -970,7 +972,7 @@
     {key:'offense', icon:'⚔', label:'Offense'},
     {key:'defense', icon:'🛡', label:'Defense'},
     {key:'movement', icon:'➤', label:'Movement'},
-    {key:'science', icon:'🔬', label:'Science'}
+    {key:'science', icon:'⚛︎', label:'Science'}
   ];
   var CARD_TYPES = [
     {key:'standard', icon:'', label:'Standard'},
@@ -990,7 +992,15 @@
     {name:'Shield Generator', traits:'charged 1', text:'When charged: An ally Gains 2 shields', tt:'defense', type:'reuse', energy:'2', storage:'0', deploy:false},
     {name:'Drop Portals', traits:'ammo 2', text:'[Deployable] Hull: ∞ | Duration: ∞ | Speed = 0\nSpaces with Drop Portals are considered adjacent for movement.', tt:'movement', type:'standard', energy:'3', storage:'0', deploy:true},
     {name:'Experimental Reconnaissance', traits:'', text:'Once per combat, when an enemy ship is destroyed. You gain 1 random tech card from their deck.', tt:'science', type:'passive', energy:'', storage:'0', deploy:false},
-    {name:'Targeting Computer', traits:'', text:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', tt:'offense', type:'passive', energy:'', storage:'0', deploy:false}
+    {name:'Targeting Computer', traits:'', text:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', tt:'offense', type:'passive', energy:'', storage:'0', deploy:false},
+    {name:'Graviton Engine', traits:'', text:'Increase or decrease a Move value by 1.', tt:'offense', type:'reuse', energy:'2', storage:'0', deploy:false},
+    {name:'Shield', traits:'', text:'When charged: Gain 2 Shield.', tt:'defense', type:'reuse', energy:'2', storage:'0', deploy:false},
+    {name:'Scan', traits:'', text:'Range: Scanning, Check: Sensors, Dmg: 0. Scan the target.', tt:'science', type:'reuse', energy:'1', storage:'0', deploy:false},
+    {name:'Turn Jet', traits:'', text:'When charged: Turn 1.', tt:'offense', type:'reuse', energy:'2', storage:'0', deploy:false},
+    {name:'Chaff Clouds', traits:'', text:'Checks from enemy Deployables fail.', tt:'defense', type:'exhaust', energy:'1', storage:'0', deploy:false},
+    {name:'AI Piloting', traits:'', text:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', tt:'offense', type:'exhaust', energy:'R', storage:'0', deploy:false},
+    {name:'Scanning Shot', traits:'', text:'When you deal damage, you immediately may Scan the target.', tt:'science', type:'reuse', energy:'R', storage:'0', deploy:false},
+    {name:'Grav Vortexer', traits:'', text:'Set any of your Move values.', tt:'science', type:'exhaust', energy:'1', storage:'0', deploy:false}
   ];
   function techTypeMeta(key){
     for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
@@ -1292,6 +1302,7 @@
       captain: v('captain'),
       commissioned: v('commissioned'),
       shipClass: v('shipClass'),
+      dcHex: v('dcHex'),
       stats: {
         hullCur: v('hullCur'), hullMax: v('hullMax'),
         shieldCur: v('shieldCur'), shieldMax: v('shieldMax'),
@@ -1315,6 +1326,7 @@
     set('captain', json.captain);
     set('commissioned', json.commissioned);
     set('shipClass', json.shipClass);
+    set('dcHex', json.dcHex);
     var s = json.stats || {};
     set('hullCur', s.hullCur); set('hullMax', s.hullMax);
     set('shieldCur', s.shieldCur); set('shieldMax', s.shieldMax);
