@@ -251,7 +251,7 @@
 
   .class-body{
     display:flex;flex-direction:column;align-items:stretch;
-    width:100%;max-width:380px;
+    width:100%;
   }
   .stat-strip{
     display:grid;
@@ -528,6 +528,25 @@
   .tech-card textarea{
     flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
   }
+  .tech-card .tinfo{
+    border-top:1px solid var(--line);
+  }
+  .tech-card .tinfo-head{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink-mid);
+    text-transform:uppercase;padding:6px 10px;cursor:pointer;user-select:none;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+  .tech-card .tinfo-head:hover{color:var(--ink);}
+  .tech-card .tinfo-body{display:none;padding:2px 10px 10px;}
+  .tech-card .tinfo.open .tinfo-body{display:block;}
+  .tech-card .tinfo-head .collapse-ind{font-size:8px;transition:transform .15s ease;}
+  .tech-card .tinfo.open .collapse-ind{transform:rotate(-90deg);}
+  .tech-card .tinfo ul{margin:0;padding-left:14px;}
+  .tech-card .tinfo li{
+    font-size:11.5px;line-height:1.45;color:var(--ink-mid);margin-bottom:3px;
+  }
+  .tech-card .tinfo li b{color:var(--ink);font-weight:600;}
+  .tech-card .tinfo-icon{margin-right:4px;}
   .tfoot{
     display:flex;align-items:center;gap:8px;
     padding:6px 8px 8px;border-top:1px solid var(--line);
@@ -693,9 +712,8 @@
         <ul>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
           <li>Refresh any exhausted <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 4v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
-          <li>Move / activate / resolve any <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.8"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg></li>
-          <li>Move any <b>Modules</b> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
-          <li>Destroy any <b>Modules</b> that do not meet their requirements</li>
+          <li>Move any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
+          <li>Destroy any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> that do not meet their requirements</li>
           <li>Draw any 1 <b>Technology</b> from your <b>Deck</b></li>
         </ul>
       </div>
@@ -703,12 +721,15 @@
       <div class="rules-block" id="duringBox">
         <div class="rhead" onclick="toggleTurnBox(this)">During your turn <span class="collapse-ind">▼</span></div>
         <ul>
-          <li>Spend <b>Energy</b> to activate <b>Technologies</b>
+          <li>Activate <b>Technologies</b>, <b>Deployable</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> or <b>Module</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> effects (pay Energy where required)
             <ul class="sub">
-              <li>Standard Technologies can be used once per turn and then are Exhausted.</li>
-              <li>Reusable Technologies can be used any number of times and remain in hand after use.</li>
-              <li>Single Use Technologies are discarded after use and are not usually redrawn this combat.</li>
-              <li>Passive Technologies are automatically in play from the time they are drawn onwards.</li>
+              <li>Unless otherwise noted, after activating a Technology, Deployable or Module it is Exhausted.</li>
+            </ul>
+          </li>
+          <li>Some Technologies create <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> and <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg>
+            <ul class="sub">
+              <li><b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> are placed on the board represented by a token. They have a Hull value, Duration until they are destroyed and Speed that they may move each turn. Most <b>Deployables</b> also have conditions for removal and effects they can activate for free.</li>
+              <li><b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> are placed on the board represented by a token. <b>Modules</b> have a Hull value, they generally use your ships Shield and they have requirements they must meet. As long as these req. are met their effects and/or abilities can be used.</li>
             </ul>
           </li>
         </ul>
@@ -830,6 +851,10 @@
             <span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>
             <span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>
           </div>
+          <div class="tinfo">
+            <div class="tinfo-head" onclick="toggleTechInfo(this)">Card Type <span class="collapse-ind">▼</span></div>
+            <div class="tinfo-body"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -845,6 +870,10 @@
   function toggleTurnBox(rhead){
     var box = rhead.parentNode;
     box.classList.toggle('collapsed');
+  }
+  function toggleTechInfo(head){
+    var info = head.parentNode;
+    info.classList.toggle('open');
   }
   function rechargeEnergy(){
     var cur = document.getElementById('energyCur');
@@ -1022,10 +1051,10 @@
     {key:'science', icon:'⚛︎', label:'Science'}
   ];
   var CARD_TYPES = [
-    {key:'standard', icon:'', label:'Standard'},
-    {key:'reuse', icon:'🔄', label:'Reuse'},
-    {key:'exhaust', icon:'🗑', label:'Exhaust'},
-    {key:'passive', icon:'⏳', label:'Passive'}
+    {key:'standard', icon:'', label:'Standard', desc:'Standard Technologies can be used once per turn and then are Exhausted.'},
+    {key:'reuse', icon:'🔄', label:'Reusable', desc:'Reusable Technologies can be used any number of times and remain in hand after use.'},
+    {key:'exhaust', icon:'🗑', label:'Single Use', desc:'Single Use Technologies are discarded after use and are not usually redrawn this combat.'},
+    {key:'passive', icon:'⏳', label:'Passive', desc:'Passive Technologies are automatically in play from the time they are drawn onwards.'}
   ];
   var TECHP_RESETS = [
     {name:'Flame Cannon', traits:'active 1', text:'Your Cannons gain +1 Dmg and Range.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
@@ -1077,8 +1106,14 @@
         '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
         '<span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>' +
         '<span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>' +
+      '</div>' +
+      '<div class="tinfo">' +
+        '<div class="tinfo-head" onclick="toggleTechInfo(this)">Card Type <span class="collapse-ind">▼</span></div>' +
+        '<div class="tinfo-body">' +
+        '</div>' +
       '</div>';
     grid.appendChild(card);
+    renderTechInfo(card);
     refreshTechSlotControls();
   }
   function removeTechSlot(){
@@ -1213,6 +1248,16 @@
     el.setAttribute('data-type', idx);
     el.textContent = meta.icon;
     el.title = 'Type: ' + meta.label;
+    renderTechInfo(el.closest('.tech-card'));
+  }
+  function renderTechInfo(card){
+    if(!card) return;
+    var btn = card.querySelector('.ttype-btn');
+    var meta = cardTypeMeta(parseInt(btn.getAttribute('data-type'),10));
+    var body = card.querySelector('.tinfo-body');
+    if(!body) return;
+    var icon = meta.icon ? '<span class="tinfo-icon">' + meta.icon + '</span>' : '';
+    body.innerHTML = '<ul><li>' + icon + ' <b>' + meta.label + '</b> Technologies ' + meta.desc + '</li></ul>';
   }
   function cycleCardType(el){
     var next = cardTypeMeta(parseInt(el.getAttribute('data-type'),10) + 1);
@@ -1476,6 +1521,10 @@
     };
     input.click();
   }
+  (function(){
+    var cards = document.querySelectorAll('.tech-card');
+    for(var i=0;i<cards.length;i++){ renderTechInfo(cards[i]); }
+  })();
 </script>
 <div id="skillPopover"></div>
 <div class="preset-menu" id="slotPicker"></div>
