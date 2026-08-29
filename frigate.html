@@ -848,7 +848,7 @@
           <div class="tfoot">
             <span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>
             <span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>
-            <span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>
+            <span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>
             <span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>
           </div>
           <div class="tinfo">
@@ -1057,14 +1057,15 @@
     {key:'passive', icon:'⏳', label:'Passive', desc:'Passive Technologies are automatically in play from the time they are drawn onwards.'}
   ];
   var TECHP_RESETS = [
-    {name:'Flame Cannon', traits:'active 1', text:'Your Cannons gain +1 Dmg and Range.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
-    {name:'Rotating Cannon', traits:'', text:'Your Cannons gain +1 Dmg and Range.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
+    {name:'Flame Cannon', traits:'active 1', text:'Your Cannon Modules gain +1 Dmg and Range.', tt:'offense', type:'standard', energy:'1', storage:'0', deploy:false},
+    {name:'Cannon', traits:'[Module]', text:'Hull: 1, Req: Adjacent to Core\n---- Active ----\n2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', tt:'offense', type:'passive', energy:'0', storage:'0', deploy:'module'},
+    {name:'Rotating Cannon', traits:'', text:'Move a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', type:'standard', energy:'1', storage:'0', deploy:false},
     {name:'Ion Torpedoes', traits:'', text:'You gain 1 Arc. This lasts until you Target an object.', tt:'offense', type:'reuse', energy:'1', storage:'0', deploy:false},
     {name:'Ioun Torpedos', traits:'', text:'[Deployable] Hull: 1, Duration: 1, Speed: 0\nAfter targeting an enemy, remove this.\nRange: 8, Check: Sensors, \nDmg: 3⚡ (SHIELD ONLY)', tt:'offense', type:'exhaust', energy:'2', storage:'2', deploy:true},
-    {name:'P.D.', traits:'active 1', text:'If an object enters Range 1, or a Deployable Targets you, you may Target it. This lasts until used or the duration (1 round).', tt:'defense', type:'reuse', energy:'2', storage:'0', deploy:false},
-    {name:'Tract Beam', traits:'', text:'Target an object.', tt:'science', type:'reuse', energy:'3', storage:'0', deploy:false},
-    {name:'Full Volley', traits:'', text:'Play all "Cannon" and "P.D." cards for free.', tt:'offense', type:'standard', energy:'2', storage:'0', deploy:false},
-    {name:'Rocket Array', traits:'charged 1', text:'When charged, Target an object.', tt:'offense', type:'standard', energy:'0', storage:'0', deploy:false},
+    {name:'P.D.', traits:'[Module]', text:'Hull: 1, Req: Adjacent to any\n---- Passive ----\nIf a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.\n---- Active ----\n2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2', tt:'defense', type:'passive', energy:'2', storage:'0', deploy:'module'},
+    {name:'Tract Beam', traits:'', text:'Target an object:\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n* Move the object 1 space', tt:'science', type:'standard', energy:'3', storage:'0', deploy:false},
+    {name:'Full Volley', traits:'', text:'Activate all “Cannon” and “P.D.” Modules for free.', tt:'offense', type:'exhaust', energy:'0', storage:'0', deploy:false},
+    {name:'Rocket Array', traits:'charge 0', text:'Add a charge or remove a charge to Target an object:\nRange: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', type:'exhaust', energy:'0', storage:'0', deploy:false},
     {name:'Shield Generator', traits:'charged 1', text:'When charged: An ally Gains 2 shields', tt:'defense', type:'reuse', energy:'2', storage:'0', deploy:false},
     {name:'Drop Portals', traits:'ammo 2', text:'[Deployable] Hull: ∞ | Duration: ∞ | Speed = 0\nSpaces with Drop Portals are considered adjacent for movement.', tt:'movement', type:'standard', energy:'3', storage:'0', deploy:true},
     {name:'Experimental Reconnaissance', traits:'', text:'Once per combat, when an enemy ship is destroyed. You gain 1 random tech card from their deck.', tt:'science', type:'passive', energy:'', storage:'0', deploy:false},
@@ -1104,7 +1105,7 @@
       '<div class="tfoot">' +
         '<span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>' +
         '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
-        '<span class="tdepbtn" data-deploy="0" title="Deployable">🛸</span>' +
+        '<span class="tdepbtn" data-deploy="normal" title="Normal">🛸</span>' +
         '<span class="tdiamond" title="Energy cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost" maxlength="2"></span>' +
       '</div>' +
       '<div class="tinfo">' +
@@ -1227,7 +1228,7 @@
     card.querySelector('.tcost').value = (t.energy !== undefined && t.energy !== null) ? t.energy : '';
     setTechType(card.querySelector('.tticker'), t.tt);
     setCardType(card.querySelector('.ttype-btn'), t.type);
-    setTechDeploy(card.querySelector('.tdepbtn'), !!t.deploy);
+    setTechDeploy(card.querySelector('.tdepbtn'), t.deploy);
   }
   function setTechType(el, key){
     var meta = techTypeMeta(key);
@@ -1263,9 +1264,33 @@
     var next = cardTypeMeta(parseInt(el.getAttribute('data-type'),10) + 1);
     setCardType(el, next.key);
   }
-  function setTechDeploy(el, on){
-    el.setAttribute('data-deploy', on ? '1' : '0');
-    el.classList.toggle('on', on);
+  var DEPLOY_STATES = [
+    {key:'normal', icon:'', label:'Normal'},
+    {key:'deployable', icon:'🛸', label:'Deployable'},
+    {key:'module', icon:'⬡', label:'Module'}
+  ];
+  function setTechDeploy(el, state){
+    var idx = 0;
+    if(typeof state === 'boolean'){ idx = state ? 1 : 0; }
+    else if(typeof state === 'number'){ idx = state; }
+    else {
+      var s = String(state);
+      if(s === 'true'){ idx = 1; }
+      else if(s === 'false' || s === ''){ idx = 0; }
+      else if(s === '1' || s === '2'){ idx = parseInt(s,10); }
+      else { for(var i=0;i<DEPLOY_STATES.length;i++){ if(DEPLOY_STATES[i].key===s){ idx=i; break; } } }
+    }
+    idx = ((idx % DEPLOY_STATES.length)+DEPLOY_STATES.length)%DEPLOY_STATES.length;
+    var meta = DEPLOY_STATES[idx];
+    el.setAttribute('data-deploy', meta.key);
+    el.textContent = meta.icon;
+    el.title = meta.label;
+    el.classList.toggle('on', meta.key !== 'normal');
+  }
+  function cycleTechDeploy(el){
+    var cur = 0;
+    for(var i=0;i<DEPLOY_STATES.length;i++){ if(DEPLOY_STATES[i].key===el.getAttribute('data-deploy')){ cur=i; break; } }
+    setTechDeploy(el, (cur + 1) % DEPLOY_STATES.length);
   }
 
   var CLASS_PRESETS = {
@@ -1335,7 +1360,7 @@
     var ct = e.target.closest('.ttype-btn');
     if(ct){ cycleCardType(ct); return; }
     var dp = e.target.closest('.tdepbtn');
-    if(dp){ setTechDeploy(dp, dp.getAttribute('data-deploy')==='0'); }
+    if(dp){ cycleTechDeploy(dp); }
   });
   buildTechPresetMenu();
   refreshTechSlotControls();
@@ -1402,7 +1427,7 @@
         techType: card.querySelector('.tticker').getAttribute('data-tt'),
         cardType: CARD_TYPES[parseInt(card.querySelector('.ttype-btn').getAttribute('data-type'),10)].key,
         storage: card.querySelector('.tstorage-input').value,
-        deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy') === '1'
+        deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy')
       });
     }
     return out;
@@ -1423,7 +1448,7 @@
       card.querySelector('.tstorage-input').value = item.storage || '';
       setTechType(card.querySelector('.tticker'), item.techType);
       setCardType(card.querySelector('.ttype-btn'), item.cardType);
-      setTechDeploy(card.querySelector('.tdepbtn'), item.deploy === true);
+      setTechDeploy(card.querySelector('.tdepbtn'), item.deploy);
     }
     relabelTechSlots();
   }
@@ -1523,7 +1548,10 @@
   }
   (function(){
     var cards = document.querySelectorAll('.tech-card');
-    for(var i=0;i<cards.length;i++){ renderTechInfo(cards[i]); }
+    for(var i=0;i<cards.length;i++){
+      renderTechInfo(cards[i]);
+      setTechDeploy(cards[i].querySelector('.tdepbtn'), cards[i].querySelector('.tdepbtn').getAttribute('data-deploy'));
+    }
   })();
 </script>
 <div id="skillPopover"></div>
