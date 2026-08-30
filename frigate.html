@@ -80,7 +80,7 @@
     background-size:auto, 34px 34px, 34px 34px;
     font-family:var(--body);
     color:var(--ink);
-    padding:28px 18px 60px;
+    padding:28px 18px 110px;
     transition:background-color .2s ease, color .2s ease;
   }
   .sheet{max-width:1220px;margin:0 auto;}
@@ -765,7 +765,117 @@
   .menu-toggle:hover{border-color:var(--cyan);color:var(--cyan);}
   @media print{
     .menu-toggle{display:none;}
+    .hand-dock{display:none;}
   }
+
+  /* ===== Hand Dock (bottom tech hand) ===== */
+  .hand-dock{
+    position:fixed;left:0;right:0;bottom:0;z-index:100;
+    display:flex;flex-direction:column;
+  }
+  .hand-tab{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;
+    padding:10px 16px;
+    background:var(--panel);
+    border:none;border-top:1px solid var(--line-bright);
+    color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;cursor:pointer;
+    box-shadow:0 -6px 20px rgba(0,0,0,.35);
+  }
+  .hand-tab:hover{color:var(--cyan);}
+  .hand-tab .hand-count{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:18px;height:18px;padding:0 5px;border-radius:9px;
+    background:var(--cyan);color:var(--void);font-weight:700;
+  }
+  .hand-caret{transition:transform .18s ease;}
+  .hand-dock.expanded .hand-caret{transform:rotate(180deg);}
+  .hand-view{
+    position:relative;
+    height:0;overflow:hidden;
+    transition:height .22s ease;
+    background:
+      var(--bg-radial),
+      linear-gradient(var(--bg-grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 1px);
+    background-size:auto, 34px 34px, 34px 34px;
+    border-top:1px solid var(--line);
+  }
+  .hand-dock.expanded .hand-view{height:38vh;}
+  .hand{
+    display:flex;align-items:flex-end;justify-content:center;
+    padding:14px 24px 10px;
+    height:100%;overflow-x:auto;
+  }
+  .hand-card{
+    position:relative;
+    width:190px;height:240px;flex:none;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    border-radius:6px;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);
+    padding:12px 12px 10px;
+    cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease;
+    display:flex;flex-direction:column;gap:6px;
+    margin-right:-120px;
+  }
+  .hand-card:last-child{margin-right:0;}
+  .hand-card:hover{
+    transform:translateY(-40px) scale(1.06);
+    box-shadow:0 18px 40px rgba(0,0,0,.6);
+    border-color:var(--cyan);
+    z-index:20;
+  }
+  .hand-card .hc-type{
+    position:absolute;top:-9px;right:8px;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--void);border:1px solid var(--line-bright);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;
+  }
+  .hand-card .hc-name{
+    font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.03em;
+    color:var(--cyan);text-transform:uppercase;line-height:1.2;
+  }
+  .hand-card .hc-traits{
+    font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--ink-mid);
+  }
+  .hand-card .hc-secs{display:flex;flex-direction:column;gap:6px;overflow:hidden;flex:1;}
+  .hand-card .hc-sec{font-size:11px;line-height:1.3;color:var(--ink);white-space:pre-wrap;}
+  .hand-card .hc-sec b{display:block;font-family:var(--mono);font-size:8.5px;color:var(--ink-dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1px;}
+  .hand-card .hc-build{
+    font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--ink-dim);
+    text-transform:uppercase;text-align:center;
+    border-top:1px solid var(--line);padding-top:6px;
+  }
+  .hand-empty{
+    align-self:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  .hand-sort{
+    position:absolute;top:8px;left:12px;z-index:5;
+    display:flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-dim);
+    text-transform:uppercase;
+  }
+  .hand-sort select{
+    background:var(--panel);border:1px solid var(--line-bright);color:var(--ink);
+    font-family:var(--mono);font-size:10px;text-transform:uppercase;
+    padding:2px 6px;cursor:pointer;
+  }
+  .hand-sort select:focus{outline:none;border-color:var(--cyan);}
+
+  .tech-card.unbuilt{opacity:.6;}
+  .tbuilt-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:11px;color:var(--ink-dim);line-height:1.4;
+    border:1px solid var(--line-bright);background:var(--panel);
+    padding:1px 6px;cursor:pointer;margin-left:4px;
+  }
+  .tbuilt-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .tech-card.unbuilt .tbuilt-btn{color:var(--cyan);border-color:var(--cyan-dim);}
 
   .menu-bar{
     position:sticky;top:0;z-index:50;
@@ -969,8 +1079,8 @@
         </div>
       </div>
       <div class="tech-grid" id="techGrid" style="margin-top:12px;">
-        <div class="tech-card">
-          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
+        <div class="tech-card" data-built="true">
+          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-built="true" onclick="toggleTechBuilt(this)" title="Move to/from hand">⇅</button><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
           <div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>
           <div class="tsecs">
             <div class="tsec onbuild hid">
@@ -1299,7 +1409,7 @@
     var card = document.createElement('div');
     card.className = 'tech-card';
     card.innerHTML =
-      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-built="true" onclick="toggleTechBuilt(this)" title="Move to/from hand">⇅</button><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
       '<div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>' +
       '<div class="tsecs">' +
         '<div class="tsec onbuild hid"><div class="tsec-head"><span>On Build</span><span class="tdiamond" title="On Build energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div><textarea placeholder="On Build..."></textarea></div>' +
@@ -1315,7 +1425,9 @@
       '</div>';
     grid.appendChild(card);
     refreshTechSections(card);
+    syncTechBuiltUI(card);
     refreshTechSlotControls();
+    refreshHand();
   }
   function removeTechSlot(){
     var grid = document.getElementById('techGrid');
@@ -1323,6 +1435,7 @@
       grid.removeChild(grid.lastElementChild);
     }
     refreshTechSlotControls();
+    refreshHand();
   }
   function showSlotPicker(e, btn, gridId, nameSel){
     e.stopPropagation();
@@ -1370,6 +1483,7 @@
       relabelMods();
     }else{
       refreshTechSlotControls();
+      refreshHand();
     }
   }
   function closeSlotPicker(){
@@ -1438,6 +1552,115 @@
     setTechType(card.querySelector('.tticker'), t.tt);
     setTechDeploy(card.querySelector('.tdepbtn'), t.deploy);
     refreshTechSections(card);
+    refreshHand();
+  }
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function techBuilt(card){
+    return card && card.getAttribute('data-built') === 'true';
+  }
+  function syncTechBuiltUI(card){
+    if(!card) return;
+    var built = techBuilt(card);
+    card.classList.toggle('unbuilt', !built);
+    var btn = card.querySelector('.tbuilt-btn');
+    if(btn) btn.setAttribute('data-built', built ? 'true' : 'false');
+  }
+  function toggleTechBuilt(btn){
+    var card = btn.closest ? btn.closest('.tech-card') : null;
+    if(!card) return;
+    card.setAttribute('data-built', techBuilt(card) ? 'false' : 'true');
+    syncTechBuiltUI(card);
+    refreshHand();
+  }
+  function techCardViewData(card){
+    var typeBtn = card.querySelector('.tticker');
+    var meta = techTypeMeta(typeBtn.getAttribute('data-tt'));
+    return {
+      name: card.querySelector('.tname').value.trim(),
+      type: meta.icon,
+      traits: card.querySelector('.ttraits').value.trim(),
+      onbuild: card.querySelector('.tsec.onbuild textarea').value,
+      passive: card.querySelector('.tsec.passive textarea').value,
+      onactivate: card.querySelector('.tsec.onactivate textarea').value
+    };
+  }
+  var HAND_SORT = 'az';
+  var HAND_TYPE_ORDER = { offense:0, defense:1, movement:2, science:3 };
+  function onHandSortChange(){
+    HAND_SORT = document.getElementById('handSort').value;
+    refreshHand();
+  }
+  function handSortCards(cards){
+    cards.sort(function(a,b){
+      var da = techCardViewData(a);
+      var db = techCardViewData(b);
+      if(HAND_SORT === 'trait'){
+        var ta = (da.traits || '').toLowerCase();
+        var tb = (db.traits || '').toLowerCase();
+        if(ta !== tb) return ta < tb ? -1 : 1;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      if(HAND_SORT === 'type'){
+        var oa = HAND_TYPE_ORDER[a.querySelector('.tticker').getAttribute('data-tt')];
+        var ob = HAND_TYPE_ORDER[b.querySelector('.tticker').getAttribute('data-tt')];
+        if(oa === undefined) oa = 99;
+        if(ob === undefined) ob = 99;
+        if(oa !== ob) return oa - ob;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      return (da.name || '').localeCompare(db.name || '');
+    });
+  }
+  function refreshHand(){
+    var grid = document.getElementById('techGrid');
+    var handEl = document.getElementById('hand');
+    var countEl = document.getElementById('handCount');
+    if(!handEl || !countEl) return;
+    var cards = [];
+    for(var i=0;i<grid.children.length;i++){
+      if(!techBuilt(grid.children[i])) cards.push(grid.children[i]);
+    }
+    handSortCards(cards);
+    handEl.innerHTML = '';
+    if(cards.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'hand-empty';
+      empty.textContent = 'No techs in hand';
+      handEl.appendChild(empty);
+    } else {
+      for(var j=0;j<cards.length;j++){
+        var d = techCardViewData(cards[j]);
+        var el = document.createElement('div');
+        el.className = 'hand-card';
+        el.innerHTML =
+          '<span class="hc-type">' + (d.type || '') + '</span>' +
+          '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
+          (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
+          '<div class="hc-secs">' +
+            (d.onbuild ? '<div class="hc-sec"><b>On Build</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
+            (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
+            (d.onactivate ? '<div class="hc-sec"><b>On Activate</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
+          '</div>' +
+          '<div class="hc-build">Click to Build</div>';
+        el.addEventListener('click', (function(card){
+          return function(){
+            card.setAttribute('data-built', 'true');
+            syncTechBuiltUI(card);
+            refreshHand();
+          };
+        })(cards[j]));
+        handEl.appendChild(el);
+      }
+    }
+    countEl.textContent = cards.length;
+  }
+  function toggleHand(){
+    var dock = document.getElementById('handDock');
+    var willExpand = !dock.classList.contains('expanded');
+    dock.classList.toggle('expanded', willExpand);
+    if(willExpand) refreshHand();
   }
   function setTechType(el, key){
     var meta = techTypeMeta(key);
@@ -2022,7 +2245,8 @@
         hull: card.querySelector('.thull-input').value,
         charges: card.querySelector('.tcharges-input').value,
         deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy'),
-        exhaust: card.querySelector('.texhaust-btn').getAttribute('data-exhaust') === 'true'
+        exhaust: card.querySelector('.texhaust-btn').getAttribute('data-exhaust') === 'true',
+        built: card.getAttribute('data-built') === 'true'
       });
     }
     return out;
@@ -2056,8 +2280,12 @@
       setTechType(card.querySelector('.tticker'), item.techType);
       setTechDeploy(card.querySelector('.tdepbtn'), item.deploy);
       applyTechExhaust(card, item.exhaust === true);
+      var builtVal = (item.built !== undefined) ? item.built : true;
+      card.setAttribute('data-built', builtVal ? 'true' : 'false');
+      syncTechBuiltUI(card);
       refreshTechSections(card);
     }
+    refreshHand();
   }
   function collectSheet(){
     function v(id){ var el = document.getElementById(id); return el ? el.value : ''; }
@@ -2137,8 +2365,11 @@
     var cards = document.querySelectorAll('.tech-card');
     for(var i=0;i<cards.length;i++){
       setTechDeploy(cards[i].querySelector('.tdepbtn'), cards[i].querySelector('.tdepbtn').getAttribute('data-deploy'));
+      if(!cards[i].getAttribute('data-built')) cards[i].setAttribute('data-built', 'true');
+      syncTechBuiltUI(cards[i]);
       refreshTechSections(cards[i]);
     }
+    refreshHand();
     var mods = document.querySelectorAll('.mod-card .mtype-btn');
     for(var m=0;m<mods.length;m++){
       setModType(mods[m], mods[m].getAttribute('data-mtype'));
@@ -2157,5 +2388,23 @@
 </script>
 <div id="skillPopover"></div>
 <div class="preset-menu" id="slotPicker"></div>
+<div class="hand-dock" id="handDock">
+  <button type="button" class="hand-tab" id="handTab" onclick="toggleHand()">
+    <span>Tech Hand</span>
+    <span class="hand-count" id="handCount">0</span>
+    <span class="hand-caret">▴</span>
+  </button>
+  <div class="hand-view">
+    <div class="hand-sort">
+      <label for="handSort">Sort</label>
+      <select id="handSort" onchange="onHandSortChange()">
+        <option value="az">Name</option>
+        <option value="trait">Trait</option>
+        <option value="type">Type</option>
+      </select>
+    </div>
+    <div class="hand" id="hand"></div>
+  </div>
+</div>
 </body>
 </html>

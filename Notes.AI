@@ -69,6 +69,16 @@ A panel mirroring Technologies, added per user request. Structure of a `.mod-car
 - `setModType` / `toggleModType` — toggles `data-mtype` between `module` and `deployable`, rendering the matching SVG from `DEPLOY_STATES`.
 - Click/input event listeners on `#modGrid` handle: shape cycle, type toggle, and hull/duration decrement-on-click.
 
+### Tech Hand / Deck (bottom bar)
+A fixed bottom "hand" UI (`#handDock`) that pops up over ~38% of the screen when expanded, showing a fan of overlapping tech cards (like a card-game hand). This is a VIEW of the tech grid, grouped by a `built` state:
+- Each `.tech-card` carries a `data-built` attribute (`"true"` = installed/built, `"false"` = available/in hand). Persisted as `built` in `readTech`/`writeTech` (missing on import defaults to built).
+- The hand shows ONLY techs that are NOT built (unbuilt). Cards overlap via negative `margin-right`, and on `:hover` they `translateY(-40px) scale(1.06)` to "pop out" for full viewing (the view height leaves headroom above the fan).
+- Clicking a hand card (`el.addEventListener('click', ...)`) sets that grid card `data-built="true"` → it disappears from the hand. The `⇅` button (`.tbuilt-btn`) on a tech card header flips a tech between built/unbuilt (move to/from hand). Unbuilt grid cards are dimmed with `.unbuilt`.
+- Key functions (near the `/* ===== Technologies ===== */` block): `refreshHand()`, `toggleTechBuilt(btn)`, `syncTechBuiltUI(card)`, `techCardViewData(card)`, `escapeHtml(s)`, `toggleHand()`. `refreshHand()` is called after any tech-grid change (add/remove/preset/pick/import/init) so the count (`#handCount`) stays live.
+- **Sorting**: a `#handSort` `<select>` (overlay top-left of the expanded view) sorts the hand via `onHandSortChange()` + `handSortCards(cards)`. Modes are `az` (by name), `trait` (alphabetical by trait field, name tiebreak), and `type` (offense→defense→movement→science via `HAND_TYPE_ORDER`, name tiebreak). Current sort is held in the runtime `HAND_SORT` var (not persisted to sheet).
+- `escapeHtml()` must be used whenever rendering user text into `innerHTML` (hand cards render names/traits/section text this way).
+- Relevant CSS is under the `/* ===== Hand Dock (bottom tech hand) ===== */` block (before `</style>`). Body `padding-bottom` was bumped to 110px so the fixed dock doesn't cover the footer. The dock is hidden in `@media print`.
+
 ### Export / Import (the `/* ===== Export / Import ===== */` section)
 - Each data domain has a `read<X>` / `write<X>` pair (Skills, Crew, Tech, Mods).
 - `collectSheet()` gathers everything into one object; `applySheet(json)` restores it.
