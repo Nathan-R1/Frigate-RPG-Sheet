@@ -816,6 +816,37 @@
     padding:2px 6px;cursor:pointer;
   }
   .hand-sort select:focus{outline:none;border-color:var(--cyan);}
+  .hand-icon-btn{
+    display:none;
+    align-items:center;justify-content:center;
+    background:none;border:1px solid var(--line-bright);color:var(--ink-dim);
+    cursor:pointer;font-size:14px;line-height:1;padding:3px 8px;
+  }
+  .hand-icon-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .hand-menu{
+    position:absolute;right:12px;bottom:calc(100% + 8px);
+    min-width:210px;max-height:320px;overflow-y:auto;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    box-shadow:0 -12px 28px rgba(0,0,0,.5);
+    z-index:300;padding:6px;
+  }
+  .hand-menu-item{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:7px 8px;background:transparent;border:none;color:var(--ink);
+    font-family:inherit;font-size:13px;font-weight:600;text-align:left;cursor:pointer;
+  }
+  .hand-menu-item:hover{background:var(--stat-bg);color:var(--cyan);}
+  .hand-menu-item.active{color:var(--cyan);}
+  .hand-menu-check{font-family:var(--mono);color:var(--cyan);}
+  .hand-menu-head{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:4px 8px 2px;
+  }
+  @media (max-width:640px){
+    .hand-sort label, .hand-sort select{display:none;}
+    .hand-sort .hand-icon-btn{display:inline-flex;}
+  }
   .hand-view{
     position:relative;z-index:200;
     height:0;overflow:hidden;
@@ -1652,10 +1683,106 @@
     };
   }
   var HAND_SORT = 'az';
+  var HAND_FILTER = 'all';
   var HAND_TYPE_ORDER = { offense:0, defense:1, movement:2, science:3 };
   function onHandSortChange(){
     HAND_SORT = document.getElementById('handSort').value;
     refreshHand();
+  }
+  function onHandFilterChange(){
+    HAND_FILTER = document.getElementById('handFilter').value;
+    refreshHand();
+  }
+  function handCardPasses(card){
+    if(!HAND_FILTER || HAND_FILTER === 'all') return true;
+    var d = techCardViewData(card);
+    var parts = HAND_FILTER.split(':');
+    var cat = parts[0], val = parts[1];
+    if(cat === 'type'){
+      var tt = card.querySelector('.tticker').getAttribute('data-tt');
+      return tt === val;
+    }
+    if(cat === 'energy'){
+      var e = d.onbuildenergy;
+      var has = e && e.trim() !== '' && parseFloat(e) > 0;
+      return val === 'has' ? has : !has;
+    }
+    if(cat === 'trait'){
+      var tr = d.traits;
+      return val === 'has' ? !!tr : !tr;
+    }
+    return true;
+  }
+  function handMenuItem(label, value, active){
+    var item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'hand-menu-item' + (active ? ' active' : '');
+    item.setAttribute('data-value', value);
+    var span = document.createElement('span');
+    span.textContent = label;
+    item.appendChild(span);
+    if(active){
+      var ck = document.createElement('span');
+      ck.className = 'hand-menu-check';
+      ck.textContent = '✓';
+      item.appendChild(ck);
+    }
+    return item;
+  }
+  function handMenuHead(label){
+    var h = document.createElement('div');
+    h.className = 'hand-menu-head';
+    h.textContent = label;
+    return h;
+  }
+  function openHandMenu(kind, btn){
+    var menu = document.getElementById('handMenu');
+    if(!menu) return;
+    if(menu.classList.contains('open')){
+      menu.classList.remove('open');
+      return;
+    }
+    menu.innerHTML = '';
+    menu.setAttribute('data-kind', kind);
+    var items;
+    if(kind === 'sort'){
+      items = [
+        handMenuItem('Name','az',HAND_SORT==='az'),
+        handMenuItem('Trait','trait',HAND_SORT==='trait'),
+        handMenuItem('Type','type',HAND_SORT==='type'),
+        handMenuItem('Energy','energy',HAND_SORT==='energy')
+      ];
+    } else {
+      items = [
+        handMenuItem('All','all',HAND_FILTER==='all'),
+        handMenuHead('Type'),
+        handMenuItem('Offense','type:offense',HAND_FILTER==='type:offense'),
+        handMenuItem('Defense','type:defense',HAND_FILTER==='type:defense'),
+        handMenuItem('Movement','type:movement',HAND_FILTER==='type:movement'),
+        handMenuItem('Science','type:science',HAND_FILTER==='type:science'),
+        handMenuHead('Energy'),
+        handMenuItem('Has cost','energy:has',HAND_FILTER==='energy:has'),
+        handMenuItem('No cost','energy:none',HAND_FILTER==='energy:none'),
+        handMenuHead('Trait'),
+        handMenuItem('Has trait','trait:has',HAND_FILTER==='trait:has'),
+        handMenuItem('No trait','trait:none',HAND_FILTER==='trait:none')
+      ];
+    }
+    for(var i=0;i<items.length;i++){
+      var el = items[i];
+      if(el.nodeName === 'DIV'){ menu.appendChild(el); continue; }
+      (function(item){
+        item.addEventListener('click', function(){
+          var val = item.getAttribute('data-value');
+          if(kind === 'sort'){ HAND_SORT = val; }
+          else { HAND_FILTER = val; }
+          menu.classList.remove('open');
+          refreshHand();
+        });
+      })(el);
+      menu.appendChild(el);
+    }
+    menu.classList.add('open');
   }
   function handSortCards(cards){
     cards.sort(function(a,b){
@@ -1693,7 +1820,7 @@
     if(!handEl || !countEl) return;
     var cards = [];
     for(var i=0;i<grid.children.length;i++){
-      if(techState(grid.children[i]) === 'hand') cards.push(grid.children[i]);
+      if(techState(grid.children[i]) === 'hand' && handCardPasses(grid.children[i])) cards.push(grid.children[i]);
     }
     handSortCards(cards);
     handEl.innerHTML = '';
@@ -2474,6 +2601,14 @@
     }
     refreshModSlotControls();
     wireSkillTooltips();
+    document.addEventListener('click', function(e){
+      var menu = document.getElementById('handMenu');
+      if(!menu || !menu.classList.contains('open')) return;
+      var t = e.target;
+      if(menu.contains(t)) return;
+      if(t && t.closest && t.closest('.hand-icon-btn')) return;
+      menu.classList.remove('open');
+    });
   })();
 </script>
 <div id="skillPopover"></div>
@@ -2493,7 +2628,28 @@
         <option value="type">Type</option>
         <option value="energy">Energy</option>
       </select>
+      <label for="handFilter">Filter</label>
+      <select id="handFilter" onchange="onHandFilterChange()">
+        <option value="all">All</option>
+        <optgroup label="Type">
+          <option value="type:offense">Offense</option>
+          <option value="type:defense">Defense</option>
+          <option value="type:movement">Movement</option>
+          <option value="type:science">Science</option>
+        </optgroup>
+        <optgroup label="Energy">
+          <option value="energy:has">Has cost</option>
+          <option value="energy:none">No cost</option>
+        </optgroup>
+        <optgroup label="Trait">
+          <option value="trait:has">Has trait</option>
+          <option value="trait:none">No trait</option>
+        </optgroup>
+      </select>
+      <button type="button" class="hand-icon-btn" id="handSortBtn" onclick="openHandMenu('sort', this)" title="Sort hand">⇵</button>
+      <button type="button" class="hand-icon-btn" id="handFilterBtn" onclick="openHandMenu('filter', this)" title="Filter hand">ᯤ</button>
     </div>
+    <div class="preset-menu hand-menu" id="handMenu"></div>
   </div>
   <div class="hand-view">
     <div class="hand" id="hand"></div>
