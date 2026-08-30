@@ -603,6 +603,122 @@
     background:transparent;border:none;padding:0;
   }
 
+  /* ===== modules / deployables panel ===== */
+  .mod-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:12px;
+  }
+  .mod-card{
+    background:var(--crew-bg);
+    border:1px solid var(--line);
+    min-height:170px;
+    display:flex;flex-direction:column;
+  }
+  .mod-card .mhead{
+    display:flex;align-items:center;gap:8px;padding:8px 10px 2px;
+  }
+  .mtype-btn{
+    flex:none;
+    width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--stat-bg);
+    border:1px solid var(--line-bright);
+    color:var(--ink-dim);
+    cursor:pointer;
+    padding:0;
+  }
+  .mtype-btn:hover{border-color:var(--cyan);}
+  .mtype-btn[data-mtype="module"]{border-color:var(--icon-cyan);color:var(--icon-cyan);}
+  .mtype-btn[data-mtype="deployable"]{border-color:var(--icon-amber);color:var(--icon-amber);}
+  .mtype-btn .kw-icon{width:16px;height:16px;display:block;margin:0;}
+  .mod-card input.mname{
+    flex:1;min-width:0;
+    font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--amber);
+    text-transform:uppercase;letter-spacing:.02em;
+  }
+  .mod-card .msecedit{
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 7px;border-radius:3px;
+  }
+  .msecedit:hover{color:var(--cyan);border-color:var(--cyan);}
+  .msub{
+    display:flex;align-items:center;gap:8px;
+    padding-right:10px;
+  }
+  .msub .mreq.hid + .mspeed{padding-left:10px;}
+  .msub input.mreq{
+    flex:1;min-width:0;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
+    padding:2px 10px 6px;
+  }
+  .mhull{
+    flex:none;
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);
+  }
+  .mhull .kw-icon{width:14px;height:14px;flex:none;margin:0;}
+  .mhull.hid{display:none;}
+  .mdur{
+    flex:none;
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);
+  }
+  .mdur .kw-icon{width:14px;height:14px;flex:none;margin:0;}
+  .mdur.hid{display:none;}
+  .mdur input.mdur-input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  }
+  .mspeed{
+    flex:none;
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);
+  }
+  .mspeed .kw-icon{width:14px;height:14px;flex:none;margin:0;}
+  .mspeed.hid{display:none;}
+  .mspeed input.mspeed-input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  }
+  .mhull input.mhull-input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  }
+  .msecs{display:flex;flex-direction:column;flex:1;min-height:0;}
+  .msec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
+  .msec.hid{display:none;}
+  .msec-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:5px 10px 2px;
+  }
+  .msec textarea{
+    flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
+  }
+  .msec textarea:disabled{
+    opacity:1;cursor:default;-webkit-text-fill-color:var(--ink-mid);color:var(--ink-mid);
+  }
+  .mod-card.editing .msec.hid{display:flex;}
+  .mod-card .mreq.hid{display:none;}
+  .mod-card .mname:disabled{
+    opacity:1;cursor:default;-webkit-text-fill-color:currentColor;color:currentColor;
+  }
+  .mcost{
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    width:24px;height:24px;
+    border:1px solid var(--icon-energy);color:var(--icon-energy);
+    transform:rotate(45deg);
+  }
+  .mcost.hid{display:none;}
+  .mcost .ticon,.mcost input{transform:rotate(-45deg);}
+  .mcost .ticon{width:11px;height:11px;flex:none;}
+  .mcost input{
+    width:13px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
+    background:transparent;border:none;padding:0;
+  }
+
   footer{
     text-align:center;margin-top:22px;
     font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-dim);
@@ -891,6 +1007,42 @@
     </div>
   </div>
 
+  <!-- MODULES / DEPLOYABLES -->
+  <div class="panel" style="margin-top:16px;">
+    <div class="bl"></div><div class="br"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div class="eyebrow" style="margin-bottom:0;">Modules / Deployables</div>
+      <div class="slot-controls">
+        <button type="button" class="slot-btn" id="modSlotRemoveBtn" onclick="showSlotPicker(event, this, 'modGrid', '.mname')" title="Remove a slot">−</button>
+        <button type="button" class="slot-btn" onclick="addModSlot()" title="Add slot">+</button>
+        <div class="slot-menu-wrap">
+          <button type="button" class="slot-btn" onclick="toggleModPresetMenu(event)" title="Add from catalog">☰</button>
+          <div class="preset-menu" id="modPresetMenu"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mod-grid" id="modGrid" style="margin-top:12px;">
+      <div class="mod-card">
+        <div class="mhead"><button type="button" class="mtype-btn" data-mtype="module" title="Module"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>
+        <div class="msub"><input class="mreq" placeholder="REQUIREMENTS"><span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span><span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span><span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span></div>
+        <div class="msecs">
+          <div class="msec onbuild hid">
+            <div class="msec-head"><span>On Build</span></div>
+            <textarea placeholder="On Build..."></textarea>
+          </div>
+          <div class="msec passive hid">
+            <div class="msec-head"><span>Passive</span></div>
+            <textarea placeholder="Passive..."></textarea>
+          </div>
+          <div class="msec onactivate hid">
+            <div class="msec-head"><span>On Activate</span><span class="mcost" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcost-input" maxlength="2"></span></div>
+            <textarea placeholder="On Activate..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>Fleet Command &nbsp;//&nbsp; Vessel Operations Manual &nbsp;//&nbsp; Sheet rev. 01</footer>
 </div>
 
@@ -1150,7 +1302,7 @@
     for(var i = 0; i < grid.children.length; i++){
       var card = grid.children[i];
       var nameEl = card.querySelector(nameSel);
-      var display = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : (gridId === 'crewGrid' ? slotLabel(i + 1) : techSlotLabel(i + 1));
+      var display = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : (gridId === 'crewGrid' ? slotLabel(i + 1) : (gridId === 'modGrid' ? modSlotLabel(i + 1) : techSlotLabel(i + 1)));
       var item = document.createElement('button');
       item.type = 'button';
       item.className = 'preset-item';
@@ -1178,6 +1330,9 @@
     if(gridId === 'crewGrid'){
       refreshSlotControls();
       relabelSlots();
+    }else if(gridId === 'modGrid'){
+      refreshModSlotControls();
+      relabelMods();
     }else{
       refreshTechSlotControls();
     }
@@ -1448,7 +1603,219 @@
   buildTechPresetMenu();
   refreshTechSlotControls();
 
+  /* ===== Modules / Deployables ===== */
+  function modSlotLabel(n){ return 'Slot ' + (n < 10 ? '0' + n : n); }
+  function refreshModSlotControls(){
+    var grid = document.getElementById('modGrid');
+    document.getElementById('modSlotRemoveBtn').disabled = grid.children.length <= 1;
+  }
+  function addModSlot(){
+    var grid = document.getElementById('modGrid');
+    var card = document.createElement('div');
+    card.className = 'mod-card';
+    card.innerHTML =
+      '<div class="mhead"><button type="button" class="mtype-btn" data-mtype="module" title="Module"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="msub"><input class="mreq" placeholder="REQUIREMENTS"><span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span><span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span><span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span></div>' +
+      '<div class="msecs">' +
+        '<div class="msec onbuild hid"><div class="msec-head"><span>On Build</span></div><textarea placeholder="On Build..."></textarea></div>' +
+        '<div class="msec passive hid"><div class="msec-head"><span>Passive</span></div><textarea placeholder="Passive..."></textarea></div>' +
+        '<div class="msec onactivate hid"><div class="msec-head"><span>On Activate</span><span class="mcost" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcost-input" maxlength="2"></span></div><textarea placeholder="On Activate..."></textarea></div>' +
+      '</div>';
+    grid.appendChild(card);
+    setModType(card.querySelector('.mtype-btn'), 'module');
+    refreshModSections(card);
+    refreshModSlotControls();
+  }
+  function toggleModEdit(btn){
+    var card = btn.closest('.mod-card');
+    card.classList.toggle('editing');
+    btn.textContent = card.classList.contains('editing') ? 'Done' : 'Edit';
+    refreshModSections(card);
+  }
+  function refreshModSections(card){
+    if(!card) return;
+    var editing = card.classList.contains('editing');
+    var secs = card.querySelectorAll('.msec');
+    for(var i = 0; i < secs.length; i++){
+      var field = secs[i].querySelector('textarea');
+      var hasText = field && field.value.trim() !== '';
+      secs[i].classList.toggle('hid', !hasText && !editing);
+      if(field) field.disabled = !editing;
+      var cost = secs[i].querySelector('.mcost');
+      if(cost){
+        var inp = cost.querySelector('input');
+        var hasVal = inp && inp.value.trim() !== '';
+        cost.classList.toggle('hid', !hasVal && !editing);
+        if(inp) inp.disabled = !editing;
+      }
+    }
+    var name = card.querySelector('.mname');
+    if(name) name.disabled = !editing;
+    var req = card.querySelector('.mreq');
+    if(req){
+      req.classList.toggle('hid', req.value.trim() === '' && !editing);
+      req.disabled = !editing;
+    }
+    var hull = card.querySelector('.mhull');
+    if(hull){
+      var hullInp = hull.querySelector('.mhull-input');
+      var hullEmpty = !hullInp || hullInp.value.trim() === '';
+      hull.classList.toggle('hid', hullEmpty && !editing);
+      if(hullInp) hullInp.disabled = !editing;
+    }
+    var dur = card.querySelector('.mdur');
+    if(dur){
+      var durInp = dur.querySelector('.mdur-input');
+      var durEmpty = !durInp || durInp.value.trim() === '';
+      dur.classList.toggle('hid', durEmpty && !editing);
+      if(durInp) durInp.disabled = !editing;
+    }
+    var speed = card.querySelector('.mspeed');
+    if(speed){
+      var speedInp = speed.querySelector('.mspeed-input');
+      var speedEmpty = !speedInp || speedInp.value.trim() === '';
+      speed.classList.toggle('hid', speedEmpty && !editing);
+      if(speedInp) speedInp.disabled = !editing;
+    }
+  }
+  function removeModSlot(){
+    var grid = document.getElementById('modGrid');
+    if(grid.children.length > 1){
+      grid.removeChild(grid.lastElementChild);
+    }
+    refreshModSlotControls();
+  }
+  function setModType(el, type){
+    var meta = (type === 'deployable') ? DEPLOY_STATES[1] : DEPLOY_STATES[2];
+    el.setAttribute('data-mtype', meta.key);
+    el.innerHTML = meta.svg;
+    el.title = meta.label;
+  }
+  function toggleModType(el){
+    var cur = el.getAttribute('data-mtype') === 'module' ? 'deployable' : 'module';
+    setModType(el, cur);
+  }
+  var MOD_PRESETS = [
+    {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', onactivateenergy:'2'},
+    {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'Gain +2 Speed.', onactivate:'', onactivateenergy:''},
+    {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'0', type:'deployable', onbuild:'', passive:'', onactivate:'Remove this deployable to Target an object:\nRange: 8 from self, Check: Sensors,\nDmg: 3 (SHIELD ONLY)', onactivateenergy:''},
+    {name:'P.D.', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2', onactivateenergy:'2'}
+  ];
+  MOD_PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
+  function buildModPresetMenu(){
+    var menu = document.getElementById('modPresetMenu');
+    menu.innerHTML = '';
+    MOD_PRESETS.forEach(function(p){
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'preset-item';
+      var label = document.createElement('span');
+      label.textContent = p.name;
+      item.appendChild(label);
+      var dtag = document.createElement('span');
+      dtag.className = 'preset-tag preset-deploy';
+      dtag.innerHTML = (p.type === 'deployable') ? DEPLOY_STATES[1].svg : DEPLOY_STATES[2].svg;
+      item.appendChild(dtag);
+      item.onclick = function(){
+        pickModPreset(p);
+        closeModPresetMenu();
+      };
+      menu.appendChild(item);
+    });
+  }
+  function toggleModPresetMenu(e){
+    e.stopPropagation();
+    document.getElementById('modPresetMenu').classList.toggle('open');
+  }
+  function closeModPresetMenu(){
+    document.getElementById('modPresetMenu').classList.remove('open');
+  }
+  function pickModPreset(p){
+    addModSlot();
+    var card = document.getElementById('modGrid').lastElementChild;
+    card.querySelector('.mname').value = p.name || '';
+    card.querySelector('.mreq').value = p.req || '';
+    card.querySelector('.mhull-input').value = (p.hull !== undefined && p.hull !== null) ? p.hull : '';
+    card.querySelector('.mdur-input').value = (p.duration !== undefined && p.duration !== null) ? p.duration : '';
+    card.querySelector('.mspeed-input').value = (p.speed !== undefined && p.speed !== null) ? p.speed : '';
+    card.querySelector('.msec.onbuild textarea').value = p.onbuild || '';
+    card.querySelector('.msec.passive textarea').value = p.passive || '';
+    card.querySelector('.msec.onactivate textarea').value = p.onactivate || '';
+    card.querySelector('.mcost-input').value = (p.onactivateenergy !== undefined && p.onactivateenergy !== null) ? p.onactivateenergy : '';
+    setModType(card.querySelector('.mtype-btn'), p.type || 'module');
+    refreshModSections(card);
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('modPresetMenu');
+    if(menu.classList.contains('open') && !menu.contains(e.target)){
+      closeModPresetMenu();
+    }
+  });
+  document.getElementById('modGrid').addEventListener('click', function(e){
+    var bt = e.target.closest('.mtype-btn');
+    if(bt){ toggleModType(bt); return; }
+    var hl = e.target.closest('.mhull, .mdur');
+    if(hl && !e.target.closest('input')){
+      var inp = hl.querySelector('input');
+      if(inp){
+        var v = parseInt(inp.value, 10);
+        if(isNaN(v)) v = 0;
+        inp.value = Math.max(0, v - 1);
+        refreshModSections(hl.closest('.mod-card'));
+      }
+    }
+  });
+  document.getElementById('modGrid').addEventListener('input', function(e){
+    if(e.target.closest && e.target.closest('.mod-card')){
+      refreshModSections(e.target.closest('.mod-card'));
+    }
+  });
+  buildModPresetMenu();
+  refreshModSlotControls();
+
   /* ===== Export / Import ===== */
+  function readMods(){
+    var grid = document.getElementById('modGrid');
+    var out = [];
+    for(var i = 0; i < grid.children.length; i++){
+      var card = grid.children[i];
+      out.push({
+        name: card.querySelector('.mname').value,
+        req: card.querySelector('.mreq').value,
+        hull: card.querySelector('.mhull-input').value,
+        duration: card.querySelector('.mdur-input').value,
+        speed: card.querySelector('.mspeed-input').value,
+        onbuild: card.querySelector('.msec.onbuild textarea').value,
+        passive: card.querySelector('.msec.passive textarea').value,
+        onactivate: card.querySelector('.msec.onactivate textarea').value,
+        onactivateenergy: card.querySelector('.mcost-input').value,
+        type: card.querySelector('.mtype-btn').getAttribute('data-mtype')
+      });
+    }
+    return out;
+  }
+  function writeMods(mods){
+    var grid = document.getElementById('modGrid');
+    var count = Array.isArray(mods) ? mods.length : 1;
+    var target = Math.max(1, count);
+    while(grid.children.length < target) addModSlot();
+    while(grid.children.length > target) removeModSlot();
+    for(var i = 0; i < grid.children.length; i++){
+      var card = grid.children[i];
+      var item = (mods && mods[i]) ? mods[i] : {};
+      card.querySelector('.mname').value = item.name || '';
+      card.querySelector('.mreq').value = item.req || '';
+      card.querySelector('.mhull-input').value = item.hull || '';
+      card.querySelector('.mdur-input').value = item.duration || '';
+      card.querySelector('.mspeed-input').value = item.speed || '';
+      card.querySelector('.msec.onbuild textarea').value = item.onbuild || '';
+      card.querySelector('.msec.passive textarea').value = item.passive || '';
+      card.querySelector('.msec.onactivate textarea').value = item.onactivate || '';
+      card.querySelector('.mcost-input').value = item.onactivateenergy || '';
+      setModType(card.querySelector('.mtype-btn'), item.type || 'module');
+      refreshModSections(card);
+    }
+  }
   function readSkills(){
     var out = {};
     var names = ['Cyber','Diplomacy','Engineering','Leadership','Logistics','Navigation','Piloting','Sensors','Science'];
@@ -1577,6 +1944,7 @@
       skills: readSkills(),
       crew: readCrew(),
       tech: readTech(),
+      mods: readMods(),
       arcs: readArcs()
     };
   }
@@ -1601,6 +1969,7 @@
     writeSkills(json.skills);
     writeCrew(json.crew);
     writeTech(json.tech);
+    writeMods(json.mods);
     writeArcs(json.arcs);
   }
   function exportSheet(){
@@ -1643,6 +2012,15 @@
       setTechDeploy(cards[i].querySelector('.tdepbtn'), cards[i].querySelector('.tdepbtn').getAttribute('data-deploy'));
       refreshTechSections(cards[i]);
     }
+    var mods = document.querySelectorAll('.mod-card .mtype-btn');
+    for(var m=0;m<mods.length;m++){
+      setModType(mods[m], mods[m].getAttribute('data-mtype'));
+    }
+    var modCards = document.querySelectorAll('.mod-card');
+    for(var mc=0;mc<modCards.length;mc++){
+      refreshModSections(modCards[mc]);
+    }
+    refreshModSlotControls();
   })();
 </script>
 <div id="skillPopover"></div>
