@@ -774,6 +774,7 @@
     display:flex;flex-direction:column;
   }
   .hand-tab{
+    position:relative;z-index:100;
     display:flex;align-items:center;justify-content:center;gap:10px;
     width:100%;
     padding:10px 16px;
@@ -792,7 +793,7 @@
   .hand-caret{transition:transform .18s ease;}
   .hand-dock.expanded .hand-caret{transform:rotate(180deg);}
   .hand-view{
-    position:relative;
+    position:relative;z-index:200;
     height:0;overflow:hidden;
     transition:height .22s ease;
     background:
@@ -816,7 +817,7 @@
   .hand-view::-webkit-scrollbar-thumb:hover{background:var(--cyan);}
   .hand{
     display:flex;align-items:flex-end;justify-content:flex-start;
-    padding:24px 24px 16px;
+    padding:90px 24px 16px;
     height:100%;
     width:max-content;
     min-width:100%;
@@ -841,6 +842,12 @@
     border-color:var(--cyan);
     z-index:500;
   }
+  .hand-card.popped{
+    transform:translateY(-55px) scale(1.06);
+    box-shadow:0 18px 40px rgba(0,0,0,.6);
+    border-color:var(--cyan);
+    z-index:500;
+  }
   .hand-card .hc-name{
     font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.03em;
     color:var(--cyan);text-transform:uppercase;line-height:1.2;
@@ -860,11 +867,10 @@
     font-size:16px;line-height:1;
   }
   .hand-card .hc-cost{
-    display:flex;align-items:center;justify-content:center;gap:2px;
-    transform:rotate(-45deg);
-    font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
+    display:flex;align-items:center;justify-content:center;gap:4px;
+    font-family:var(--mono);font-weight:700;font-size:13px;color:var(--icon-energy);
   }
-  .hand-card .hc-cost svg{width:11px;height:11px;flex:none;transform:rotate(45deg);}
+  .hand-card .hc-cost svg{width:13px;height:13px;flex:none;}
   .hand-empty{
     align-self:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;
     color:var(--ink-dim);text-transform:uppercase;
@@ -1669,17 +1675,32 @@
           '<div class="hc-foot">' +
             '<span class="hc-tags">' + (d.type || '') + '</span>' +
             '<span class="hc-cost">' +
-              '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg>' +
-              (d.onbuildenergy ? escapeHtml(d.onbuildenergy) : '') +
+              (d.onbuildenergy && d.onbuildenergy !== '0'
+                ? escapeHtml(d.onbuildenergy) +
+                  '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg>'
+                : '') +
             '</span>' +
           '</div>';
-        el.addEventListener('click', (function(card){
+        el.addEventListener('click', (function(el, card){
+          var timer = null;
           return function(){
-            card.setAttribute('data-built', 'true');
-            syncTechBuiltUI(card);
-            refreshHand();
+            if(timer){
+              clearTimeout(timer);
+              timer = null;
+              card.setAttribute('data-built', 'true');
+              syncTechBuiltUI(card);
+              refreshHand();
+              return;
+            }
+            timer = setTimeout(function(){
+              timer = null;
+              var popped = document.querySelector('.hand-card.popped');
+              if(popped && popped !== el) popped.classList.remove('popped');
+              el.classList.toggle('popped');
+            }, 260);
           };
-        })(cards[j]));
+        })(el, cards[j]));
+        el.addEventListener('dblclick', function(e){ e.preventDefault(); });
         handEl.appendChild(el);
       }
     }
