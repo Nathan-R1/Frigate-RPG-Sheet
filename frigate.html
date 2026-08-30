@@ -699,6 +699,17 @@
     width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
     background:var(--stat-bg);border:1px solid var(--line);padding:1px;
   }
+  .mcharges{
+    flex:none;
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);cursor:pointer;
+  }
+  .mcharges .kw-icon{width:14px;height:14px;flex:none;margin:0;}
+  .mcharges.hid{display:none;}
+  .mcharges input.mcharges-input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  }
   .msecs{display:flex;flex-direction:column;flex:1;min-height:0;}
   .msec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
   .msec.hid{display:none;}
@@ -1024,6 +1035,7 @@
           <span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>
           <span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>
           <span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>
+          <span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcharges-input" maxlength="4"></span>
         </div>
       </div>
     </div>
@@ -1261,10 +1273,10 @@
     {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 3 ⚡to Target an object:\n\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
     {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Trash.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
     {name:'Rocket Array', traits:'charge 0', onbuild:'Place 1 charge on this card', passive:'', onactivate:'Exhaust to A) remove 1 charge, or B) if there are no charges Target an object: Range: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module (Hull 4, Req. Adjacent to any).\n\n---- On Activate ----\nExhaust and pay 2E to add a charge to this OR remove a charge and give 4 shield to a ship within Sensor range from this.', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'0', deploy:'module'},
+    {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Field', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
     {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, exhaust to Move 1.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck. Trash.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Targeting Computer', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a Ballistic weapon you may reroll results of 1.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Targeting Computer', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a Ballistic 💥 weapon you may reroll results of 1.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Graviton Engine', traits:'[Module]', onbuild:'Create Module Graviton Engine', passive:'Gain +2 Speed.', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:'module'},
     {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
@@ -1543,7 +1555,8 @@
   var CLASS_PRESETS = {
     'Support Class': {
       stats: {hull:2, shield:2, storage:2},
-      techName: 'Repulsor Field'
+      techName: 'Repulsor Field',
+      modName: 'Repulsor Field'
     },
     'Jump Class': {
       techName: 'Phantom'
@@ -1560,6 +1573,12 @@
   function findTechByName(name){
     for(var i=0;i<TECHP_RESETS.length;i++){
       if(TECHP_RESETS[i].name === name) return TECHP_RESETS[i];
+    }
+    return null;
+  }
+  function findModByName(name){
+    for(var i=0;i<MOD_PRESETS.length;i++){
+      if(MOD_PRESETS[i].name === name) return MOD_PRESETS[i];
     }
     return null;
   }
@@ -1590,6 +1609,10 @@
     if(preset.techName){
       var t = findTechByName(preset.techName);
       if(t) addTechFromData(t);
+    }
+    if(preset.modName){
+      var m = findModByName(preset.modName);
+      if(m) pickModPreset(m);
     }
   }
   document.addEventListener('click', function(e){
@@ -1656,6 +1679,7 @@
         '<span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>' +
         '<span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>' +
         '<span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>' +
+        '<span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcharges-input" maxlength="4"></span>' +
       '</div>';
     grid.appendChild(card);
     setModType(card.querySelector('.mtype-btn'), 'module');
@@ -1722,6 +1746,13 @@
       speed.classList.toggle('hid', speedEmpty && !editing);
       if(speedInp) speedInp.disabled = !editing;
     }
+    var charges = card.querySelector('.mcharges');
+    if(charges){
+      var chInp = charges.querySelector('.mcharges-input');
+      var chEmpty = !chInp || chInp.value.trim() === '';
+      charges.classList.toggle('hid', chEmpty && !editing);
+      if(chInp) chInp.disabled = !editing;
+    }
   }
   function removeModSlot(){
     var grid = document.getElementById('modGrid');
@@ -1776,10 +1807,11 @@
     setModuleShape(el, MOD_SHAPES[(idx + 1) % MOD_SHAPES.length].key);
   }
   var MOD_PRESETS = [
-    {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', onactivateenergy:'2'},
+    {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2 💥', onactivateenergy:'2'},
     {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'Gain +2 Speed.', onactivate:'', onactivateenergy:''},
     {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'0', type:'deployable', onbuild:'', passive:'', onactivate:'Remove this deployable to Target an object:\nRange: 8 from self, Check: Sensors,\nDmg: 3 (SHIELD ONLY)', onactivateenergy:''},
-    {name:'P.D.', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2', onactivateenergy:'2'}
+    {name:'P.D.', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'Exhaust and pay 2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2 💥', onactivateenergy:'2'},
+    {name:'Repulsor Field', req:'Adjacent to any', hull:'4', charges:'0', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay 2E to add a charge to this OR remove a charge and give 4 shield to a ship within Sensor range from this.', onactivateenergy:'2'}
   ];
   MOD_PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
   function buildModPresetMenu(){
@@ -1818,6 +1850,7 @@
     card.querySelector('.mhull-input').value = (p.hull !== undefined && p.hull !== null) ? p.hull : '';
     card.querySelector('.mdur-input').value = (p.duration !== undefined && p.duration !== null) ? p.duration : '';
     card.querySelector('.mspeed-input').value = (p.speed !== undefined && p.speed !== null) ? p.speed : '';
+    card.querySelector('.mcharges-input').value = (p.charges !== undefined && p.charges !== null) ? p.charges : '';
     card.querySelector('.msec.onbuild textarea').value = p.onbuild || '';
     card.querySelector('.msec.passive textarea').value = p.passive || '';
     card.querySelector('.msec.onactivate textarea').value = p.onactivate || '';
@@ -1838,6 +1871,17 @@
     var bt = e.target.closest('.mtype-btn');
     if(bt){ toggleModType(bt); return; }
     var hl = e.target.closest('.mhull, .mdur');
+    var ch = e.target.closest('.mcharges');
+    if(ch && !e.target.closest('input')){
+      var chInp = ch.querySelector('input');
+      if(chInp){
+        var cv = parseInt(chInp.value, 10);
+        if(isNaN(cv)) cv = 0;
+        chInp.value = cv + 1;
+        refreshModSections(ch.closest('.mod-card'));
+      }
+      return;
+    }
     if(hl && !e.target.closest('input')){
       var inp = hl.querySelector('input');
       if(inp){
@@ -1868,6 +1912,7 @@
         hull: card.querySelector('.mhull-input').value,
         duration: card.querySelector('.mdur-input').value,
         speed: card.querySelector('.mspeed-input').value,
+        charges: card.querySelector('.mcharges-input').value,
         onbuild: card.querySelector('.msec.onbuild textarea').value,
         passive: card.querySelector('.msec.passive textarea').value,
         onactivate: card.querySelector('.msec.onactivate textarea').value,
@@ -1900,6 +1945,7 @@
       card.querySelector('.mhull-input').value = item.hull || '';
       card.querySelector('.mdur-input').value = item.duration || '';
       card.querySelector('.mspeed-input').value = item.speed || '';
+      card.querySelector('.mcharges-input').value = item.charges || '';
       card.querySelector('.msec.onbuild textarea').value = item.onbuild || '';
       card.querySelector('.msec.passive textarea').value = item.passive || '';
       card.querySelector('.msec.onactivate textarea').value = item.onactivate || '';
