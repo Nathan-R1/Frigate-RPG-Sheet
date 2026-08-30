@@ -824,8 +824,15 @@
   }
   .hand-icon-btn:hover{color:var(--cyan);border-color:var(--cyan);}
   @media (max-width:640px){
-    .hand-sort label, .hand-sort select{display:none;}
+    .hand-sort{position:relative;}
+    .hand-sort label{display:none;}
+    .hand-sort select{
+      position:absolute;bottom:0;width:34px;height:100%;
+      opacity:0;border:0;padding:0;z-index:2;
+    }
     .hand-sort .hand-icon-btn{display:inline-flex;}
+    .hand-sort #handSort{right:52px;}
+    .hand-sort #handFilter{right:12px;}
   }
   .hand-view{
     position:relative;z-index:200;
@@ -2556,6 +2563,8 @@
           <option value="trait:none">No trait</option>
         </optgroup>
       </select>
+      <button type="button" class="hand-icon-btn" id="handSortBtn" onclick="openHandSelect('handSort')" title="Sort hand">⇵</button>
+      <button type="button" class="hand-icon-btn" id="handFilterBtn" onclick="openHandSelect('handFilter')" title="Filter hand">ᯤ</button>
     </div>
   </div>
   <div class="hand-view">
