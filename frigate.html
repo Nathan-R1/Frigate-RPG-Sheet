@@ -497,8 +497,7 @@
     font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--cyan);
     text-transform:uppercase;letter-spacing:.02em;
   }
-  .tech-card .thead .tsecedit{margin-left:auto;}
-  .tech-card input:disabled{
+  .tech-card input:disabled,.mod-card .mname:disabled{
     opacity:1;cursor:default;-webkit-text-fill-color:currentColor;color:currentColor;
   }
   .tsub{
@@ -510,65 +509,59 @@
     font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
     padding:2px 10px 6px;
   }
-  .tsecs{display:flex;flex-direction:column;flex:1;min-height:0;}
-  .tsec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
-  .tsec.hid{display:none;}
-  .tsec-head{
+  .tsecs,.msecs{display:flex;flex-direction:column;flex:1;min-height:0;}
+  .tsec,.msec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
+  .tsec.hid,.msec.hid{display:none;}
+  .tsec-head,.msec-head{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
     font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
     text-transform:uppercase;padding:5px 10px 2px;
   }
-  .tsec textarea{
+  .tsec textarea,.msec textarea{
     flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
   }
-  .tsec textarea:disabled{
+  .tsec textarea:disabled,.msec textarea:disabled{
     opacity:1;cursor:default;-webkit-text-fill-color:var(--ink-mid);color:var(--ink-mid);
   }
   .tsec.dep textarea{background:rgba(232,169,74,.30);}
   .tsec.mod textarea{background:rgba(14,120,90,.30);}
-  .tsecedit{
+  .tsecedit,.msecedit{
     flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
     text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
     padding:2px 7px;border-radius:3px;margin-left:auto;
   }
-  .tsecedit:hover{color:var(--cyan);border-color:var(--cyan);}
-  .t-delete{
+  .tsecedit:hover,.msecedit:hover{color:var(--cyan);border-color:var(--cyan);}
+  .t-delete,.m-delete{
     flex:none;cursor:pointer;font-family:var(--mono);font-size:11px;line-height:1;
     color:var(--ink-dim);background:none;border:1px solid var(--line);
     padding:2px 6px;border-radius:3px;display:none;
   }
-  .t-delete:hover{color:#e5534b;border-color:#e5534b;}
-  .tech-card.editing .t-delete{display:inline-flex;}
+  .t-delete:hover,.m-delete:hover{color:#e5534b;border-color:#e5534b;}
+  .tech-card.editing .t-delete,.mod-card.editing .m-delete{display:inline-flex;}
   .tech-card.state-exhausted{opacity:.55;}
   .tech-card.state-hand{opacity:.6;}
-  .tech-card.editing .tsec.hid{display:flex;}
-  .tech-card .ttraits.hid{display:none;}
-  .tech-card .tstorage.hid{display:none;}
-  .tech-card .thull.hid{display:none;}
-  .tech-card .tcharges.hid{display:none;}
-  .tfoot{
+  .tech-card.editing .tsec.hid,.mod-card.editing .msec.hid{display:flex;}
+  .tech-card .ttraits.hid,.tech-card .tstorage.hid,.mod-card .mreq.hid{display:none;}
+  .tfoot,.mfoot{
     display:flex;align-items:center;gap:8px;
     padding:6px 8px 8px;border-top:1px solid var(--line);
   }
   .tticker{
     flex:none;cursor:pointer;font-size:15px;line-height:1;
   }
-  .tstorage{
+  .tstorage,.thull,.tcharges,.mspeed,.mdur,.mhull,.mcharges{
     display:flex;align-items:center;gap:3px;
     font-size:12px;color:var(--ink-dim);
   }
-  .tstorage .ticon{width:14px;height:14px;flex:none;}
-  .tstorage input.tstorage-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  .thull,.tcharges,.mcharges{cursor:pointer;}
+  .mspeed,.mdur,.mhull,.mcharges{flex:none;}
+  .tstorage .ticon,.thull .ticon,.tcharges .ticon,
+  .mspeed .kw-icon,.mdur .kw-icon,.mhull .kw-icon,.mcharges .kw-icon{
+    width:14px;height:14px;flex:none;margin:0;
   }
-  .thull,.tcharges{
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);cursor:pointer;
-  }
-  .thull .ticon{width:14px;height:14px;flex:none;}
-  .tcharges .ticon{width:14px;height:14px;flex:none;}
-  .thull input.thull-input,.tcharges input.tcharges-input{
+  .thull.hid,.tcharges.hid,.mspeed.hid,.mdur.hid,.mhull.hid,.mcharges.hid{display:none;}
+  .tstorage input.tstorage-input,.thull input.thull-input,.tcharges input.tcharges-input,
+  .mspeed input.mspeed-input,.mdur input.mdur-input,.mhull input.mhull-input,.mcharges input.mcharges-input{
     width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
     background:var(--stat-bg);border:1px solid var(--line);padding:1px;
   }
@@ -577,17 +570,17 @@
   }
   .tdepbtn.on{opacity:1;}
   .tech-card.editing .tdepbtn{opacity:1;}
-  .tdiamond{
+  .tdiamond,.mcost{
     display:flex;align-items:center;justify-content:center;gap:3px;
     width:24px;height:24px;
     border:1px solid var(--icon-energy);color:var(--icon-energy);
     transform:rotate(45deg);
-    margin-left:auto;flex:none;
   }
-  .tdiamond.hid{display:none;}
-  .tdiamond .ticon,.tdiamond input{transform:rotate(-45deg);}
-  .tdiamond .ticon{width:11px;height:11px;flex:none;}
-  .tdiamond input{
+  .tdiamond{margin-left:auto;flex:none;}
+  .tdiamond.hid,.mcost.hid{display:none;}
+  .tdiamond .ticon,.tdiamond input,.mcost .ticon,.mcost input{transform:rotate(-45deg);}
+  .tdiamond .ticon,.mcost .ticon{width:11px;height:11px;flex:none;}
+  .tdiamond input,.mcost input{
     width:13px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
     background:transparent;border:none;padding:0;
   }
@@ -640,19 +633,6 @@
     font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--amber);
     text-transform:uppercase;letter-spacing:.02em;
   }
-  .mod-card .msecedit{
-    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
-    padding:2px 7px;border-radius:3px;
-  }
-  .msecedit:hover{color:var(--cyan);border-color:var(--cyan);}
-  .m-delete{
-    flex:none;cursor:pointer;font-family:var(--mono);font-size:11px;line-height:1;
-    color:var(--ink-dim);background:none;border:1px solid var(--line);
-    padding:2px 6px;border-radius:3px;display:none;
-  }
-  .m-delete:hover{color:#e5534b;border-color:#e5534b;}
-  .mod-card.editing .m-delete{display:inline-flex;}
   .mexhaust-btn{
     flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
     text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
@@ -671,88 +651,6 @@
     font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
     padding:2px 10px 6px;
   }
-  .mfoot{
-    display:flex;align-items:center;gap:8px;
-    border-top:1px solid var(--line);
-    padding:6px 8px 8px;
-  }
-  .mhull{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);
-  }
-  .mhull .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mhull.hid{display:none;}
-  .mdur{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);
-  }
-  .mdur .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mdur.hid{display:none;}
-  .mdur input.mdur-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .mspeed{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);
-  }
-  .mspeed .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mspeed.hid{display:none;}
-  .mspeed input.mspeed-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .mhull input.mhull-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .mcharges{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);cursor:pointer;
-  }
-  .mcharges .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mcharges.hid{display:none;}
-  .mcharges input.mcharges-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .msecs{display:flex;flex-direction:column;flex:1;min-height:0;}
-  .msec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
-  .msec.hid{display:none;}
-  .msec-head{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-    font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
-    text-transform:uppercase;padding:5px 10px 2px;
-  }
-  .msec textarea{
-    flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
-  }
-  .msec textarea:disabled{
-    opacity:1;cursor:default;-webkit-text-fill-color:var(--ink-mid);color:var(--ink-mid);
-  }
-  .mod-card.editing .msec.hid{display:flex;}
-  .mod-card .mreq.hid{display:none;}
-  .mod-card .mname:disabled{
-    opacity:1;cursor:default;-webkit-text-fill-color:currentColor;color:currentColor;
-  }
-  .mcost{
-    display:flex;align-items:center;justify-content:center;gap:3px;
-    width:24px;height:24px;
-    border:1px solid var(--icon-energy);color:var(--icon-energy);
-    transform:rotate(45deg);
-  }
-  .mcost.hid{display:none;}
-  .mcost .ticon,.mcost input{transform:rotate(-45deg);}
-  .mcost .ticon{width:11px;height:11px;flex:none;}
-  .mcost input{
-    width:13px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
-    background:transparent;border:none;padding:0;
-  }
-
   footer{
     text-align:center;margin-top:22px;
     font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-dim);

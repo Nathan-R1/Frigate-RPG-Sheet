@@ -1,12 +1,12 @@
 # Notes for Editing frigate.html (AI Scratchpad)
 
 ## What this is
-`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently **2460** lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
+`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently **2489** lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
 
 This is a **private passion project** (the owner designed the TTRPG). Treat all game terminology and flavor as intentional. Do not add dependencies, frameworks, or build tools. Keep it self-contained.
 
 ## File layout (top to bottom)
-1. `<head>` → `<style>` block (the entire CSS, lines **~9–921**). Section markers are `/* ===== ... ===== */`.
+1. `<head>` → `<style>` block (the entire CSS, lines **9–851**). Section markers are `/* ===== ... ===== */`.
 2. `<body>` → static HTML (`<!-- XXXX -->` markers):
    - `<nav class="menu-bar">` — Export / Import / theme toggle buttons.
    - Header (`.topbar`) — ship name, captain, commissioned, ship class, DC hex.
@@ -14,8 +14,8 @@ This is a **private passion project** (the owner designed the TTRPG). Treat all 
    - `.row2` (Row 2) — **Traits & Crew**, **Technologies**.
    - **Modules/Deployables** panel.
    - `<footer>`.
-3. `<script>` block (**lines 1179–2438**) — all logic.
-4. After `</script>` (lines 2439–2458) — floating chrome elements: `#skillPopover`, `.preset-menu#slotPicker`, and the `#handDock` (the tech-hand dock lives here, not in the `<body>` flow above).
+3. `<script>` block (**lines 1117–2444**) — all logic.
+4. After `</script>` (lines 2445–2489) — floating chrome elements: `#skillPopover`, `.preset-menu#slotPicker`, and the `#handDock` (the tech-hand dock lives here, not in the `<body>` flow above).
 
 Line numbers below are approximate; navigate via the commented section markers.
 
@@ -125,6 +125,16 @@ The user iterates feature-by-feature in small steps. General workflow when asked
 Current `MOD_SHAPES` (order matters – cycling wraps): None(empty), Square `◼`, Triangle `▲`, Hexagon `⬡`, Pentagon `⬟`, Rectangle `▬`, Circle `◎`, Star `☆`, Diamond `◆`, Crescent `☾`, Arrow `➤`, White Square `◻`, Bar `▰`, Quadrant `◖`, Heart `♡`, Cross `♰`.
 NOTE: The user is particular about glyph sizing/vertical alignment (e.g. `■` sat too low, `⬛` too large, settled on `◼`). When changing a shape's glyph, mention alignment/size tradeoffs.
 
+## CSS consolidation (tech/mod "twins", 2026-08-30)
+The Technologies and Modules/Deployables sections intentionally mirror each other, which produced ~100 lines of duplicate CSS. These have now been **merged into grouped selectors** (e.g. `.tsec,.msec{...}`, `.tfoot,.mfoot{...}`, `.tstorage,.thull,.tcharges,.mspeed,.mdur,.mhull,.mcharges{...}`, `.tdiamond,.mcost{...}`, `.t-delete,.m-delete{...}`) and the duplicate mod-only blocks were deleted.
+
+Rules to keep in mind when editing card CSS:
+- **Don't re-split these groups** — if a tech rule needs a one-off property, add it as a separate tech-only rule after the group (this is already done for `.tdiamond{margin-left:auto;flex:none}` and `.mspeed,.mdur,.mhull,.mcharges{flex:none}`).
+- Grouped rules are only safe when both families share identical computed values; the tiny intentional differences are kept as standalone follow-up rules.
+- Naming: `.t*` = tech, `.m*` = mod (`ticon` = tech icon, `kw-icon` = mod icon, both 14px inline in the foot). These deliberately stay separate.
+- Delete/Edit buttons, foot icons, `.hid` behavior, and section heads/textareas are shared via the groups above — a structural change to one family's foot should be checked against the other.
+- After edits, CSS braces must stay balanced and the JS must pass `node --check` (command below).
+
 ## Gotchas / things to be careful about
 - **Keep the sheet self-contained**: no external JS libs. Google Fonts is the only external resource and it's loaded via `<link>` but the sheet still works offline with fallbacks.
 - **No auto-save.** Persistence relies on Export/Import JSON.
@@ -132,5 +142,5 @@ NOTE: The user is particular about glyph sizing/vertical alignment (e.g. `■` s
 - Inline `onclick="..."` attributes are used heavily; new interactive cards built via JS `innerHTML` use inline `onclick` for their Edit/Exhaust/Build buttons and delegated grid listeners for toggles.
 - When adding fields to cards built in JS, update BOTH the static HTML sample card AND the `innerHTML` template string in the `add<X>Slot()` function, or they'll drift.
 - Sections show `.hid` when empty; the Edit button reveals them. Don't break the edit/hidden toggle when adding new card fields.
-- The `.tbuilt-btn`, `.texhaust-btn`, and `.mexhaust-btn` are hidden until EDIT MODE (CSS `display:none` default, shown via `.editing`), so card header items only appear editable while editing.
+- The `.tbuilt-btn` and `.mexhaust-btn` are hidden until EDIT MODE (CSS `display:none` default, shown via `.editing`), so card header items only appear editable while editing.
 - Verify JS after edits with: `python3 -c "import re,io; html=open('frigate.html').read(); m=re.search(r'<script>(.*)</script>',html,re.S); io.open('/tmp/s.js','w').write(m.group(1))" && node --check /tmp/s.js`
