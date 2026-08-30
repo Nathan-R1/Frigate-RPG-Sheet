@@ -851,7 +851,7 @@
         </div>
         <div class="stat speed">
           <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="val" style="justify-content:center"><input id="speed" value="X" maxlength="2" style="width:26px"></div>
+          <div class="val" style="justify-content:center"><input id="speed" value="2" maxlength="2" style="width:26px"></div>
           <div class="lbl">Speed</div>
         </div>
       </div>
@@ -860,7 +860,7 @@
         <div class="rhead" onclick="toggleTurnBox(this)">At the start of your turn <span class="collapse-ind">▼</span></div>
         <ul>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
-          <li>Refresh any exhausted <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 4v4h-4" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+          <li>Refresh any exhausted <b>Technologies</b>, <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> or <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> <button type="button" class="rule-btn" onclick="refreshAllTechs()" title="Refresh all exhausted techs, modules and deployables">↻</button></li>
           <li>Move any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
           <li>Destroy any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> that do not meet their requirements</li>
           <li>Build any 1 <b>Technology</b> from your <b>Hand</b> (apply its On Build effect)</li>
@@ -1039,6 +1039,16 @@
     var cur = document.getElementById('energyCur');
     var max = document.getElementById('energyMax');
     if(cur && max) cur.value = max.value;
+  }
+  function refreshAllTechs(){
+    var techs = document.querySelectorAll('#techGrid .tech-card .texhaust-btn');
+    for(var i=0;i<techs.length;i++){
+      applyTechExhaust(techs[i].closest('.tech-card'), false);
+    }
+    var mods = document.querySelectorAll('#modGrid .mod-card .mexhaust-btn');
+    for(var j=0;j<mods.length;j++){
+      applyModExhaust(mods[j].closest('.mod-card'), false);
+    }
   }
   function decrementStat(id){
     var el = document.getElementById(id);
