@@ -632,6 +632,19 @@
   .mtype-btn[data-mtype="module"]{border-color:var(--icon-cyan);color:var(--icon-cyan);}
   .mtype-btn[data-mtype="deployable"]{border-color:var(--icon-amber);color:var(--icon-amber);}
   .mtype-btn .kw-icon{width:16px;height:16px;display:block;margin:0;}
+  .mshape-btn{
+    flex:none;
+    width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--stat-bg);
+    border:1px solid var(--line-bright);
+    color:var(--ink);
+    cursor:pointer;
+    padding:0;
+    font-size:13px;line-height:1;
+  }
+  .mshape-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .mshape-btn[data-shape=""]{display:none;}
   .mod-card input.mname{
     flex:1;min-width:0;
     font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--amber);
@@ -647,11 +660,15 @@
     display:flex;align-items:center;gap:8px;
     padding-right:10px;
   }
-  .msub .mreq.hid + .mspeed{padding-left:10px;}
   .msub input.mreq{
     flex:1;min-width:0;
     font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
     padding:2px 10px 6px;
+  }
+  .mfoot{
+    display:flex;align-items:center;gap:8px;
+    border-top:1px solid var(--line);
+    padding:6px 8px 8px;
   }
   .mhull{
     flex:none;
@@ -1023,8 +1040,8 @@
     </div>
     <div class="mod-grid" id="modGrid" style="margin-top:12px;">
       <div class="mod-card">
-        <div class="mhead"><button type="button" class="mtype-btn" data-mtype="module" title="Module"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>
-        <div class="msub"><input class="mreq" placeholder="REQUIREMENTS"><span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span><span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span><span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span></div>
+        <div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>
+        <div class="msub"><input class="mreq" placeholder="REQUIREMENTS"></div>
         <div class="msecs">
           <div class="msec onbuild hid">
             <div class="msec-head"><span>On Build</span></div>
@@ -1038,6 +1055,12 @@
             <div class="msec-head"><span>On Activate</span><span class="mcost" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcost-input" maxlength="2"></span></div>
             <textarea placeholder="On Activate..."></textarea>
           </div>
+        </div>
+        <div class="mfoot">
+          <button type="button" class="mtype-btn" data-mtype="module" title="Module"></button>
+          <span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>
+          <span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>
+          <span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>
         </div>
       </div>
     </div>
@@ -1614,15 +1637,22 @@
     var card = document.createElement('div');
     card.className = 'mod-card';
     card.innerHTML =
-      '<div class="mhead"><button type="button" class="mtype-btn" data-mtype="module" title="Module"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>' +
-      '<div class="msub"><input class="mreq" placeholder="REQUIREMENTS"><span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span><span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span><span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span></div>' +
+      '<div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="msub"><input class="mreq" placeholder="REQUIREMENTS"></div>' +
       '<div class="msecs">' +
         '<div class="msec onbuild hid"><div class="msec-head"><span>On Build</span></div><textarea placeholder="On Build..."></textarea></div>' +
         '<div class="msec passive hid"><div class="msec-head"><span>Passive</span></div><textarea placeholder="Passive..."></textarea></div>' +
         '<div class="msec onactivate hid"><div class="msec-head"><span>On Activate</span><span class="mcost" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcost-input" maxlength="2"></span></div><textarea placeholder="On Activate..."></textarea></div>' +
+      '</div>' +
+      '<div class="mfoot">' +
+        '<button type="button" class="mtype-btn" data-mtype="module" title="Module"></button>' +
+        '<span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>' +
+        '<span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>' +
+        '<span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>' +
       '</div>';
     grid.appendChild(card);
     setModType(card.querySelector('.mtype-btn'), 'module');
+    setModuleShape(card.querySelector('.mshape-btn'), '');
     refreshModSections(card);
     refreshModSlotControls();
   }
@@ -1695,6 +1725,36 @@
     var cur = el.getAttribute('data-mtype') === 'module' ? 'deployable' : 'module';
     setModType(el, cur);
   }
+  var MOD_SHAPES = [
+    {key:'', icon:'', label:'None'},
+    {key:'square', icon:'🟦', label:'Square'},
+    {key:'triangle', icon:'🔺', label:'Triangle'},
+    {key:'hexagon', icon:'⬡', label:'Hexagon'},
+    {key:'pentagon', icon:'⬟', label:'Pentagon'},
+    {key:'rectangle', icon:'▬', label:'Rectangle'},
+    {key:'circle', icon:'⭕', label:'Circle'},
+    {key:'star', icon:'⭐', label:'Star'},
+    {key:'diamond', icon:'🔷', label:'Diamond'},
+    {key:'crescent', icon:'🌙', label:'Crescent'},
+    {key:'arrow', icon:'➤', label:'Arrow'}
+  ];
+  function setModuleShape(el, key){
+    var meta = MOD_SHAPES[0];
+    for(var i = 0; i < MOD_SHAPES.length; i++){
+      if(MOD_SHAPES[i].key === key){ meta = MOD_SHAPES[i]; break; }
+    }
+    el.setAttribute('data-shape', meta.key);
+    el.textContent = meta.icon;
+    el.title = 'Shape: ' + meta.label;
+  }
+  function cycleModuleShape(el){
+    var curKey = el.getAttribute('data-shape');
+    var idx = 0;
+    for(var i = 0; i < MOD_SHAPES.length; i++){
+      if(MOD_SHAPES[i].key === curKey){ idx = i; break; }
+    }
+    setModuleShape(el, MOD_SHAPES[(idx + 1) % MOD_SHAPES.length].key);
+  }
   var MOD_PRESETS = [
     {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2', onactivateenergy:'2'},
     {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'Gain +2 Speed.', onactivate:'', onactivateenergy:''},
@@ -1743,6 +1803,7 @@
     card.querySelector('.msec.onactivate textarea').value = p.onactivate || '';
     card.querySelector('.mcost-input').value = (p.onactivateenergy !== undefined && p.onactivateenergy !== null) ? p.onactivateenergy : '';
     setModType(card.querySelector('.mtype-btn'), p.type || 'module');
+    setModuleShape(card.querySelector('.mshape-btn'), p.shape || '');
     refreshModSections(card);
   }
   document.addEventListener('click', function(e){
@@ -1752,6 +1813,8 @@
     }
   });
   document.getElementById('modGrid').addEventListener('click', function(e){
+    var sh = e.target.closest('.mshape-btn');
+    if(sh){ cycleModuleShape(sh); return; }
     var bt = e.target.closest('.mtype-btn');
     if(bt){ toggleModType(bt); return; }
     var hl = e.target.closest('.mhull, .mdur');
@@ -1789,7 +1852,8 @@
         passive: card.querySelector('.msec.passive textarea').value,
         onactivate: card.querySelector('.msec.onactivate textarea').value,
         onactivateenergy: card.querySelector('.mcost-input').value,
-        type: card.querySelector('.mtype-btn').getAttribute('data-mtype')
+        type: card.querySelector('.mtype-btn').getAttribute('data-mtype'),
+        shape: card.querySelector('.mshape-btn').getAttribute('data-shape')
       });
     }
     return out;
@@ -1813,6 +1877,7 @@
       card.querySelector('.msec.onactivate textarea').value = item.onactivate || '';
       card.querySelector('.mcost-input').value = item.onactivateenergy || '';
       setModType(card.querySelector('.mtype-btn'), item.type || 'module');
+      setModuleShape(card.querySelector('.mshape-btn'), item.shape || '');
       refreshModSections(card);
     }
   }
@@ -2015,6 +2080,10 @@
     var mods = document.querySelectorAll('.mod-card .mtype-btn');
     for(var m=0;m<mods.length;m++){
       setModType(mods[m], mods[m].getAttribute('data-mtype'));
+    }
+    var modShapes = document.querySelectorAll('.mod-card .mshape-btn');
+    for(var ms=0;ms<modShapes.length;ms++){
+      setModuleShape(modShapes[ms], modShapes[ms].getAttribute('data-shape'));
     }
     var modCards = document.querySelectorAll('.mod-card');
     for(var mc=0;mc<modCards.length;mc++){
