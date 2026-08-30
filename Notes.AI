@@ -60,7 +60,7 @@ After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max
 
 ### Technologies
 - `.tech-card` per tech:
-  - `.thead`: `input.tname` + **⇅ state toggle** (`.tbuilt-btn`, see Hand section) + **Edit** button (`.tsecedit`, `toggleTechEdit`).
+  - `.thead`: `input.tname` + **⇅ state toggle** (`.tbuilt-btn`, see Hand section) + **Edit** button (`.tsecedit`, `toggleTechEdit`) + a **🗑 delete** button (`.t-delete`, edit-mode-only, `removeTechCard(btn)` removes that specific card).
   - `.tsub`: `.ttraits` input (traits line).
   - `.tsecs`: three collapsible **sections** — On Build / Passive / On Activate — each a `.tsec` with a `.tsec-head` and a `<textarea>`. On Build & On Activate have an energy-cost **diamond** (`.tdiamond`) for the cost.
   - `.tfoot`: tech-type toggle (`.tticker`, cycles Offense/Defense/Movement/Science), storage (`.tstorage`), hull (`.thull`, `.hid` default), charges (`.tcharges`, `.hid` default), and deploy-state toggle (`.tdepbtn`).
@@ -71,7 +71,7 @@ After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max
 
 ### Modules / Deployables
 A panel mirroring Technologies. Structure of a `.mod-card`:
-- `.mhead`: `.mshape-btn` (Shape toggle, left) + `input.mname` (Title) + `.mexhaust-btn` (Exhaust/Refresh, edit-mode-only like techs) + `.msecedit` Edit button.
+- `.mhead`: `.mshape-btn` (Shape toggle, left) + `input.mname` (Title) + `.mexhaust-btn` (Exhaust/Refresh, edit-mode-only like techs) + `.msecedit` Edit button + a **🗑 delete** button (`.m-delete`, edit-mode-only, `removeModCard(btn)` removes that specific card).
 - `.msub`: `input.mreq` (Requirements field, same style as tech `.ttraits`).
 - `.msecs`: three sections like tech — `.msec.onbuild`, `.msec.passive`, `.msec.onactivate` (each `.hid` by default). **Only On Activate** has an energy-cost **diamond** (`.mcost` with `.mcost-input`); On Build has no cost field.
 - `.mfoot` (bottom bar): `.mtype-btn` (Module⇄Deployable SVG toggle, leftmost/first), then `.mspeed`, `.mdur`, `.mhull`, and `.mcharges` (charges, `.hid` default) value icons/inputs.
@@ -91,7 +91,7 @@ A fixed bottom "hand" UI (`#handDock`) that pops up over **38vh** when expanded,
 - The hand shows ONLY techs whose state is `hand`. Cards overlap via negative `margin-right`, and on `:hover` (or when `.popped`) they `translateY(-55px) scale(1.06)` to "pop out" for full viewing (the view padding leaves headroom above the fan).
 - **Click behavior**: a single click pops the card (adds `.popped`, same visual as hover); a **second click within the 260ms timer (i.e. a double-click)** builds it by calling `setTechState(card,'built')` → it disappears from the hand and appears undimmed in the grid. A `dblclick` listener prevents default text-selection. The `⇅` button (`.tbuilt-btn`) on a tech card header cycles a tech `hand → built → exhausted` (via `toggleTechState`); `hand` and `exhausted` dim the card, `built` does not.
 - Key functions (near the `/* ===== Technologies ===== */` block): `techState(card)`, `setTechState(card,state)`, `syncTechStateUI(card)`, `toggleTechState(btn)`, `TECH_STATE_ORDER` (`['hand','built','exhausted']`), `refreshHand()`, `techCardViewData(card)`, `escapeHtml(s)`, `toggleHand()`. `refreshHand()` is called after any tech-grid change (add/remove/preset/pick/import/init) so the count (`#handCount`) stays live. `refreshAllTechs()` resets any `exhausted` tech back to `built`.
-- **Sorting**: a `#handSort` `<select>` (overlay top-left of the expanded view) sorts the hand via `onHandSortChange()` + `handSortCards(cards)`. Modes are `az` (by name), `trait` (alphabetical by trait field, name tiebreak), and `type` (offense→defense→movement→science via `HAND_TYPE_ORDER`, name tiebreak). Current sort is held in the runtime `HAND_SORT` var (not persisted to sheet).
+- **Sorting**: a `#handSort` `<select>` sits on the top banner bar (`.hand-bar`) to the right of the "TECH HAND" label, and sorts the hand via `onHandSortChange()` + `handSortCards(cards)`. Modes are `az` (by name), `trait` (alphabetical by trait field, name tiebreak), `type` (offense→defense→movement→science via `HAND_TYPE_ORDER`, name tiebreak), and `energy` (by on-build energy cost, ascending; empty/unset cost sorts last, name tiebreak). Current sort is held in the runtime `HAND_SORT` var (not persisted to sheet).
 - **Hand card footer**: `.hc-foot` at the bottom of each hand card shows the **tech-type glyph** (`.hc-tags`, bottom-left — the `.tticker` icon, e.g. ⚔) and an **energy diamond** (`.hc-cost`, bottom-right) with the On Build energy cost (from `.tcost-onbuild`); the diamond renders empty when there's no non-zero on-build cost. Data comes from `techCardViewData()`.
 - `escapeHtml()` must be used whenever rendering user text into `innerHTML` (hand cards render names/traits/section text this way).
 - Relevant CSS is under the `/* ===== Hand Dock (bottom tech hand) ===== */` block (before `</style>`). Body `padding-bottom` is 110px so the fixed dock doesn't cover the footer. The dock is hidden in `@media print`. The dock markup itself lives AFTER `</script>` (`#handDock` with `#handTab`, `#handCount`, the sort overlay, and `#hand`).
