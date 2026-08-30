@@ -796,17 +796,30 @@
     height:0;overflow:hidden;
     transition:height .22s ease;
     background:
+      linear-gradient(var(--void) 0%, var(--void) 100%),
       var(--bg-radial),
       linear-gradient(var(--bg-grid-color) 1px, transparent 1px),
       linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 1px);
-    background-size:auto, 34px 34px, 34px 34px;
+    background-size:auto, auto, 34px 34px, 34px 34px;
     border-top:1px solid var(--line);
   }
-  .hand-dock.expanded .hand-view{height:38vh;overflow:visible;}
+  .hand-dock.expanded .hand-view{
+    height:38vh;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y;
+  }
+  .hand-view::-webkit-scrollbar{height:10px;}
+  .hand-view::-webkit-scrollbar-track{background:var(--panel-alt);}
+  .hand-view::-webkit-scrollbar-thumb{background:var(--line-bright);border-radius:5px;}
+  .hand-view::-webkit-scrollbar-thumb:hover{background:var(--cyan);}
   .hand{
-    display:flex;align-items:flex-end;justify-content:center;
-    padding:24px 24px 10px;
-    height:100%;overflow:visible;
+    display:flex;align-items:flex-end;justify-content:flex-start;
+    padding:24px 24px 16px;
+    height:100%;
+    width:max-content;
+    min-width:100%;
   }
   .hand-card{
     position:relative;
