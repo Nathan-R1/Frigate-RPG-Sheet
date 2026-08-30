@@ -38,6 +38,7 @@ The CSS and HTML both follow COMMENTED section markers (e.g. `/* ===== skills pa
 
 ### Skills
 - A `table.skills` with 9 fixed skills; each has a Point and Penalty input (`id="skill-<Name>-pts"` / `-pen`).
+- **Skill hover tooltips**: hovering a skill name shows a popup (`#skillPopover`) with its description from the `SKILL_DESCRIPTIONS` object (wired by `wireSkillTooltips()` in the init block; rendering in `showSkillInfo()`/`skillDescription()`). Keys are skill names (e.g. `Science`, `Sensors`); `{SCIENCE}` is substituted with the live Science value. To add/edit a skill's tooltip, edit/append its entry in `SKILL_DESCRIPTIONS` — don't rely on the native `title` attribute for skills.
 
 ### Traits & Crew
 - Panel header controls → `addCrewSlot()`, `showSlotPicker(..., 'crewGrid', '.cname')`, and `☰` → `presetMenu` (built from the `PRESETS` array).
