@@ -552,6 +552,15 @@
     padding:2px 7px;border-radius:3px;margin-left:auto;
   }
   .tsecedit:hover{color:var(--cyan);border-color:var(--cyan);}
+  .texhaust-btn{
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 7px;border-radius:3px;display:none;
+  }
+  .texhaust-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .tech-card.editing .texhaust-btn{display:inline-flex;}
+  .tech-card.exhausted .texhaust-btn{color:var(--amber);border-color:var(--amber);}
+  .tech-card.exhausted{opacity:.55;}
   .tech-card.editing .tsec.hid{display:flex;}
   .tech-card .ttraits.hid{display:none;}
   .tech-card .tstorage.hid{display:none;}
@@ -657,6 +666,15 @@
     padding:2px 7px;border-radius:3px;
   }
   .msecedit:hover{color:var(--cyan);border-color:var(--cyan);}
+  .mexhaust-btn{
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 7px;border-radius:3px;display:none;
+  }
+  .mexhaust-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .mod-card.editing .mexhaust-btn{display:inline-flex;}
+  .mod-card.exhausted .mexhaust-btn{color:var(--amber);border-color:var(--amber);}
+  .mod-card.exhausted{opacity:.55;}
   .msub{
     display:flex;align-items:center;gap:8px;
     padding-right:10px;
@@ -997,7 +1015,7 @@
       </div>
       <div class="tech-grid" id="techGrid" style="margin-top:12px;">
         <div class="tech-card">
-          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
+          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
           <div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>
           <div class="tsecs">
             <div class="tsec onbuild hid">
@@ -1041,7 +1059,7 @@
     </div>
     <div class="mod-grid" id="modGrid" style="margin-top:12px;">
       <div class="mod-card">
-        <div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>
+        <div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="mexhaust-btn" data-exhaust="false" onclick="toggleModExhaust(this)" title="Exhaust this module">Exhaust</button><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>
         <div class="msub"><input class="mreq" placeholder="REQUIREMENTS"></div>
         <div class="msecs">
           <div class="msec onbuild hid">
@@ -1242,7 +1260,7 @@
     {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nYour Cannons gain +1 Dmg and Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Create Module Cannon.', onbuildenergy:'', onactivateenergy:'1', passive:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nMove a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Ion Torpedo', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:true},
+    {name:'Ion Torpedo', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', charges:'0', deploy:true},
     {name:'P.D.', traits:'[Module]', onbuild:'Create Module P.D.', passive:'', onactivate:'', onactivateenergy:'', tt:'defense', storage:'0', deploy:'module'},
     {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 3 ⚡to Target an object:\n\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
     {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Trash.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
@@ -1273,7 +1291,7 @@
     var card = document.createElement('div');
     card.className = 'tech-card';
     card.innerHTML =
-      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
       '<div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>' +
       '<div class="tsecs">' +
         '<div class="tsec onbuild hid"><div class="tsec-head"><span>On Build</span><span class="tdiamond" title="On Build energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div><textarea placeholder="On Build..."></textarea></div>' +
@@ -1488,6 +1506,14 @@
     btn.textContent = card.classList.contains('editing') ? 'Done' : 'Edit';
     refreshTechSections(card);
   }
+  function toggleTechExhaust(btn){
+    var card = btn.closest('.tech-card');
+    var on = btn.getAttribute('data-exhaust') === 'true';
+    on = !on;
+    btn.setAttribute('data-exhaust', on ? 'true' : 'false');
+    btn.textContent = on ? 'Refresh' : 'Exhaust';
+    card.classList.toggle('exhausted', on);
+  }
   var DEPLOY_STATES = [
     {key:'normal', icon:'◉', svg:'', label:'Normal'},
     {key:'deployable', icon:'⍙', svg:'<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg>', label:'Deployable'},
@@ -1622,7 +1648,7 @@
     var card = document.createElement('div');
     card.className = 'mod-card';
     card.innerHTML =
-      '<div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="mexhaust-btn" data-exhaust="false" onclick="toggleModExhaust(this)" title="Exhaust this module">Exhaust</button><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>' +
       '<div class="msub"><input class="mreq" placeholder="REQUIREMENTS"></div>' +
       '<div class="msecs">' +
         '<div class="msec onbuild hid"><div class="msec-head"><span>On Build</span></div><textarea placeholder="On Build..."></textarea></div>' +
@@ -1646,6 +1672,14 @@
     card.classList.toggle('editing');
     btn.textContent = card.classList.contains('editing') ? 'Done' : 'Edit';
     refreshModSections(card);
+  }
+  function toggleModExhaust(btn){
+    var card = btn.closest('.mod-card');
+    var on = btn.getAttribute('data-exhaust') === 'true';
+    on = !on;
+    btn.setAttribute('data-exhaust', on ? 'true' : 'false');
+    btn.textContent = on ? 'Refresh' : 'Exhaust';
+    card.classList.toggle('exhausted', on);
   }
   function refreshModSections(card){
     if(!card) return;
@@ -1843,10 +1877,18 @@
         onactivate: card.querySelector('.msec.onactivate textarea').value,
         onactivateenergy: card.querySelector('.mcost-input').value,
         type: card.querySelector('.mtype-btn').getAttribute('data-mtype'),
-        shape: card.querySelector('.mshape-btn').getAttribute('data-shape')
+        shape: card.querySelector('.mshape-btn').getAttribute('data-shape'),
+        exhaust: card.querySelector('.mexhaust-btn').getAttribute('data-exhaust') === 'true'
       });
     }
     return out;
+  }
+  function applyModExhaust(card, on){
+    var btn = card.querySelector('.mexhaust-btn');
+    if(!btn) return;
+    btn.setAttribute('data-exhaust', on ? 'true' : 'false');
+    btn.textContent = on ? 'Refresh' : 'Exhaust';
+    card.classList.toggle('exhausted', on);
   }
   function writeMods(mods){
     var grid = document.getElementById('modGrid');
@@ -1868,6 +1910,7 @@
       card.querySelector('.mcost-input').value = item.onactivateenergy || '';
       setModType(card.querySelector('.mtype-btn'), item.type || 'module');
       setModuleShape(card.querySelector('.mshape-btn'), item.shape || '');
+      applyModExhaust(card, item.exhaust === true);
       refreshModSections(card);
     }
   }
@@ -1936,10 +1979,18 @@
         storage: card.querySelector('.tstorage-input').value,
         hull: card.querySelector('.thull-input').value,
         charges: card.querySelector('.tcharges-input').value,
-        deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy')
+        deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy'),
+        exhaust: card.querySelector('.texhaust-btn').getAttribute('data-exhaust') === 'true'
       });
     }
     return out;
+  }
+  function applyTechExhaust(card, on){
+    var btn = card.querySelector('.texhaust-btn');
+    if(!btn) return;
+    btn.setAttribute('data-exhaust', on ? 'true' : 'false');
+    btn.textContent = on ? 'Refresh' : 'Exhaust';
+    card.classList.toggle('exhausted', on);
   }
   function writeTech(tech){
     var grid = document.getElementById('techGrid');
@@ -1962,6 +2013,7 @@
       card.querySelector('.tcharges-input').value = item.charges || '';
       setTechType(card.querySelector('.tticker'), item.techType);
       setTechDeploy(card.querySelector('.tdepbtn'), item.deploy);
+      applyTechExhaust(card, item.exhaust === true);
       refreshTechSections(card);
     }
   }
