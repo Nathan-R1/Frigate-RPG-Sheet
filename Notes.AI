@@ -1,0 +1,107 @@
+# Notes for Editing frigate.html (AI Scratchpad)
+
+## What this is
+`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently ~2100 lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
+
+This is a **private passion project** (the owner designed the TTRPG). Treat all game terminology and flavor as intentional. Do not add dependencies, frameworks, or build tools. Keep it self-contained.
+
+## File layout (top to bottom)
+1. `<head>` → `<style>` block (the entire CSS, lines ~9–795).
+2. `<body>` → static HTML:
+   - `<nav class="menu-bar">` — Export / Import / theme toggle buttons.
+   - Header (`.topbar`) — ship name, captain, commissioned, ship class, DC hex.
+   - `.grid` (Row 1) — **Classification/Stats** panel + **Skills** panel.
+   - `.row2` (Row 2) — **Ship Arcs**, **Traits & Crew**, **Technologies**.
+   - **Modules/Deployables** panel (the most recently added section, before footer).
+   - `<footer>`.
+3. `<script>` block (lines ~1073–2090) — all logic.
+
+The CSS and HTML both follow COMMENTED section markers (e.g. `/* ===== skills panel ===== */`, `<!-- TECHNOLOGIES -->`). Use those to navigate.
+
+## Design / visual language
+- **"Panel"** = the signature corner-bracket box (`.panel` with `.bl`/`.br` corner divs, cyan corner accents). Clone this for any new top-level section.
+- **Eyebrow** (`.eyebrow`) = small cyan uppercase label; **Panel title** (`.panel-title`).
+- **Cards** live inside responsive grids:
+  - `.crew-grid` → `.crew-card`
+  - `.tech-grid` → `.tech-card`
+  - `.mod-grid` → `.mod-card`
+  These use `repeat(auto-fit, minmax(...))` so they wrap responsively.
+- **Slot controls** (`.slot-controls` / `.slot-btn`) = the `− / + / ☰` buttons at a panel header. `−` removes a slot (opens a picker), `+` adds an empty slot, `☰` opens a **preset menu** (`.preset-menu`).
+- **Theme**: `[data-theme="dark"]` (default) and `[data-theme="light"]` on `<html>`. Colors come from CSS custom properties (`--cyan`, `--amber`, `--ink`, `--line`, etc.). New inline SVG icons use `stroke="var(--icon-...)"`.
+- Fonts: `--disp` (Orbitron, titles), `--body` (Rajdhani), `--mono` (JetBrains Mono, labels/values/traits).
+
+## Core sections & their markup patterns
+
+### Stats (Row 1 `.grid`)
+- `.stat-strip` of `.stat` cards: Hull HP, Base Shield, Energy, Storage, Speed.
+- Many stat icons are clickable `decrementStat('id')` (e.g. hull/shield/energy). Values are `<input>`s.
+
+### Skills
+- A `table.skills` with 9 fixed skills; each has a Point and Penalty input (`id="skill-<Name>-pts"` / `-pen`).
+
+### Ship Arcs
+- An inline SVG hex grid; clickable `.arc-hex` polygons toggle `.active` (red) via `toggleArc`.
+
+### Traits & Crew
+- Panel header controls → `addCrewSlot()`, `showSlotPicker(..., 'crewGrid', '.cname')`, and `☰` → `presetMenu` (built from the `PRESETS` array).
+- Cards are `.crew-card` with class header "Slot 0N", a name (`input.cname`) + combat tag button (`.crew-tag-btn` ⚔), and a role/effect textarea.
+
+### Technologies (the template the Mods section was modeled on)
+- `.tech-card` per tech:
+  - `.thead`: `input.tname` + **Edit** button (`.tsecedit`, `toggleTechEdit`).
+  - `.tsub`: `.ttraits` input (traits line).
+  - `.tsecs`: three collapsible **sections** — On Build / Passive / On Activate — each a `.tsec` with a `.tsec-head` and a `<textarea>`. On Build & On Activate have an energy-cost **diamond** (`.tdiamond`) for the cost.
+  - `.tfoot`: tech-type toggle (`.tticker`, cycles Offense/Defense/Movement/Science), storage, hull, charges, and deploy-state toggle (`.tdepbtn`).
+- **Edit pattern**: clicking Edit adds `.editing` to the card; empty sections that were hidden (`.hid`) become visible/editable; inputs/textarea get enabled. `refreshTechSections(card)` toggles visibility + disabled exclusively based on `card.classList.contains('editing')` and whether fields have content.
+- Preset catalog = `TECHP_RESETS` array; menu built by `buildTechPresetMenu()`.
+- Deploy states in `DEPLOY_STATES` = `normal` / `deployable` / `module` (with SVG for the latter two).
+
+### Modules / Deployables (MOST RECENT — most likely to be edited next)
+A panel mirroring Technologies, added per user request. Structure of a `.mod-card`:
+- `.mhead`: `.mshape-btn` (Shape toggle, left, see below) + `input.mname` (Title) + `.msecedit` Edit button.
+- `.msub`: `input.mreq` (Requirements field, same style as tech `.ttraits`).
+- `.msecs`: three sections like tech — `.msec.onbuild`, `.msec.passive`, `.msec.onactivate` (each `.hid` by default). On Activate has an energy-cost **diamond** (`.mcost` with `.mcost-input`).
+- `.mfoot` (bottom bar): `.mtype-btn` (the Module⇄Deployable SVG toggle, LEFT-moust/first), then `.mspeed`, `.mdur`, `.mhull` value icons/inputs.
+
+**JS for mods** (section at `/* ===== Modules / Deployables ===== */`):
+- `MOD_PRESETS` = catalog (Cannon, Graviton Engine, Ion Torpedo, P.D.) shown in the `modPresetMenu`.
+- `MOD_SHAPES` = shape catalog with emoji/glyph icons (see below); `setModuleShape` / `cycleModuleShape`.
+- `addModSlot()`, `removeModSlot()`, `refreshModSlotControls()`, `relabelMods()`.
+- `toggleModEdit()` + `refreshModSections(card)` — the hide/show + disable edit mechanism (mirrors `refreshTechSections`).
+- `setModType` / `toggleModType` — toggles `data-mtype` between `module` and `deployable`, rendering the matching SVG from `DEPLOY_STATES`.
+- Click/input event listeners on `#modGrid` handle: shape cycle, type toggle, and hull/duration decrement-on-click.
+
+### Export / Import (the `/* ===== Export / Import ===== */` section)
+- Each data domain has a `read<X>` / `write<X>` pair (Skills, Crew, Tech, Mods, Arcs).
+- `collectSheet()` gathers everything into one object; `applySheet(json)` restores it.
+- `exportSheet()` / `importSheet()` do file download / upload of the JSON.
+- **IMPORTANT: whenever you add a new field to a card, you MUST update BOTH its `read<X>` and `write<X>` functions** (and ideally `MOD_PRESETS` + preset pick) or the field won't survive save/load.
+
+## How we handle new ideas / features (workflow)
+The user iterates feature-by-feature in small steps. General workflow when asked to change something:
+1. Find the matching SECTION marker in CSS and HTML (Technology section is the visual/logic template for cards with collapsible text sections + a footer bar).
+2. Mirror existing patterns instead of inventing new class names where an analogous control already exists (e.g. copy the tech `.tsec`/`.tfoot`/Edit pattern for the mod `.msec`/`.mfoot`/Edit pattern).
+3. Keep SVG icons for colored/game icons (Hull, Shield, Energy, Speed, Module, Deployable). Plain/large decorative identifiers use text glyphs/emojis.
+4. Wire any new UI to the existing event listeners (grid-level `click`/`input` delegation on `#crewGrid` / `#techGrid` / `#modGrid`) OR add a matching listener.
+5. If a field should be "empty→hidden, shown in edit mode", follow the `.hid` + `refreshXSection(s)` pattern.
+6. Always update the corresponding `read<X>`/`write<X>` (export/import).
+7. Initialize any new default/static render in the bottom `(function(){ ... })()` init block (it sets initial types/shapes/sections on load). Static cards in HTML also need their inline defaults rendered here.
+
+## The Shape field (specifically)
+`.mshape-btn` in the mod card header. It's a **toggle**: clicking cycles through shapes, with an **empty default first**. When shape is empty:
+- The button is hidden (`display:none`) so it does NOT offset the Title.
+- BUT when the card is in edit mode (`.mod-card.editing`), an empty shape button is shown (`.mod-card.editing .mshape-btn[data-shape=""]{display:flex}`) so the user can click it to set a shape.
+- The button has `min-width/min-height:26px` for a clickable hit area, `font-size:26px` (the glyph is enlarged, no visible border/background).
+- Stored on `data-shape` attribute; persisted as `shape` in read/write of Mods.
+
+Current `MOD_SHAPES` (order matters – cycling wraps): None(empty), Square `◼`, Triangle `▲`, Hexagon `⬡`, Pentagon `⬟`, Rectangle `▬`, Circle `◎`, Star `☆`, Diamond `◆`, Crescent `☾`, Arrow `➤`, White Square `◻`, Bar `▰`, Quadrant `◖`, Heart `♡`, Cross `♰`.
+NOTE: The user is particular about glyph sizing/vertical alignment (e.g. `■` sat too low, `⬛` too large, settled on `◼`). When changing a shape's glyph, mention alignment/size tradeoffs.
+
+## Gotchas / things to be careful about
+- **Keep the sheet self-contained**: no external JS libs. Google Fonts is the only external resource and it's loaded via `<link>` but the sheet still works offline with fallbacks.
+- **No auto-save.** Persistence relies on Export/Import JSON.
+- All JavaScript uses `var`, ES5-style (no arrow functions, no modules) — keep new code in that style for consistency.
+- Inline `onclick="..."` attributes are used heavily; new interactive cards built via JS `innerHTML` use inline `onclick` for their Edit buttons and delegated grid listeners for toggles.
+- When adding fields to cards built in JS, update BOTH the static HTML sample card AND the `innerHTML` template string in the `add<X>Slot()` function, or they'll drift.
+- Sections show `.hid` when empty; the Edit button reveals them. Don't break the edit/hidden toggle when adding new card fields.
+- Verify JS after edits with: `python3 -c "import re,io; html=open('frigate.html').read(); m=re.search(r'<script>(.*)</script>',html,re.S); io.open('/tmp/s.js','w').write(m.group(1))" && node --check /tmp/s.js`
