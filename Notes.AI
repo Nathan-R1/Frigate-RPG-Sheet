@@ -38,7 +38,7 @@ Line numbers below are approximate; navigate via the commented section markers.
 - Hull/Shield/Energy icons are clickable `decrementStat('id')` (decrement cur only). Values are `<input>`s.
 - **Turn rules blocks**: two collapsible `.rules-block`s directly under the stat strip — "At the start of your turn" (`#turnBox`) and "During your turn" (`#duringBox`). Header click → `toggleTurnBox(rhead)` toggles `.collapsed` (collapses the `<ul>`). Each block has one-click rule buttons:
   - `rechargeEnergy()` — sets `energyCur` = `energyMax`.
-  - `refreshAllTechs()` — clears exhaust on every tech (`applyTechExhaust(card,false)`) and every mod (`applyModExhaust(card,false)`).
+  - `refreshAllTechs()` — resets every tech from `exhausted` back to `built` (`setTechState(card,'built')`) and clears exhaust on every mod (`applyModExhaust(card,false)`).
 
 ### Skills
 - A `table.skills` with 9 fixed skills; each has a Point and Penalty input (`id="skill-<Name>-pts"` / `-pen`).
@@ -60,11 +60,11 @@ After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max
 
 ### Technologies
 - `.tech-card` per tech:
-  - `.thead`: `input.tname` + **⇅ build/hand toggle** (`.tbuilt-btn`, see Hand section) + **Exhaust/Refresh** button (`.texhaust-btn`) + **Edit** button (`.tsecedit`, `toggleTechEdit`).
+  - `.thead`: `input.tname` + **⇅ state toggle** (`.tbuilt-btn`, see Hand section) + **Edit** button (`.tsecedit`, `toggleTechEdit`).
   - `.tsub`: `.ttraits` input (traits line).
   - `.tsecs`: three collapsible **sections** — On Build / Passive / On Activate — each a `.tsec` with a `.tsec-head` and a `<textarea>`. On Build & On Activate have an energy-cost **diamond** (`.tdiamond`) for the cost.
   - `.tfoot`: tech-type toggle (`.tticker`, cycles Offense/Defense/Movement/Science), storage (`.tstorage`), hull (`.thull`, `.hid` default), charges (`.tcharges`, `.hid` default), and deploy-state toggle (`.tdepbtn`).
-- **Exhaust**: the `.texhaust-btn` (only visible in edit mode via CSS `.tech-card.editing .texhaust-btn`) toggles `data-exhaust` and the `.exhausted` class (dims card to opacity `.55`). Logic in `toggleTechExhaust(btn)` / `applyTechExhaust(card, on)`.
+- **State**: each `.tech-card` has a single `data-state` = `hand` | `built` | `exhausted` (`built` default). `hand` and `exhausted` dim the card (CSS `.tech-card.state-hand{opacity:.6}` / `.state-exhausted{opacity:.55}`); `built` is not dimmed. The `⇅` `.tbuilt-btn` cycles `hand → built → exhausted → …` via `toggleTechState()` (see Hand section). There is NO separate exhaust button for techs anymore.
 - **Edit pattern**: clicking Edit adds `.editing` to the card; empty `.hid` elements become visible/editable. `refreshTechSections(card)` toggles visibility + disabled exclusively based on `card.classList.contains('editing')` and whether fields have content. It also tags each `.tsec` with `.mod` / `.dep` when its text matches `/create\s+module/i` / `/create\s+deployable/i` — CSS tints those section backgrounds green/amber as a visual aid. Hull (`.thull`) and charges (`.tcharges`) are click-decremented/incremented on the grid (delegated `#techGrid` click listener).
 - Preset catalog = `TECHP_RESETS` array; menu built by `buildTechPresetMenu()`; picking calls `addTechFromData(t)` (also used in `pickTechPreset`, class presets, and import).
 - Deploy states in `DEPLOY_STATES` = `normal` / `deployable` / `module` (with SVG for the latter two); `setTechDeploy()` / `cycleTechDeploy()`.
@@ -86,11 +86,11 @@ A panel mirroring Technologies. Structure of a `.mod-card`:
 - Click/input event listeners on `#modGrid` handle: shape cycle, type toggle, charges increment (+1), and hull/duration decrement-on-click.
 
 ### Tech Hand / Deck (bottom bar)
-A fixed bottom "hand" UI (`#handDock`) that pops up over **38vh** when expanded, showing a fan of overlapping tech cards (like a card-game hand). This is a VIEW of the tech grid, grouped by a `built` state:
-- Each `.tech-card` carries a `data-built` attribute (`"true"` = installed/built, `"false"` = in hand). Persisted as `built` in `readTech`/`writeTech` (missing on import defaults to built).
-- The hand shows ONLY techs that are NOT built (unbuilt). Cards overlap via negative `margin-right`, and on `:hover` (or when `.popped`) they `translateY(-55px) scale(1.06)` to "pop out" for full viewing (the view padding leaves headroom above the fan).
-- **Click behavior**: a single click pops the card (adds `.popped`, same visual as hover); a **second click within the 260ms timer (i.e. a double-click)** sets that grid card `data-built="true"` → it disappears from the hand and appears dimmed (`.unbuilt`) in the grid. A `dblclick` listener prevents default text-selection. The `⇅` button (`.tbuilt-btn`) on a tech card header flips a tech between built/unbuilt (move to/from hand).
-- Key functions (near the `/* ===== Technologies ===== */` block): `refreshHand()`, `toggleTechBuilt(btn)`, `syncTechBuiltUI(card)`, `techCardViewData(card)`, `escapeHtml(s)`, `toggleHand()`. `refreshHand()` is called after any tech-grid change (add/remove/preset/pick/import/init) so the count (`#handCount`) stays live.
+A fixed bottom "hand" UI (`#handDock`) that pops up over **38vh** when expanded, showing a fan of overlapping tech cards (like a card-game hand). This is a VIEW of the tech grid, grouped by the single `data-state` attribute:
+- Each `.tech-card` carries a `data-state` = `hand` | `built` | `exhausted` (`built` default). Persisted as `state` in `readTech`/`writeTech`; on import an old sheet's `exhaust`/`built` fields are mapped (`exhaust===true`→`exhausted`, `built===false`→`hand`, else `built`).
+- The hand shows ONLY techs whose state is `hand`. Cards overlap via negative `margin-right`, and on `:hover` (or when `.popped`) they `translateY(-55px) scale(1.06)` to "pop out" for full viewing (the view padding leaves headroom above the fan).
+- **Click behavior**: a single click pops the card (adds `.popped`, same visual as hover); a **second click within the 260ms timer (i.e. a double-click)** builds it by calling `setTechState(card,'built')` → it disappears from the hand and appears undimmed in the grid. A `dblclick` listener prevents default text-selection. The `⇅` button (`.tbuilt-btn`) on a tech card header cycles a tech `hand → built → exhausted` (via `toggleTechState`); `hand` and `exhausted` dim the card, `built` does not.
+- Key functions (near the `/* ===== Technologies ===== */` block): `techState(card)`, `setTechState(card,state)`, `syncTechStateUI(card)`, `toggleTechState(btn)`, `TECH_STATE_ORDER` (`['hand','built','exhausted']`), `refreshHand()`, `techCardViewData(card)`, `escapeHtml(s)`, `toggleHand()`. `refreshHand()` is called after any tech-grid change (add/remove/preset/pick/import/init) so the count (`#handCount`) stays live. `refreshAllTechs()` resets any `exhausted` tech back to `built`.
 - **Sorting**: a `#handSort` `<select>` (overlay top-left of the expanded view) sorts the hand via `onHandSortChange()` + `handSortCards(cards)`. Modes are `az` (by name), `trait` (alphabetical by trait field, name tiebreak), and `type` (offense→defense→movement→science via `HAND_TYPE_ORDER`, name tiebreak). Current sort is held in the runtime `HAND_SORT` var (not persisted to sheet).
 - **Hand card footer**: `.hc-foot` at the bottom of each hand card shows the **tech-type glyph** (`.hc-tags`, bottom-left — the `.tticker` icon, e.g. ⚔) and an **energy diamond** (`.hc-cost`, bottom-right) with the On Build energy cost (from `.tcost-onbuild`); the diamond renders empty when there's no non-zero on-build cost. Data comes from `techCardViewData()`.
 - `escapeHtml()` must be used whenever rendering user text into `innerHTML` (hand cards render names/traits/section text this way).
@@ -99,7 +99,7 @@ A fixed bottom "hand" UI (`#handDock`) that pops up over **38vh** when expanded,
 ### Export / Import (the `/* ===== Export / Import ===== */` section)
 - Each data domain has a `read<X>` / `write<X>` pair (Skills, Crew, Tech, Mods).
 - `collectSheet()` gathers everything into one object; `applySheet(json)` restores it.
-- `readTech`/`writeTech` fields: name, traits, onbuild, passive, onactivate, onbuildenergy, onactivateenergy, techType, storage, hull, charges, deploy, **exhaust**, **built** (built defaults to `true` when missing on import).
+- `readTech`/`writeTech` fields: name, traits, onbuild, passive, onactivate, onbuildenergy, onactivateenergy, techType, storage, hull, charges, deploy, **state** (`hand`/`built`/`exhausted`, defaults to `built` when missing; old `exhaust`/`built` fields are mapped on import).
 - `readMods`/`writeMods` fields: name, req, hull, duration, speed, charges, onbuild, passive, onactivate, onactivateenergy, **type**, **shape**, **exhaust**.
 - `exportSheet()` names the downloaded file after the ship name (sanitized, `frigate-sheet` fallback); `importSheet()` reads a `.json` file and `alert()`s on success/failure.
 - **IMPORTANT: whenever you add a new field to a card, you MUST update BOTH its `read<X>` and `write<X>` functions** (and ideally the preset catalog + preset pick) or the field won't survive save/load.
