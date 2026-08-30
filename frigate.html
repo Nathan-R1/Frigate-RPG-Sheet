@@ -31,10 +31,6 @@
     --icon-energy:#c98ee8;
     --icon-amber:#e8a94a;
     --icon-cyan:#4fd8c9;
-    --hex-fore-fill:#d75b4e;   --hex-fore-stroke:#3a1815;
-    --hex-flank-fill:#e9edf4; --hex-flank-stroke:#28334a;
-    --hex-core-fill:#0d1017;  --hex-core-stroke:#3d4d6e;
-    --hex-aft-fill:#8a93a6;   --hex-aft-stroke:#3a4258;
     --bg-radial:
       radial-gradient(ellipse at 20% -10%, #142032 0%, transparent 55%),
       radial-gradient(ellipse at 100% 110%, #131c2c 0%, transparent 50%);
@@ -67,10 +63,6 @@
     --icon-energy:#764795;
     --icon-amber:#a06a17;
     --icon-cyan:#0e8f83;
-    --hex-fore-fill:none;   --hex-fore-stroke:#b8382a;
-    --hex-flank-fill:none;  --hex-flank-stroke:#4a5468;
-    --hex-core-fill:none;   --hex-core-stroke:#12151c;
-    --hex-aft-fill:none;    --hex-aft-stroke:#4a5468;
     --bg-radial: none;
     --bg-grid-color: rgba(20,30,45,0.045);
     --mono: 'JetBrains Mono', monospace;
@@ -207,7 +199,7 @@
   }
   .row2{
     display:grid;
-    grid-template-columns: 0.55fr 1.4fr 1.4fr;
+    grid-template-columns: 1fr 1fr;
     gap:16px;
     margin-top:16px;
   }
@@ -368,23 +360,6 @@
   }
   table.skills tr:last-child td{border-bottom:none;}
   table.skills tr:hover td{background:rgba(79,216,201,0.03);}
-
-  /* ===== ship arcs panel ===== */
-  .arcs-wrap{display:flex;flex-direction:column;align-items:center;}
-  .arc-hex-svg{width:100%;max-width:260px;height:auto;}
-  .arcs-caption{
-    margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--ink-dim);
-    text-align:center;font-style:italic;line-height:1.5;
-  }
-  .arc-hex{
-    cursor:pointer;
-    transition:fill .12s ease, filter .12s ease;
-  }
-  .arc-hex:hover{filter:brightness(1.18);}
-  .arc-hex.active{
-    fill:var(--red) !important;
-    stroke:var(--red-dim) !important;
-  }
 
   /* ===== traits/crew panel ===== */
   .crew-grid{
@@ -933,39 +908,6 @@
   <!-- ROW 2 -->
   <div class="row2">
 
-    <!-- SHIP ARCS -->
-    <div class="panel">
-      <div class="bl"></div><div class="br"></div>
-      <div class="eyebrow">Ship Arcs</div>
-      <div class="arcs-wrap">
-        <svg class="arc-hex-svg" viewBox="0 0 260 360">
-          <text x="130" y="95" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2">FORE</text>
-
-          <!-- fore -->
-          <polygon class="arc-hex" onclick="toggleArc(this)" points="172,147.25 151,110.88 109,110.88 88,147.25 109,183.62 151,183.62" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
-
-          <!-- fore port / fore starboard -->
-          <polygon class="arc-hex" onclick="toggleArc(this)" points="109,183.63 88,147.26 46,147.26 25,183.63 46,220 88,220" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
-          <polygon class="arc-hex" onclick="toggleArc(this)" points="235,183.63 214,147.26 172,147.26 151,183.63 172,220 214,220" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
-
-          <!-- reactor core (fixed, not clickable) -->
-          <polygon points="172,220 151,183.63 109,183.63 88,220 109,256.37 151,256.37" fill="var(--hex-core-fill)" stroke="var(--hex-core-stroke)" stroke-width="2"/>
-
-          <!-- aft port / aft starboard -->
-          <polygon class="arc-hex" onclick="toggleArc(this)" points="109,256.37 88,220 46,220 25,256.37 46,292.74 88,292.74" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
-          <polygon class="arc-hex" onclick="toggleArc(this)" points="235,256.37 214,220 172,220 151,256.37 172,292.74 214,292.74" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
-
-          <!-- aft -->
-          <polygon class="arc-hex" onclick="toggleArc(this)" points="172,292.75 151,256.38 109,256.38 88,292.75 109,329.12 151,329.12" fill="var(--hex-flank-fill)" stroke="var(--hex-flank-stroke)" stroke-width="2"/>
-
-          <text x="130" y="345" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2">AFT</text>
-          <text x="10" y="220" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2" transform="rotate(-90 10 220)">PORT</text>
-          <text x="250" y="220" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="var(--ink-mid)" letter-spacing="2" transform="rotate(90 250 220)">STARBOARD</text>
-        </svg>
-      </div>
-      <div class="arcs-caption">Click an arc to toggle it active. Attacks fire out of any active (red) arc.</div>
-    </div>
-
     <!-- TRAITS / CREW -->
     <div class="panel">
       <div class="bl"></div><div class="br"></div>
@@ -1089,9 +1031,6 @@
 </div>
 
 <script>
-  function toggleArc(el){
-    el.classList.toggle('active');
-  }
   function toggleTurnBox(rhead){
     var box = rhead.parentNode;
     box.classList.toggle('collapsed');
@@ -2017,21 +1956,6 @@
       refreshTechSections(card);
     }
   }
-  function readArcs(){
-    var out = [];
-    var arcs = document.querySelectorAll('.arcs-wrap .arc-hex');
-    for(var i = 0; i < arcs.length; i++){
-      out.push(arcs[i].classList.contains('active'));
-    }
-    return out;
-  }
-  function writeArcs(arcs){
-    var nodes = document.querySelectorAll('.arcs-wrap .arc-hex');
-    for(var i = 0; i < nodes.length; i++){
-      var on = (arcs && arcs[i]) === true;
-      nodes[i].classList.toggle('active', on);
-    }
-  }
   function collectSheet(){
     function v(id){ var el = document.getElementById(id); return el ? el.value : ''; }
     return {
@@ -2049,8 +1973,7 @@
       skills: readSkills(),
       crew: readCrew(),
       tech: readTech(),
-      mods: readMods(),
-      arcs: readArcs()
+      mods: readMods()
     };
   }
   function applySheet(json){
@@ -2072,7 +1995,6 @@
     writeCrew(json.crew);
     writeTech(json.tech);
     writeMods(json.mods);
-    writeArcs(json.arcs);
   }
   function exportSheet(){
     var data = collectSheet();
