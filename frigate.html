@@ -337,7 +337,9 @@
     box-shadow:0 8px 20px rgba(0,0,0,.45);
     padding:8px 12px;
     font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan);
-    pointer-events:none;white-space:nowrap;
+    pointer-events:none;white-space:normal;
+    max-width:420px;
+    line-height:1.45;
   }
 
         /* ===== skills panel ===== */
@@ -1057,21 +1059,65 @@
     if(isNaN(v)) v = 0;
     if(v > 0) el.value = v - 1;
   }
-  function showSkillInfo(e, btn, skillName){
-    e.stopPropagation();
+  var SKILL_DESCRIPTIONS = {
+    'Science': '- In the first Build phase, you may build {SCIENCE} Technologies.'
+  };
+  function skillValue(skillName){
     var pts = document.getElementById('skill-' + skillName + '-pts');
     var pen = document.getElementById('skill-' + skillName + '-pen');
     var ptsVal = pts ? (parseInt(pts.value,10) || 0) : 0;
     var penVal = (pen && pen.value !== '' ? parseInt(pen.value,10) : 0);
     if(isNaN(penVal)) penVal = 0;
-    var total = ptsVal + penVal;
+    return ptsVal + penVal;
+  }
+  function skillDescription(skillName){
+    var desc = SKILL_DESCRIPTIONS[skillName] || '';
+    desc = desc.replace(/\{SCIENCE\}/g, Math.max(1, skillValue('Science')));
+    return desc;
+  }
+  function showSkillInfo(e, btn, skillName){
+    e.stopPropagation();
+    var desc = skillDescription(skillName);
+    if(!desc) return;
     var pop = document.getElementById('skillPopover');
-    pop.textContent = skillName + ': ' + ptsVal + ' + Penalty ' + (pen && pen.value !== '' ? pen.value : 0) + ' = ' + total;
-    var r = btn.getBoundingClientRect();
-    pop.style.left = (r.left + window.scrollX) + 'px';
-    pop.style.top = (r.bottom + window.scrollY + 6) + 'px';
+    pop.textContent = desc;
     pop.style.display = 'block';
-    setTimeout(function(){ pop.style.display = 'none'; }, 2500);
+    pop.style.left = '0px';
+    pop.style.top = '0px';
+    pop.style.visibility = 'hidden';
+    var pw = pop.offsetWidth;
+    var ph = pop.offsetHeight;
+    pop.style.visibility = 'visible';
+    var r = btn.getBoundingClientRect();
+    var left = r.left;
+    var top = r.bottom + 6;
+    if(left + pw > window.innerWidth - 6) left = window.innerWidth - pw - 6;
+    if(left < 6) left = 6;
+    if(top + ph > window.innerHeight - 6) top = r.top - ph - 6;
+    if(top < 6) top = 6;
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+  }
+  function hideSkillInfo(){
+    document.getElementById('skillPopover').style.display = 'none';
+  }
+  function wireSkillTooltips(){
+    var rows = document.querySelectorAll('table.skills tr');
+    for(var i=0;i<rows.length;i++){
+      var nameCell = rows[i].querySelector('td:first-child');
+      if(!nameCell) continue;
+      if(nameCell.getAttribute('data-skill-hovered')) continue;
+      nameCell.setAttribute('data-skill-hovered', '1');
+      nameCell.addEventListener('mouseenter', (function(cell){
+        return function(e){
+          var name = cell.textContent.trim();
+          if(skillDescription(name)) showSkillInfo(e, cell, name);
+        };
+      })(nameCell));
+      nameCell.addEventListener('mouseleave', function(){
+        hideSkillInfo();
+      });
+    }
   }
   function updateToggleLabel(theme){
     var btn = document.getElementById('themeToggle');
@@ -2059,6 +2105,7 @@
       refreshModSections(modCards[mc]);
     }
     refreshModSlotControls();
+    wireSkillTooltips();
   })();
 </script>
 <div id="skillPopover"></div>
