@@ -645,6 +645,7 @@
   }
   .mshape-btn:hover{border-color:var(--cyan);color:var(--cyan);}
   .mshape-btn[data-shape=""]{display:none;}
+  .mod-card.editing .mshape-btn[data-shape=""]{display:flex;}
   .mod-card input.mname{
     flex:1;min-width:0;
     font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--amber);
@@ -1727,16 +1728,21 @@
   }
   var MOD_SHAPES = [
     {key:'', icon:'', label:'None'},
-    {key:'square', icon:'🟦', label:'Square'},
-    {key:'triangle', icon:'🔺', label:'Triangle'},
+    {key:'square', icon:'■', label:'Square'},
+    {key:'triangle', icon:'▲', label:'Triangle'},
     {key:'hexagon', icon:'⬡', label:'Hexagon'},
     {key:'pentagon', icon:'⬟', label:'Pentagon'},
     {key:'rectangle', icon:'▬', label:'Rectangle'},
-    {key:'circle', icon:'⭕', label:'Circle'},
-    {key:'star', icon:'⭐', label:'Star'},
-    {key:'diamond', icon:'🔷', label:'Diamond'},
-    {key:'crescent', icon:'🌙', label:'Crescent'},
-    {key:'arrow', icon:'➤', label:'Arrow'}
+    {key:'circle', icon:'◎', label:'Circle'},
+    {key:'star', icon:'☆', label:'Star'},
+    {key:'diamond', icon:'◆', label:'Diamond'},
+    {key:'crescent', icon:'☾', label:'Crescent'},
+    {key:'arrow', icon:'➤', label:'Arrow'},
+    {key:'white-square', icon:'◻', label:'White Square'},
+    {key:'bar', icon:'▰', label:'Bar'},
+    {key:'quadrant', icon:'◖', label:'Quadrant'},
+    {key:'heart', icon:'♡', label:'Heart'},
+    {key:'cross', icon:'♰', label:'Cross'}
   ];
   function setModuleShape(el, key){
     var meta = MOD_SHAPES[0];
