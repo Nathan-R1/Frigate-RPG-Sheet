@@ -841,13 +841,6 @@
     border-color:var(--cyan);
     z-index:500;
   }
-  .hand-card .hc-type{
-    position:absolute;top:-9px;right:8px;
-    width:22px;height:22px;border-radius:50%;
-    background:var(--void);border:1px solid var(--line-bright);
-    display:flex;align-items:center;justify-content:center;
-    font-size:12px;
-  }
   .hand-card .hc-name{
     font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.03em;
     color:var(--cyan);text-transform:uppercase;line-height:1.2;
@@ -863,8 +856,8 @@
     border-top:1px solid var(--line);padding-top:6px;margin-top:auto;
   }
   .hand-card .hc-tags{
-    font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--ink-dim);
-    text-transform:uppercase;
+    display:flex;align-items:center;
+    font-size:16px;line-height:1;
   }
   .hand-card .hc-cost{
     display:flex;align-items:center;justify-content:center;gap:2px;
@@ -928,6 +921,7 @@
     <button type="button" class="menu-toggle" onclick="exportSheet()">⇩ Export</button>
     <button type="button" class="menu-toggle" onclick="importSheet()">⇧ Import</button>
     <button type="button" id="themeToggle" class="menu-toggle" onclick="toggleTheme()">☀ Light Mode</button>
+  </div>
   </div>
 </nav>
 <div class="sheet">
@@ -1665,7 +1659,6 @@
         var el = document.createElement('div');
         el.className = 'hand-card';
         el.innerHTML =
-          '<span class="hc-type">' + (d.type || '') + '</span>' +
           '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
           (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
           '<div class="hc-secs">' +
@@ -1674,7 +1667,7 @@
             (d.onactivate ? '<div class="hc-sec"><b>On Activate</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
           '</div>' +
           '<div class="hc-foot">' +
-            '<span class="hc-tags">' + escapeHtml(d.tag || '') + '</span>' +
+            '<span class="hc-tags">' + (d.type || '') + '</span>' +
             '<span class="hc-cost">' +
               '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg>' +
               (d.onbuildenergy ? escapeHtml(d.onbuildenergy) : '') +
