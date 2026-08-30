@@ -28,6 +28,7 @@ Line numbers below are approximate; navigate via the commented section markers.
   - `.mod-grid` → `.mod-card`
   These use `repeat(auto-fit, minmax(...))` so they wrap responsively.
 - **Slot controls** (`.slot-controls` / `.slot-btn`) = the `− / + / ☰` buttons at a panel header. `−` opens the shared **slot picker** (`#slotPicker`, "Remove which slot?") via `showSlotPicker(e, btn, gridId, nameSel)`, `+` adds an empty slot, `☰` opens a **preset menu** (`.preset-menu`).
+- **Section collapse**: Crew Skills, Traits & Crew, Technologies, and Modules/Deployables panels each have an **👁 eye button** (`.slot-btn.panel-collapse-btn`, first/left of `−`) calling `togglePanelCollapse(btn)`, which toggles `.collapsed` on the `.panel`. When collapsed, only the header/banner row (title + controls) shows; the content is hidden via `.panel.collapsed .crew-grid/.tech-grid/.mod-grid/.skills{display:none}` and the eye button is highlighted cyan.
 - **Theme**: `[data-theme="dark"]` (default) and `[data-theme="light"]` on `<html>`. Colors come from CSS custom properties (`--cyan`, `--amber`, `--ink`, `--line`, etc.). New inline SVG icons use `stroke="var(--icon-...)"`.
 - Fonts: `--disp` (Orbitron, titles), `--body` (Rajdhani), `--mono` (JetBrains Mono, labels/values/traits).
 
@@ -49,7 +50,7 @@ The class `<select id="shipClass">` ("Unclassified" / Support / Jump / Striker /
 - **Support** — `stats:{hull+2, shield+2, storage+2}`, tech `Repulsor Field`, AND auto-adds the **Repulsor Field module** (`modName`).
 - **Jump** — tech `Phantom`.
 - **Discovery** — `stats:{storage+4}`, tech `Experimental Reconnaissance`.
-- **Striker** — `stats:{storage+2}`, tech `Targeting Computer`.
+- **Striker** — `stats:{storage+2}`, tech `Targeting Strikes`.
 
 After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max (hull/shield) or single-value stats (storage); `findTechByName()` / `findModByName()` resolve the signature tech/mod in the preset arrays, and `addTechFromData()` / `pickModPreset()` add them.
 

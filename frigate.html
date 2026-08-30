@@ -385,6 +385,9 @@
   .slot-btn:hover{border-color:var(--cyan);color:var(--cyan);}
   .slot-btn:disabled{opacity:.35;cursor:not-allowed;}
   .slot-btn:disabled:hover{border-color:var(--line-bright);color:var(--ink);}
+  .panel-collapse-btn{font-size:14px;}
+  .panel.collapsed .slot-controls .panel-collapse-btn{color:var(--cyan);border-color:var(--cyan);}
+  .panel.collapsed .tech-grid,.panel.collapsed .mod-grid,.panel.collapsed .crew-grid,.panel.collapsed .skills{display:none;}
   .slot-menu-wrap{position:relative;}
   .preset-menu{
     position:absolute;
@@ -1063,7 +1066,12 @@
     <!-- SKILLS -->
     <div class="panel skills-panel">
       <div class="bl"></div><div class="br"></div>
-      <div class="eyebrow">Crew Skills</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="eyebrow" style="margin-bottom:0;">Crew Skills</div>
+        <div class="slot-controls">
+          <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
+        </div>
+      </div>
       <table class="skills">
         <tr><th>Name</th><th class="pt">Points</th><th class="pt">Penalty</th></tr>
         <tr><td>Cyber</td><td class="pt"><input id="skill-Cyber-pts" value="1"></td><td class="pt"><input id="skill-Cyber-pen" value="" placeholder="—"></td></tr>
@@ -1088,6 +1096,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div class="eyebrow" style="margin-bottom:0;">Traits &amp; Crew</div>
         <div class="slot-controls">
+          <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="showSlotPicker(event, this, 'crewGrid', '.cname')" title="Remove a slot">−</button>
           <button type="button" class="slot-btn" onclick="addCrewSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
@@ -1121,6 +1130,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div class="eyebrow" style="margin-bottom:0;">Technologies</div>
         <div class="slot-controls">
+          <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="techSlotRemoveBtn" onclick="showSlotPicker(event, this, 'techGrid', '.tname')" title="Remove a slot">−</button>
           <button type="button" class="slot-btn" onclick="addTechSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
@@ -1165,6 +1175,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
       <div class="eyebrow" style="margin-bottom:0;">Modules / Deployables</div>
       <div class="slot-controls">
+        <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
         <button type="button" class="slot-btn" id="modSlotRemoveBtn" onclick="showSlotPicker(event, this, 'modGrid', '.mname')" title="Remove a slot">−</button>
         <button type="button" class="slot-btn" onclick="addModSlot()" title="Add slot">+</button>
         <div class="slot-menu-wrap">
@@ -1209,6 +1220,11 @@
   function toggleTurnBox(rhead){
     var box = rhead.parentNode;
     box.classList.toggle('collapsed');
+  }
+  function togglePanelCollapse(btn){
+    var panel = btn.closest('.panel');
+    if(!panel) return;
+    panel.classList.toggle('collapsed');
   }
   function rechargeEnergy(){
     var cur = document.getElementById('energyCur');
@@ -1437,7 +1453,7 @@
     {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Field', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
     {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, exhaust to Move 1.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck. Trash.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Targeting Computer', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a Ballistic 💥 weapon you may reroll results of 1.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Targeting Strikes', traits:'Strike Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Graviton Engine', traits:'[Module]', onbuild:'Create Module Graviton Engine', passive:'Gain +2 Speed.', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:'module'},
     {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
@@ -1923,7 +1939,7 @@
     },
     'Striker Class': {
       stats: {storage:2},
-      techName: 'Targeting Computer'
+      techName: 'Targeting Strikes'
     }
   };
   function findTechByName(name){
