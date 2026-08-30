@@ -634,16 +634,16 @@
   .mtype-btn .kw-icon{width:16px;height:16px;display:block;margin:0;}
   .mshape-btn{
     flex:none;
-    width:26px;height:26px;
     display:flex;align-items:center;justify-content:center;
-    background:var(--stat-bg);
-    border:1px solid var(--line-bright);
+    background:transparent;
+    border:none;
     color:var(--ink);
     cursor:pointer;
     padding:0;
-    font-size:13px;line-height:1;
+    font-size:26px;line-height:1;
+    min-width:26px;min-height:26px;
   }
-  .mshape-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .mshape-btn:hover{color:var(--cyan);}
   .mshape-btn[data-shape=""]{display:none;}
   .mod-card.editing .mshape-btn[data-shape=""]{display:flex;}
   .mod-card input.mname{
@@ -1728,7 +1728,7 @@
   }
   var MOD_SHAPES = [
     {key:'', icon:'', label:'None'},
-    {key:'square', icon:'■', label:'Square'},
+    {key:'square', icon:'◼', label:'Square'},
     {key:'triangle', icon:'▲', label:'Triangle'},
     {key:'hexagon', icon:'⬡', label:'Hexagon'},
     {key:'pentagon', icon:'⬟', label:'Pentagon'},
