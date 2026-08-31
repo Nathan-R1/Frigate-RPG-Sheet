@@ -18,6 +18,8 @@
     --amber:#e8a94a;
     --red:#d75b4e;
     --red-dim:#5e2a26;
+    --brown:#9a6636;
+    --brown-dim:#4a3018;
     --ink:#eef2f8;
     --ink-mid:#9aa8c4;
     --ink-dim:#5a6684;
@@ -38,6 +40,8 @@
     --mono: 'JetBrains Mono', monospace;
     --disp: 'Orbitron', sans-serif;
     --body: 'Rajdhani', sans-serif;
+    --hand-card-h: 210px;
+    --hand-card-w: 190px;
   }
   [data-theme="light"]{
     --void:#ffffff;
@@ -50,6 +54,8 @@
     --amber:#a06a17;
     --red:#b8382a;
     --red-dim:#b8382a;
+    --brown:#7d5122;
+    --brown-dim:#c8b294;
     --ink:#12151c;
     --ink-mid:#4a5468;
     --ink-dim:#828da2;
@@ -203,6 +209,8 @@
     gap:16px;
     margin-top:16px;
   }
+
+  /* collapsed panels break out of their row and drop below */
   .grid:has(> .panel.collapsed),
   .row2:has(> .panel.collapsed),
   .grid.has-collapsed,
@@ -213,6 +221,7 @@
   .row2 > .panel.collapsed{
     order:2;
   }
+
   @media (max-width:880px){
     .grid, .row2{grid-template-columns:1fr;}
     .stat-strip{grid-template-columns:repeat(4,1fr);}
@@ -550,6 +559,13 @@
   .tech-card.editing .t-delete,.mod-card.editing .m-delete{display:inline-flex;}
   .tech-card.state-exhausted{opacity:.55;}
   .tech-card.state-hand{opacity:.6;}
+  .tech-card.state-discarded{
+    background:
+      linear-gradient(180deg, rgba(154,102,54,.26) 0%, rgba(154,102,54,.15) 100%),
+      var(--crew-bg);
+    border-color:var(--brown);
+    opacity:.85;
+  }
   .tech-card.editing .tsec.hid,.mod-card.editing .msec.hid{display:flex;}
   .tech-card .ttraits.hid,.tech-card .tstorage.hid,.mod-card .mreq.hid{display:none;}
   .tfoot,.mfoot{
@@ -734,50 +750,151 @@
     cursor:pointer;font-size:14px;line-height:1;padding:3px 8px;
   }
   .hand-icon-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .sort-wrap{position:relative;display:inline-flex;align-items:center;}
   @media (max-width:640px){
-    .hand-sort{position:relative;}
     .hand-sort label{display:none;}
-    .hand-sort select{
-      position:absolute;bottom:0;width:34px;height:100%;
+    .sort-wrap > select{
+      position:absolute;top:0;left:0;width:100%;height:100%;
       opacity:0;border:0;padding:0;z-index:2;
     }
     .hand-sort .hand-icon-btn{display:inline-flex;}
-    .hand-sort #handSort{right:52px;}
-    .hand-sort #handFilter{right:12px;}
+  }
+
+  /* ===== hand filter menu ===== */
+  .hand-filter-btn{
+    display:flex;align-items:center;gap:6px;
+    background:none;border:1px solid var(--line-bright);color:var(--ink-dim);
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 9px;cursor:pointer;line-height:1;
+  }
+  .hand-filter-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .hand-filter-btn.active{color:var(--cyan);border-color:var(--cyan);}
+  .hand-filter-btn .fico{
+    display:none;font-size:15px;line-height:1;flex:none;
+  }
+  .hand-filter-btn .fcount{
+    display:none;align-items:center;justify-content:center;
+    min-width:15px;height:15px;padding:0 4px;border-radius:8px;
+    background:var(--cyan);color:var(--void);font-weight:700;font-size:9px;
+  }
+  .hand-filter-btn.active .fcount{display:inline-flex;}
+  @media (max-width:640px){
+    .hand-filter-btn{padding:5px 8px;}
+    .hand-filter-btn .flabel{display:none;}
+    .hand-filter-btn .fico{display:inline-block;}
+  }
+  .filter-menu{
+    top:auto;
+    bottom:calc(100% + 8px);
+    right:0;
+    min-width:250px;
+    z-index:300;
+  }
+  .filter-row{
+    position:relative;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:9px 10px;
+    cursor:pointer;
+  }
+  .filter-row:hover{background:var(--stat-bg);}
+  .filter-row + .filter-row{border-top:1px solid var(--line);}
+  .filter-cat{
+    font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  .filter-val{
+    font-family:var(--body);font-weight:700;font-size:13.5px;color:var(--cyan);
+  }
+  .filter-row.off .filter-val{color:var(--ink-dim);font-weight:600;}
+  .filter-row > select{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    opacity:0;border:0;padding:0;margin:0;cursor:pointer;z-index:2;
+  }
+  .filter-clear{
+    width:100%;
+    margin-top:4px;
+    background:none;border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 0;cursor:pointer;
+  }
+  .filter-clear:hover{color:var(--cyan);border-color:var(--cyan);}
+  .hc-state{
+    font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--line-bright);color:var(--ink-dim);
+    padding:1px 4px;margin-left:6px;
+  }
+  .hc-state[data-state="exhausted"]{color:var(--amber);border-color:var(--amber);}
+  .hc-state[data-state="built"]{color:var(--cyan);border-color:var(--cyan-dim);}
+  .hc-state[data-state="discarded"]{color:var(--brown);border-color:var(--brown);}
+  .hand-card[data-state="discarded"]{
+    background:
+      linear-gradient(180deg, rgba(154,102,54,.34) 0%, rgba(154,102,54,.20) 100%),
+      linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border-color:var(--brown);
+  }
+  .hand-card[data-state="exhausted"]{
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,.34) 100%),
+      linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
   }
   .hand-view{
-    position:relative;z-index:200;
+    /* out of the dock's flow, so the bar keeps its place at the bottom
+       and the cards sit behind it */
+    position:absolute;left:0;right:0;bottom:0;
     height:0;overflow:hidden;
     transition:height .22s ease;
-    background:
-      linear-gradient(var(--void) 0%, var(--void) 100%),
-      var(--bg-radial),
-      linear-gradient(var(--bg-grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 1px);
-    background-size:auto, auto, 34px 34px, 34px 34px;
-    border-top:1px solid var(--line);
+    background:transparent;
   }
   .hand-dock.expanded .hand-view{
-    height:38vh;
+    /* just tall enough to reach the top of the resting cards */
+    height:calc(var(--hand-card-h) + var(--hand-bar-h, 44px) + 8px);
     overflow-x:auto;
     overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
     touch-action:pan-x pan-y;
   }
-  .hand-view::-webkit-scrollbar{height:10px;}
-  .hand-view::-webkit-scrollbar-track{background:var(--panel-alt);}
-  .hand-view::-webkit-scrollbar-thumb{background:var(--line-bright);border-radius:5px;}
-  .hand-view::-webkit-scrollbar-thumb:hover{background:var(--cyan);}
+  /* room for the 62px hover pop plus shadow, added only while a card is up */
+  .hand-dock.expanded .hand-view.roomy{
+    height:calc(var(--hand-card-h) + var(--hand-bar-h, 44px) + 100px);
+    transition:none;
+  }
+  .hand-view{scrollbar-width:none;}
+  .hand-view::-webkit-scrollbar{display:none;}
+  .hand-slider{
+    position:absolute;left:0;right:0;top:0;
+    height:8px;
+    display:none;
+    cursor:pointer;
+    touch-action:none;
+  }
+  .hand-dock.expanded .hand-slider.on{display:block;}
+  .hand-slider-track{
+    position:absolute;left:12px;right:12px;top:3px;
+    height:3px;
+    background:var(--line);
+  }
+  .hand-slider-thumb{
+    position:absolute;top:2px;
+    height:5px;
+    min-width:28px;
+    background:var(--line-bright);
+    border-radius:3px;
+  }
+  .hand-slider:hover .hand-slider-thumb,
+  .hand-slider.dragging .hand-slider-thumb{background:var(--cyan);}
   .hand{
-    display:flex;align-items:flex-end;justify-content:center;
-    padding:90px 24px 16px;
+    display:flex;align-items:flex-end;
+    justify-content:center;
+    justify-content:safe center;
+    padding:12px 24px calc(var(--hand-bar-h, 44px) + 8px);
     height:100%;
     width:max-content;
     min-width:100%;
   }
   .hand-card{
     position:relative;
-    width:190px;height:240px;flex:none;
+    width:var(--hand-card-w);height:var(--hand-card-h);flex:none;
     background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
     border:1px solid var(--line-bright);
     border-radius:6px;
@@ -786,7 +903,9 @@
     cursor:pointer;
     transition:transform .16s ease, box-shadow .16s ease, z-index .16s ease;
     display:flex;flex-direction:column;gap:6px;
-    margin-right:-120px;
+    /* --hand-step is the visible width of each card before the next overlaps
+       it; set by updateHandSpread() between 67% (loose) and 34% (tight) */
+    margin-right:calc(var(--hand-step, 67px) - var(--hand-card-w));
   }
   .hand-card:last-child{margin-right:0;}
   .hand-card:hover{
@@ -801,7 +920,11 @@
     border-color:var(--cyan);
     z-index:500;
   }
+  .hand-card .hc-head{
+    display:flex;align-items:flex-start;gap:6px;
+  }
   .hand-card .hc-name{
+    flex:1;min-width:0;
     font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.03em;
     color:var(--cyan);text-transform:uppercase;line-height:1.2;
   }
@@ -820,8 +943,12 @@
     font-size:16px;line-height:1;
   }
   .hand-card .hc-cost{
-    display:flex;align-items:center;justify-content:center;gap:4px;
-    font-family:var(--mono);font-weight:700;font-size:13px;color:var(--icon-energy);
+    flex:none;
+    display:flex;align-items:center;justify-content:center;gap:2px;
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-energy);
+    border:1px solid var(--icon-energy);
+    padding:1px 4px;
+    line-height:1.1;
   }
   .hand-card .hc-cost svg{width:13px;height:13px;flex:none;}
   .hand-empty{
@@ -837,6 +964,7 @@
   .tbuilt-btn:hover{border-color:var(--cyan);color:var(--cyan);}
   .tech-card.state-hand .tbuilt-btn{color:var(--cyan);border-color:var(--cyan-dim);}
   .tech-card.state-exhausted .tbuilt-btn{color:var(--amber);border-color:var(--amber);}
+  .tech-card.state-discarded .tbuilt-btn{color:var(--brown);border-color:var(--brown);}
 
   .menu-bar{
     position:sticky;top:0;z-index:50;
@@ -867,7 +995,6 @@
     <button type="button" class="menu-toggle" onclick="exportSheet()">⇩ Export</button>
     <button type="button" class="menu-toggle" onclick="importSheet()">⇧ Import</button>
     <button type="button" id="themeToggle" class="menu-toggle" onclick="toggleTheme()">☀ Light Mode</button>
-  </div>
   </div>
 </nav>
 <div class="sheet">
@@ -1549,20 +1676,22 @@
   function escapeHtml(s){
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+  var TECH_STATE_ORDER = ['hand','built','exhausted','discarded'];
+  function isTechState(s){ return TECH_STATE_ORDER.indexOf(s) !== -1; }
   function techState(card){
     var s = card ? (card.getAttribute('data-state') || 'built') : 'built';
-    if(s !== 'hand' && s !== 'built' && s !== 'exhausted') s = 'built';
+    if(!isTechState(s)) s = 'built';
     return s;
   }
   function setTechState(card, state){
     if(!card) return;
-    if(state !== 'hand' && state !== 'built' && state !== 'exhausted') state = 'built';
+    if(!isTechState(state)) state = 'built';
     card.setAttribute('data-state', state);
     syncTechStateUI(card);
   }
   function syncTechStateUI(card){
     if(!card) return;
-    card.classList.remove('state-hand','state-built','state-exhausted');
+    card.classList.remove('state-hand','state-built','state-exhausted','state-discarded');
     card.classList.add('state-' + techState(card));
     var btn = card.querySelector('.tbuilt-btn');
     if(btn){
@@ -1570,7 +1699,6 @@
       btn.textContent = (techState(card) === 'hand') ? '🂱' : '⇅';
     }
   }
-  var TECH_STATE_ORDER = ['hand','built','exhausted'];
   function toggleTechState(btn){
     var card = btn.closest ? btn.closest('.tech-card') : null;
     if(!card) return;
@@ -1600,14 +1728,142 @@
     };
   }
   var HAND_SORT = 'az';
-  var HAND_FILTER = 'all';
   var HAND_TYPE_ORDER = { offense:0, defense:1, movement:2, science:3 };
-  function onHandSortChange(){
-    HAND_SORT = document.getElementById('handSort').value;
+
+  /* Each category holds one value; '' means the attribute is not filtered on. */
+  var HAND_FILTERS = { hand:'', type:'', energy:'', trait:'' };
+  var FILTER_CATS = [
+    {key:'hand', label:'Hand', options:[
+      {value:'', label:'N/A'},
+      {value:'hand', label:'In hand'},
+      {value:'nothand', label:'Not in hand'},
+      {value:'built', label:'Built'},
+      {value:'exhausted', label:'Exhausted'},
+      {value:'discarded', label:'Discarded'}
+    ]},
+    {key:'type', label:'Type', options:[
+      {value:'', label:'N/A'},
+      {value:'offense', label:'Offense'},
+      {value:'defense', label:'Defense'},
+      {value:'movement', label:'Movement'},
+      {value:'science', label:'Science'}
+    ]},
+    {key:'energy', label:'Energy', options:[
+      {value:'', label:'N/A'},
+      {value:'has', label:'Has cost'},
+      {value:'none', label:'No cost'}
+    ]},
+    {key:'trait', label:'Trait', options:[
+      {value:'', label:'N/A'},
+      {value:'has', label:'Has trait'},
+      {value:'none', label:'No trait'}
+    ]}
+  ];
+  function filterCatMeta(key){
+    for(var i=0;i<FILTER_CATS.length;i++){ if(FILTER_CATS[i].key === key) return FILTER_CATS[i]; }
+    return null;
+  }
+  function filterValueLabel(key){
+    var cat = filterCatMeta(key);
+    if(!cat) return 'N/A';
+    var val = HAND_FILTERS[key];
+    for(var i=0;i<cat.options.length;i++){
+      if(cat.options[i].value === val) return cat.options[i].label;
+    }
+    return 'N/A';
+  }
+  function buildFilterMenu(){
+    var menu = document.getElementById('handFilterMenu');
+    if(!menu) return;
+    menu.innerHTML = '';
+    FILTER_CATS.forEach(function(cat){
+      var row = document.createElement('div');
+      row.className = 'filter-row';
+      row.setAttribute('data-cat', cat.key);
+
+      var name = document.createElement('span');
+      name.className = 'filter-cat';
+      name.textContent = cat.label;
+      row.appendChild(name);
+
+      var val = document.createElement('span');
+      val.className = 'filter-val';
+      row.appendChild(val);
+
+      /* The select sits invisibly over the whole row, so tapping the row taps
+         the select itself and the platform opens its own native picker. */
+      var sel = document.createElement('select');
+      sel.setAttribute('data-cat', cat.key);
+      sel.setAttribute('aria-label', cat.label + ' filter');
+      cat.options.forEach(function(o){
+        var opt = document.createElement('option');
+        opt.value = o.value;
+        opt.textContent = o.label;
+        sel.appendChild(opt);
+      });
+      sel.value = HAND_FILTERS[cat.key];
+      sel.onchange = function(){
+        HAND_FILTERS[cat.key] = sel.value;
+        updateFilterUI();
+        refreshHand();
+      };
+      row.appendChild(sel);
+
+      menu.appendChild(row);
+    });
+    var clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'filter-clear';
+    clear.textContent = 'Clear all';
+    clear.onclick = clearFilters;
+    menu.appendChild(clear);
+    updateFilterUI();
+  }
+  function activeFilterCount(){
+    var n = 0;
+    for(var k in HAND_FILTERS){
+      if(HAND_FILTERS.hasOwnProperty(k) && HAND_FILTERS[k]) n++;
+    }
+    return n;
+  }
+  function updateFilterUI(){
+    var rows = document.querySelectorAll('#handFilterMenu .filter-row');
+    for(var i=0;i<rows.length;i++){
+      var key = rows[i].getAttribute('data-cat');
+      var valEl = rows[i].querySelector('.filter-val');
+      if(valEl) valEl.textContent = filterValueLabel(key);
+      rows[i].classList.toggle('off', !HAND_FILTERS[key]);
+      var sel = rows[i].querySelector('select');
+      if(sel) sel.value = HAND_FILTERS[key];
+    }
+    var n = activeFilterCount();
+    var btn = document.getElementById('handFilterBtn');
+    var count = document.getElementById('handFilterCount');
+    if(count) count.textContent = n;
+    if(btn) btn.classList.toggle('active', n > 0);
+  }
+  function clearFilters(){
+    for(var k in HAND_FILTERS){
+      if(HAND_FILTERS.hasOwnProperty(k)) HAND_FILTERS[k] = '';
+    }
+    updateFilterUI();
     refreshHand();
   }
-  function onHandFilterChange(){
-    HAND_FILTER = document.getElementById('handFilter').value;
+  function toggleFilterMenu(e){
+    e.stopPropagation();
+    document.getElementById('handFilterMenu').classList.toggle('open');
+  }
+  function closeFilterMenu(){
+    document.getElementById('handFilterMenu').classList.remove('open');
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('handFilterMenu');
+    if(menu && menu.classList.contains('open') && !menu.contains(e.target)){
+      closeFilterMenu();
+    }
+  });
+  function onHandSortChange(){
+    HAND_SORT = document.getElementById('handSort').value;
     refreshHand();
   }
   function openHandSelect(id){
@@ -1620,22 +1876,26 @@
     }
   }
   function handCardPasses(card){
-    if(!HAND_FILTER || HAND_FILTER === 'all') return true;
     var d = techCardViewData(card);
-    var parts = HAND_FILTER.split(':');
-    var cat = parts[0], val = parts[1];
-    if(cat === 'type'){
-      var tt = card.querySelector('.tticker').getAttribute('data-tt');
-      return tt === val;
+
+    if(HAND_FILTERS.hand){
+      var st = techState(card);
+      if(HAND_FILTERS.hand === 'nothand'){
+        if(st === 'hand') return false;
+      } else if(st !== HAND_FILTERS.hand){
+        return false;
+      }
     }
-    if(cat === 'energy'){
+    if(HAND_FILTERS.type){
+      if(card.querySelector('.tticker').getAttribute('data-tt') !== HAND_FILTERS.type) return false;
+    }
+    if(HAND_FILTERS.energy){
       var e = d.onbuildenergy;
-      var has = e && e.trim() !== '' && parseFloat(e) > 0;
-      return val === 'has' ? has : !has;
+      var hasCost = !!(e && e.trim() !== '' && parseFloat(e) > 0);
+      if((HAND_FILTERS.energy === 'has') !== hasCost) return false;
     }
-    if(cat === 'trait'){
-      var tr = d.traits;
-      return val === 'has' ? !!tr : !tr;
+    if(HAND_FILTERS.trait){
+      if((HAND_FILTERS.trait === 'has') !== !!d.traits) return false;
     }
     return true;
   }
@@ -1675,22 +1935,29 @@
     if(!handEl || !countEl) return;
     var cards = [];
     for(var i=0;i<grid.children.length;i++){
-      if(techState(grid.children[i]) === 'hand' && handCardPasses(grid.children[i])) cards.push(grid.children[i]);
+      if(handCardPasses(grid.children[i])) cards.push(grid.children[i]);
     }
     handSortCards(cards);
     handEl.innerHTML = '';
     if(cards.length === 0){
       var empty = document.createElement('div');
       empty.className = 'hand-empty';
-      empty.textContent = 'No techs in hand';
+      empty.textContent = activeFilterCount() ? 'No techs match' : 'No techs';
       handEl.appendChild(empty);
     } else {
       for(var j=0;j<cards.length;j++){
         var d = techCardViewData(cards[j]);
         var el = document.createElement('div');
         el.className = 'hand-card';
+        el.setAttribute('data-state', techState(cards[j]));
+        var costHtml = (d.onbuildenergy && d.onbuildenergy !== '0')
+          ? '<span class="hc-cost">' + escapeHtml(d.onbuildenergy) +
+            '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
+          : '';
         el.innerHTML =
-          '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
+          '<div class="hc-head">' + costHtml +
+            '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
+          '</div>' +
           (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
           '<div class="hc-secs">' +
             (d.onbuild ? '<div class="hc-sec"><b>On Build</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
@@ -1698,22 +1965,23 @@
             (d.onactivate ? '<div class="hc-sec"><b>On Activate</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
           '</div>' +
           '<div class="hc-foot">' +
-            '<span class="hc-tags">' + (d.type || '') + '</span>' +
-            '<span class="hc-cost">' +
-              (d.onbuildenergy && d.onbuildenergy !== '0'
-                ? escapeHtml(d.onbuildenergy) +
-                  '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg>'
-                : '') +
+            '<span class="hc-tags">' + (d.type || '') +
+              '<span class="hc-state" data-state="' + techState(cards[j]) + '">' + techState(cards[j]) + '</span>' +
             '</span>' +
           '</div>';
         el.addEventListener('mouseenter', function(){
           var popped = document.querySelector('.hand-card.popped');
           if(popped && popped !== this) popped.classList.remove('popped');
+          syncHandRoom();
+        });
+        el.addEventListener('mouseleave', function(){
+          setTimeout(syncHandRoom, 0);
         });
         el.addEventListener('click', function(){
           var popped = document.querySelector('.hand-card.popped');
           if(popped && popped !== this) popped.classList.remove('popped');
           this.classList.toggle('popped');
+          syncHandRoom();
         });
         el.addEventListener('dblclick', (function(card){
           return function(e){
@@ -1726,12 +1994,115 @@
       }
     }
     countEl.textContent = cards.length;
+    updateHandSpread();
+    updateHandSlider();
+  }
+  /* Cards overlap by 33% when the hand is small and there is room to fan out,
+     tightening to 66% as the hand fills the strip. */
+  /* The layer sits flush with the card tops; it only needs the extra height
+     while a card is hovered or popped, so add it just for that moment. */
+  function syncHandRoom(){
+    var view = document.querySelector('.hand-view');
+    var strip = document.getElementById('hand');
+    if(!view || !strip) return;
+    var up = strip.querySelector('.hand-card.popped') || strip.querySelector('.hand-card:hover');
+    view.classList.toggle('roomy', !!up);
+  }
+  function updateHandSpread(){
+    var view = document.querySelector('.hand-view');
+    var strip = document.getElementById('hand');
+    if(!view || !strip) return;
+    var n = strip.querySelectorAll('.hand-card').length;
+    var cardW = parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue('--hand-card-w')) || 190;
+    var loose = cardW * 0.67;   /* 33% overlap */
+    var tight = cardW * 0.34;   /* 66% overlap */
+    var step = loose;
+    if(n > 1){
+      var cs = getComputedStyle(strip);
+      var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      var avail = view.clientWidth - pad;
+      var needed = (avail - cardW) / (n - 1);
+      step = Math.max(tight, Math.min(loose, needed));
+    }
+    strip.style.setProperty('--hand-step', step + 'px');
+  }
+  /* The native scrollbar sits at the bottom edge of .hand-view, which the bar
+     covers, so scroll position is mirrored onto a slider drawn on the bar. */
+  function updateHandSlider(){
+    var view = document.querySelector('.hand-view');
+    var slider = document.getElementById('handSlider');
+    var thumb = document.getElementById('handSliderThumb');
+    if(!view || !slider || !thumb) return;
+    var sw = view.scrollWidth, cw = view.clientWidth;
+    if(sw <= cw + 1){
+      slider.classList.remove('on');
+      return;
+    }
+    slider.classList.add('on');
+    var track = slider.querySelector('.hand-slider-track');
+    var trackW = track.offsetWidth;
+    var w = Math.max(28, (cw / sw) * trackW);
+    var maxLeft = trackW - w;
+    var maxScroll = sw - cw;
+    var left = maxScroll > 0 ? (view.scrollLeft / maxScroll) * maxLeft : 0;
+    thumb.style.width = w + 'px';
+    thumb.style.left = (12 + left) + 'px';
+  }
+  function syncHandBarHeight(){
+    var bar = document.querySelector('.hand-bar');
+    if(!bar) return;
+    document.documentElement.style.setProperty('--hand-bar-h', bar.offsetHeight + 'px');
+  }
+  function wireHandSlider(){
+    var view = document.querySelector('.hand-view');
+    var slider = document.getElementById('handSlider');
+    if(!view || !slider) return;
+    syncHandBarHeight();
+    window.addEventListener('resize', syncHandBarHeight);
+    window.addEventListener('resize', updateHandSpread);
+    view.addEventListener('scroll', updateHandSlider);
+    window.addEventListener('resize', updateHandSlider);
+    var dragging = false;
+    function scrollToPointer(clientX){
+      var track = slider.querySelector('.hand-slider-track');
+      var r = track.getBoundingClientRect();
+      var thumb = document.getElementById('handSliderThumb');
+      var w = thumb.offsetWidth;
+      var maxLeft = r.width - w;
+      if(maxLeft <= 0) return;
+      var pos = clientX - r.left - w / 2;
+      pos = Math.max(0, Math.min(maxLeft, pos));
+      view.scrollLeft = (pos / maxLeft) * (view.scrollWidth - view.clientWidth);
+    }
+    slider.addEventListener('pointerdown', function(e){
+      dragging = true;
+      slider.classList.add('dragging');
+      slider.setPointerCapture(e.pointerId);
+      scrollToPointer(e.clientX);
+      e.preventDefault();
+    });
+    slider.addEventListener('pointermove', function(e){
+      if(dragging) scrollToPointer(e.clientX);
+    });
+    function endDrag(){
+      dragging = false;
+      slider.classList.remove('dragging');
+    }
+    slider.addEventListener('pointerup', endDrag);
+    slider.addEventListener('pointercancel', endDrag);
   }
   function toggleHand(){
     var dock = document.getElementById('handDock');
     var willExpand = !dock.classList.contains('expanded');
     dock.classList.toggle('expanded', willExpand);
-    if(willExpand) refreshHand();
+    if(willExpand){
+      refreshHand();
+      setTimeout(function(){
+        updateHandSpread();
+        updateHandSlider();
+      }, 240);
+    }
   }
   function setTechType(el, key){
     var meta = techTypeMeta(key);
@@ -2354,7 +2725,7 @@
       } else {
         state = 'built';
       }
-      if(state !== 'hand' && state !== 'built' && state !== 'exhausted') state = 'built';
+      if(!isTechState(state)) state = 'built';
       setTechState(card, state);
       refreshTechSections(card);
     }
@@ -2456,12 +2827,20 @@
     }
     refreshModSlotControls();
     wireSkillTooltips();
+    var containers = document.querySelectorAll('.grid, .row2');
+    for(var g=0;g<containers.length;g++){
+      syncGridCollapse(containers[g]);
+    }
   })();
 </script>
 <div id="skillPopover"></div>
 <div class="preset-menu" id="slotPicker"></div>
 <div class="hand-dock" id="handDock">
   <div class="hand-bar">
+    <div class="hand-slider" id="handSlider">
+      <div class="hand-slider-track"></div>
+      <div class="hand-slider-thumb" id="handSliderThumb"></div>
+    </div>
     <button type="button" class="hand-tab" id="handTab" onclick="toggleHand()">
       <span class="hand-label">Tech Hand</span>
       <span class="hand-count" id="handCount">0</span>
@@ -2469,37 +2848,33 @@
     </button>
     <div class="hand-sort">
       <label for="handSort">Sort</label>
-      <select id="handSort" onchange="onHandSortChange()">
-        <option value="az">Name</option>
-        <option value="trait">Trait</option>
-        <option value="type">Type</option>
-        <option value="energy">Energy</option>
-      </select>
-      <label for="handFilter">Filter</label>
-      <select id="handFilter" onchange="onHandFilterChange()">
-        <option value="all">All</option>
-        <optgroup label="Type">
-          <option value="type:offense">Offense</option>
-          <option value="type:defense">Defense</option>
-          <option value="type:movement">Movement</option>
-          <option value="type:science">Science</option>
-        </optgroup>
-        <optgroup label="Energy">
-          <option value="energy:has">Has cost</option>
-          <option value="energy:none">No cost</option>
-        </optgroup>
-        <optgroup label="Trait">
-          <option value="trait:has">Has trait</option>
-          <option value="trait:none">No trait</option>
-        </optgroup>
-      </select>
-      <button type="button" class="hand-icon-btn" id="handSortBtn" onclick="openHandSelect('handSort')" title="Sort hand">⇵</button>
-      <button type="button" class="hand-icon-btn" id="handFilterBtn" onclick="openHandSelect('handFilter')" title="Filter hand">ᯤ</button>
+      <span class="sort-wrap">
+        <select id="handSort" onchange="onHandSortChange()">
+          <option value="az">Name</option>
+          <option value="trait">Trait</option>
+          <option value="type">Type</option>
+          <option value="energy">Energy</option>
+        </select>
+        <button type="button" class="hand-icon-btn" id="handSortBtn" onclick="openHandSelect('handSort')" title="Sort hand">⇵</button>
+      </span>
+      <div class="slot-menu-wrap">
+        <button type="button" class="hand-filter-btn" id="handFilterBtn" onclick="toggleFilterMenu(event)" title="Filter hand">
+          <span class="fico" aria-hidden="true">ᯤ</span>
+          <span class="flabel">Filter</span>
+          <span class="fcount" id="handFilterCount">0</span>
+        </button>
+        <div class="preset-menu filter-menu" id="handFilterMenu"></div>
+      </div>
     </div>
   </div>
   <div class="hand-view">
     <div class="hand" id="hand"></div>
   </div>
 </div>
+<script>
+  buildFilterMenu();
+  wireHandSlider();
+  refreshHand();
+</script>
 </body>
 </html>
