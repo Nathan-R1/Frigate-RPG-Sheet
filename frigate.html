@@ -1073,9 +1073,9 @@
         <ul>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
           <li>Refresh any exhausted <b>Technologies</b>, <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> or <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> <button type="button" class="rule-btn" onclick="refreshAllTechs()" title="Refresh all exhausted techs, modules and deployables">↻</button></li>
+          <li>Build any 1* <b>Technology</b> (on turn 1 you may build extra extra, see Science)</li>
           <li>Move any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
           <li>Destroy any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> that do not meet their requirements</li>
-          <li>Build any 1* <b>Technology</b> (*turn 1 you may build extra, see Science)</li>
         </ul>
       </div>
 
@@ -1091,6 +1091,7 @@
             <ul class="sub">
               <li><b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> cannot share the space with other objects. They can be built in any empty space that meets their Requirements.</li>
               <li><b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> can share a location with objects. They can be built in any adjacent space to your ship.</li>
+              <li>Unless otherwise noted, "Adjacent" means horizontally/vertically adjacent NOT diagonal.</li>
             </ul>
           </li>
         </ul>
@@ -1133,7 +1134,6 @@
         <div class="slot-controls">
           <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="showSlotPicker(event, this, 'crewGrid', '.cname')" title="Remove a slot">−</button>
-          <button type="button" class="slot-btn" onclick="addCrewSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
             <button type="button" class="slot-btn" onclick="togglePresetMenu(event)" title="Add from catalog">☰</button>
             <div class="preset-menu" id="presetMenu"></div>
@@ -1167,7 +1167,6 @@
         <div class="slot-controls">
           <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="techSlotRemoveBtn" onclick="showSlotPicker(event, this, 'techGrid', '.tname')" title="Remove a slot">−</button>
-          <button type="button" class="slot-btn" onclick="addTechSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
             <button type="button" class="slot-btn" onclick="toggleTechPresetMenu(event)" title="Add from catalog">☰</button>
             <div class="preset-menu" id="techPresetMenu"></div>
@@ -1212,7 +1211,6 @@
       <div class="slot-controls">
         <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
         <button type="button" class="slot-btn" id="modSlotRemoveBtn" onclick="showSlotPicker(event, this, 'modGrid', '.mname')" title="Remove a slot">−</button>
-        <button type="button" class="slot-btn" onclick="addModSlot()" title="Add slot">+</button>
         <div class="slot-menu-wrap">
           <button type="button" class="slot-btn" onclick="toggleModPresetMenu(event)" title="Add from catalog">☰</button>
           <div class="preset-menu" id="modPresetMenu"></div>
@@ -1290,6 +1288,7 @@
     if(v > 0) el.value = v - 1;
   }
   var SKILL_DESCRIPTIONS = {
+    'Navigation': 'Navigation is added to Speed (min. 0)',
     'Science': '- In the first Build phase, you may build {SCIENCE} Technologies.',
     'Sensors': 'Used to calculate the range of effects triggered by Technologies, Modules and Deployables'
   };
