@@ -1339,6 +1339,7 @@
     for(var j=0;j<mods.length;j++){
       applyModExhaust(mods[j].closest('.mod-card'), false);
     }
+    refreshHand();
   }
   function decrementStat(id){
     var el = document.getElementById(id);
