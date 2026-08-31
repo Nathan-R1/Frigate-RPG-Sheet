@@ -203,6 +203,16 @@
     gap:16px;
     margin-top:16px;
   }
+  .grid:has(> .panel.collapsed),
+  .row2:has(> .panel.collapsed),
+  .grid.has-collapsed,
+  .row2.has-collapsed{
+    grid-template-columns:1fr;
+  }
+  .grid > .panel.collapsed,
+  .row2 > .panel.collapsed{
+    order:2;
+  }
   @media (max-width:880px){
     .grid, .row2{grid-template-columns:1fr;}
     .stat-strip{grid-template-columns:repeat(4,1fr);}
@@ -1123,6 +1133,12 @@
     var panel = btn.closest('.panel');
     if(!panel) return;
     panel.classList.toggle('collapsed');
+    syncGridCollapse(panel.parentNode);
+  }
+  function syncGridCollapse(container){
+    if(!container || !container.classList) return;
+    if(!container.classList.contains('grid') && !container.classList.contains('row2')) return;
+    container.classList.toggle('has-collapsed', !!container.querySelector('.panel.collapsed'));
   }
   function rechargeEnergy(){
     var cur = document.getElementById('energyCur');
