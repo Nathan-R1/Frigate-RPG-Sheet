@@ -1554,15 +1554,15 @@
     {key:'science', icon:'⚛︎', label:'Science'}
   ];
   var TECHP_RESETS = [
-    {name:'Armor Builder', traits:'[Module]', onbuild:'', onactivate:'Create Module Armor', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'defense', storage:'0', deploy:'module'},
+    {name:'Armor Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Armor', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'defense', storage:'0', deploy:'module'},
     {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nYour Cannons gain +1 Dmg and Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Create Module Cannon.', onbuildenergy:'', onactivateenergy:'1', passive:'', tt:'offense', storage:'0', deploy:'module'},
+    {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Cannon', onbuildenergy:'', onactivateenergy:'1', passive:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nMove a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Ion Torpedo', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', charges:'0', deploy:true},
     {name:'P.D.', traits:'[Module]', onbuild:'Create Module P.D.', passive:'', onactivate:'', onactivateenergy:'', tt:'defense', storage:'0', deploy:'module'},
     {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 3 ⚡to Target an object:\n\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
     {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Trash.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Rocket Array', traits:'charge 0', onbuild:'Place 1 charge on this card', passive:'', onactivate:'Exhaust to A) remove 1 charge, or B) if there are no charges Target an object: Range: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
+    {name:'Rocket Array', traits:'', onbuild:'Place 1 charge on this card', passive:'', onactivate:'Exhaust to A) remove 1 charge, or B) if there are no charges Target an object: Range: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', charges:'0', deploy:false},
     {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Field', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
     {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, exhaust to Move 1.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck, discard this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
@@ -2067,7 +2067,9 @@
         el.addEventListener('dblclick', (function(card){
           return function(e){
             e.preventDefault();
-            setTechState(card, 'built');
+            var cur = techState(card);
+            var next = (cur === 'built') ? 'exhausted' : 'built';
+            setTechState(card, next);
             refreshHand();
           };
         })(cards[j]));
