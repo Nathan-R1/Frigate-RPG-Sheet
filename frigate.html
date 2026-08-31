@@ -1288,8 +1288,11 @@
     if(v > 0) el.value = v - 1;
   }
   var SKILL_DESCRIPTIONS = {
+    'Engineering': 'Engineering is added to Hull HP (min. 0)',
+    'Leadership': 'Leadership is the maximum number of Traits & Crew slots (min. 0)',
+    'Logistics': 'Logistics is added to Storage (min. 0)',
     'Navigation': 'Navigation is added to Speed (min. 0)',
-    'Science': '- In the first Build phase, you may build {SCIENCE} Technologies.',
+    'Science': 'In the first Build Phase, you may build {SCIENCE} (Science or 1) Technologies',
     'Sensors': 'Used to calculate the range of effects triggered by Technologies, Modules and Deployables'
   };
   function skillValue(skillName){
@@ -1491,6 +1494,7 @@
     {key:'science', icon:'⚛︎', label:'Science'}
   ];
   var TECHP_RESETS = [
+    {name:'Armor Builder', traits:'[Module]', onbuild:'', onactivate:'Create Module Armor', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'defense', storage:'0', deploy:'module'},
     {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nYour Cannons gain +1 Dmg and Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Create Module Cannon.', onbuildenergy:'', onactivateenergy:'1', passive:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nMove a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
@@ -2491,6 +2495,7 @@
     setModuleShape(el, MOD_SHAPES[(idx + 1) % MOD_SHAPES.length].key);
   }
   var MOD_PRESETS = [
+    {name:'Armor', req:'Adjacent to any, 2 spaces from Core', hull:'2', type:'module', onbuild:'', passive:'', onactivate:'', onactivateenergy:''},
     {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2 💥', onactivateenergy:'2'},
     {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'Gain 1 Speed per Module (if you later gain/lose modules adjust Speed).', onactivate:'', onactivateenergy:''},
     {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'0', type:'deployable', onbuild:'', passive:'', onactivate:'Remove this deployable to Target an object:\nRange: 8 from self, Check: Sensors,\nDmg: 3 (SHIELD ONLY)', onactivateenergy:''},
