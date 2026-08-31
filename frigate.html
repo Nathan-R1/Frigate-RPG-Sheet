@@ -993,6 +993,12 @@
   .hand-card .hc-secs{display:flex;flex-direction:column;gap:6px;overflow:hidden;flex:1;}
   .hand-card .hc-sec{font-size:11px;line-height:1.3;color:var(--ink);white-space:pre-wrap;}
   .hand-card .hc-sec b{display:block;font-family:var(--mono);font-size:8.5px;color:var(--ink-dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1px;}
+  .hand-card .hc-sec b .hc-cost-inline{
+    display:inline-flex;align-items:center;gap:2px;text-transform:none;
+    font-weight:700;font-size:10px;color:var(--icon-energy);letter-spacing:0;
+    margin-left:4px;vertical-align:middle;
+  }
+  .hand-card .hc-sec b .hc-cost-inline svg{width:11px;height:11px;flex:none;}
   .hand-card .hc-foot{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
     border-top:1px solid var(--line);padding-top:6px;margin-top:auto;
@@ -1570,7 +1576,7 @@
     {name:'Targeting Strikes', traits:'Strike Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Graviton Engine', traits:'[Module]', onbuild:'Create Module Graviton Engine', passive:'Gain 1 Speed per Module (if you later gain/lose modules adjust Speed).', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:'module'},
     {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', charges:'0', deploy:false},
     {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E. For 1 round Checks from enemy Deployables fail. After 1 round trash this.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'AI Piloting', traits:'', onbuild:'', passive:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge token to this card OR remove 2 charge tokens to immediately Move 2 for any Modules.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
@@ -1789,6 +1795,13 @@
     setTechState(card, next);
     refreshHand();
   }
+  function energyLabel(label, cost){
+    if(cost && cost !== '0'){
+      return label + ' <span class="hc-cost-inline">' + escapeHtml(cost) +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>';
+    }
+    return label;
+  }
   function techCardViewData(card){
     var typeBtn = card.querySelector('.tticker');
     var meta = techTypeMeta(typeBtn.getAttribute('data-tt'));
@@ -1806,7 +1819,8 @@
       onbuild: card.querySelector('.tsec.onbuild textarea').value,
       passive: card.querySelector('.tsec.passive textarea').value,
       onactivate: card.querySelector('.tsec.onactivate textarea').value,
-      onbuildenergy: card.querySelector('.tcost-onbuild').value
+      onbuildenergy: card.querySelector('.tcost-onbuild').value,
+      onactivateenergy: card.querySelector('.tcost-onactivate').value
     };
   }
   var HAND_SORT = 'az';
@@ -2032,8 +2046,10 @@
         var el = document.createElement('div');
         el.className = 'hand-card';
         el.setAttribute('data-state', techState(cards[j]));
-        var costHtml = (d.onbuildenergy && d.onbuildenergy !== '0')
-          ? '<span class="hc-cost">' + escapeHtml(d.onbuildenergy) +
+        var st = techState(cards[j]);
+        var costVal = (st === 'built') ? d.onactivateenergy : (st === 'hand' ? d.onbuildenergy : '');
+        var costHtml = (costVal && costVal !== '0')
+          ? '<span class="hc-cost">' + escapeHtml(costVal) +
             '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
           : '';
         el.innerHTML =
@@ -2042,9 +2058,9 @@
           '</div>' +
           (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
           '<div class="hc-secs">' +
-            (d.onbuild ? '<div class="hc-sec"><b>On Build</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
+            (d.onbuild ? '<div class="hc-sec"><b>' + energyLabel('On Build', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
             (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
-            (d.onactivate ? '<div class="hc-sec"><b>On Activate</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
+            (d.onactivate ? '<div class="hc-sec"><b>' + energyLabel('On Activate', d.onactivateenergy) + '</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
           '</div>' +
           '<div class="hc-foot">' +
             '<span class="hc-tags">' + (d.type || '') +
