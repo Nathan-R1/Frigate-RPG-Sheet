@@ -349,6 +349,65 @@
     cursor:pointer;vertical-align:middle;border-radius:50%;
   }
   .info-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .class-info-modal{
+    position:fixed;inset:0;z-index:1000;
+    display:none;align-items:center;justify-content:center;
+    background:rgba(6,10,15,.68);
+    padding:20px;
+  }
+  .class-info-modal.open{display:flex;}
+  .class-info-card{
+    width:min(560px, 100%);
+    max-height:min(80vh, 720px);
+    overflow:auto;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    box-shadow:0 18px 50px rgba(0,0,0,.45);
+    padding:16px 16px 14px;
+  }
+  .class-info-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin-bottom:10px;
+  }
+  .class-info-title{
+    font-family:var(--disp);font-size:18px;font-weight:700;color:var(--cyan);
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .class-info-close{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:28px;height:28px;padding:0 8px;
+    background:var(--stat-bg);border:1px solid var(--line-bright);
+    color:var(--ink-dim);font-family:var(--mono);font-size:12px;line-height:1;
+    cursor:pointer;
+  }
+  .class-info-close:hover{border-color:var(--cyan);color:var(--cyan);}
+  .class-info-list{display:flex;flex-direction:column;gap:10px;}
+  .class-info-item{
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.02);
+    padding:10px 12px;
+  }
+  .class-info-item b{
+    display:block;
+    font-family:var(--disp);font-size:14px;letter-spacing:.03em;
+    color:var(--amber);text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .class-info-item p{
+    margin:3px 0;
+    font-size:13px;line-height:1.45;color:var(--ink);
+  }
+  .class-stat-line{
+    display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+  }
+  .class-stat-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 6px;
+    border:1px solid var(--line-bright);
+    background:var(--stat-bg);
+    font-family:var(--mono);font-size:11px;letter-spacing:.04em;
+    color:var(--ink);
+  }
   #skillPopover{
     position:fixed;z-index:999;display:none;
     background:var(--panel);
@@ -1037,6 +1096,7 @@
           <option>Striker Class</option>
           <option>Discovery Class</option>
         </select>
+        <button type="button" class="info-btn" onclick="openClassInfo()" title="Show class details">i</button>
       </div>
 
       <div class="class-body">
@@ -1072,8 +1132,8 @@
         <div class="rhead" onclick="toggleTurnBox(this)">At the start of your turn <span class="collapse-ind">▼</span></div>
         <ul>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
-          <li>Refresh any exhausted <b>Technologies</b>, <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> or <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> <button type="button" class="rule-btn" onclick="refreshAllTechs()" title="Refresh all exhausted techs, modules and deployables">↻</button></li>
-          <li>Build any 1* <b>Technology</b> (on turn 1 you may build extra extra, see Science)</li>
+          <li>Refresh any exhausted <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>, <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> or <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> <button type="button" class="rule-btn" onclick="refreshAllTechs()" title="Refresh all exhausted techs, modules and deployables">↻</button></li>
+          <li>Build any 1* <b>Technology</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> (on turn 1 you may build extra, see Science)</li>
           <li>Move any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
           <li>Destroy any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> that do not meet their requirements</li>
         </ul>
@@ -1082,12 +1142,12 @@
       <div class="rules-block" id="duringBox">
         <div class="rhead" onclick="toggleTurnBox(this)">During your turn <span class="collapse-ind">▼</span></div>
         <ul>
-          <li>Activate <b>Technologies</b>, <b>Deployable</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> or <b>Module</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> effects (pay Energy where required)
+          <li>Activate <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>, <b>Deployable</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> or <b>Module</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> effects (pay Energy where required)
             <ul class="sub">
-              <li>Unless otherwise noted, a Technology, Deployable or Module cannot activate when Exhausted.</li>
+              <li>Unless otherwise noted, a Technology, Deployable or Module cannot use its passive or activate when Exhausted.</li>
             </ul>
           </li>
-          <li>Some Technologies Build <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> and <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg>
+          <li>When you Build <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> and <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> you place them on the board
             <ul class="sub">
               <li><b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> cannot share the space with other objects. They can be built in any empty space that meets their Requirements.</li>
               <li><b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> can share a location with objects. They can be built in any adjacent space to your ship.</li>
@@ -1112,13 +1172,13 @@
         <tr><th>Name</th><th class="pt">Points</th><th class="pt">Penalty</th></tr>
         <tr><td>Cyber</td><td class="pt"><input id="skill-Cyber-pts" value="1"></td><td class="pt"><input id="skill-Cyber-pen" value="" placeholder="—"></td></tr>
         <tr><td>Diplomacy</td><td class="pt"><input id="skill-Diplomacy-pts" value="0"></td><td class="pt"><input id="skill-Diplomacy-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Engineering</td><td class="pt"><input id="skill-Engineering-pts" value="3"></td><td class="pt"><input id="skill-Engineering-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Leadership</td><td class="pt"><input id="skill-Leadership-pts" value="0"></td><td class="pt"><input id="skill-Leadership-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Logistics</td><td class="pt"><input id="skill-Logistics-pts" value="2"></td><td class="pt"><input id="skill-Logistics-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Navigation</td><td class="pt"><input id="skill-Navigation-pts" value="3"></td><td class="pt"><input id="skill-Navigation-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Engineering<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.6" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Engineering-pts" value="3"></td><td class="pt"><input id="skill-Engineering-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Leadership<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.5" r="3" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M6.5 19c.7-3.2 3-5 5.5-5s4.8 1.8 5.5 5" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round"/></svg></td><td class="pt"><input id="skill-Leadership-pts" value="0"></td><td class="pt"><input id="skill-Leadership-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Logistics<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Logistics-pts" value="2"></td><td class="pt"><input id="skill-Logistics-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Navigation<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Navigation-pts" value="3"></td><td class="pt"><input id="skill-Navigation-pen" value="" placeholder="—"></td></tr>
         <tr><td>Piloting</td><td class="pt"><input id="skill-Piloting-pts" value="3"></td><td class="pt"><input id="skill-Piloting-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Sensors</td><td class="pt"><input id="skill-Sensors-pts" value="2"></td><td class="pt"><input id="skill-Sensors-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Science</td><td class="pt"><input id="skill-Science-pts" value="-1"></td><td class="pt"><input id="skill-Science-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Sensors<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 16c2.2-3 4.9-4.5 8-4.5s5.8 1.5 8 4.5" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><path d="M7 12.5c1.4-1.8 3.1-2.7 5-2.7s3.6.9 5 2.7" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.6" fill="var(--cyan)"/></svg></td><td class="pt"><input id="skill-Sensors-pts" value="2"></td><td class="pt"><input id="skill-Sensors-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Science<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Science-pts" value="-1"></td><td class="pt"><input id="skill-Science-pen" value="" placeholder="—"></td></tr>
       </table>
     </div>
   </div>
@@ -1130,7 +1190,7 @@
     <div class="panel">
       <div class="bl"></div><div class="br"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="eyebrow" style="margin-bottom:0;">Traits &amp; Crew</div>
+        <div class="eyebrow" style="margin-bottom:0;">Traits &amp; Crew<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.5" r="3" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M6.5 19c.7-3.2 3-5 5.5-5s4.8 1.8 5.5 5" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round"/></svg></div>
         <div class="slot-controls">
           <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="showSlotPicker(event, this, 'crewGrid', '.cname')" title="Remove a slot">−</button>
@@ -1163,7 +1223,7 @@
     <div class="panel tech-panel">
       <div class="bl"></div><div class="br"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="eyebrow" style="margin-bottom:0;">Technologies</div>
+        <div class="eyebrow" style="margin-bottom:0;">Technologies<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="slot-controls">
           <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="techSlotRemoveBtn" onclick="showSlotPicker(event, this, 'techGrid', '.tname')" title="Remove a slot">−</button>
@@ -1175,7 +1235,7 @@
       </div>
       <div class="tech-grid" id="techGrid" style="margin-top:12px;">
         <div class="tech-card" data-state="built">
-          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-state="built" onclick="toggleTechState(this)" title="Cycle state: hand / built / exhausted">⇅</button><button type="button" class="t-delete" onclick="removeTechCard(this)" title="Delete this tech">🗑</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
+          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-state="built" onclick="toggleTechState(this)" title="Cycle state: hand / built / exhausted / discard">⇅</button><button type="button" class="t-delete" onclick="removeTechCard(this)" title="Delete this tech">🗑</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
           <div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>
           <div class="tsecs">
             <div class="tsec onbuild hid">
@@ -1207,7 +1267,7 @@
   <div class="panel" style="margin-top:16px;">
     <div class="bl"></div><div class="br"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div class="eyebrow" style="margin-bottom:0;">Modules / Deployables</div>
+      <div class="eyebrow" style="margin-bottom:0;">Modules<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> / Deployables<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg></div>
       <div class="slot-controls">
         <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
         <button type="button" class="slot-btn" id="modSlotRemoveBtn" onclick="showSlotPicker(event, this, 'modGrid', '.mname')" title="Remove a slot">−</button>
@@ -1505,10 +1565,10 @@
     {name:'Rocket Array', traits:'charge 0', onbuild:'Place 1 charge on this card', passive:'', onactivate:'Exhaust to A) remove 1 charge, or B) if there are no charges Target an object: Range: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
     {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Field', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
     {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, exhaust to Move 1.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck. Trash.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck, discard this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Targeting Strikes', traits:'Strike Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Graviton Engine', traits:'[Module]', onbuild:'Create Module Graviton Engine', passive:'Gain 1 Speed per Module (if you later gain/lose modules adjust Speed).', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:'module'},
-    {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
     {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E. For 1 round Checks from enemy Deployables fail. After 1 round trash this.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'AI Piloting', traits:'', onbuild:'', passive:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
@@ -1529,7 +1589,7 @@
     var card = document.createElement('div');
     card.className = 'tech-card';
     card.innerHTML =
-      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-state="built" onclick="toggleTechState(this)" title="Cycle state: hand / built / exhausted">⇅</button><button type="button" class="t-delete" onclick="removeTechCard(this)" title="Delete this tech">🗑</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-state="built" onclick="toggleTechState(this)" title="Cycle state: hand / built / exhausted / discard">⇅</button><button type="button" class="t-delete" onclick="removeTechCard(this)" title="Delete this tech">🗑</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
       '<div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>' +
       '<div class="tsecs">' +
         '<div class="tsec onbuild hid"><div class="tsec-head"><span>On Build</span><span class="tdiamond" title="On Build energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div><textarea placeholder="On Build..."></textarea></div>' +
@@ -2237,17 +2297,73 @@
       modName: 'Repulsor Field'
     },
     'Jump Class': {
+      stats: {speed:2},
+      skills: {Sensors:1},
       techName: 'Phantom'
     },
     'Discovery Class': {
-      stats: {storage:4},
+      stats: {storage:2},
+      skills: {Logistics:2, Science:1},
       techName: 'Experimental Reconnaissance'
     },
     'Striker Class': {
       stats: {storage:2},
+      skills: {Leadership:2},
       techName: 'Targeting Strikes'
     }
   };
+  function classStatsSummary(stats){
+    if(!stats) return '<span>No stat increases.</span>';
+    var parts = [];
+    if(stats.hull) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.hull)) + ' Hull</span>');
+    if(stats.shield) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.shield)) + ' Shield</span>');
+    if(stats.storage) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.storage)) + ' Storage</span>');
+    if(stats.speed) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.speed)) + ' Speed</span>');
+    return parts.length ? parts.join('') : '<span>No stat increases.</span>';
+  }
+  function classSkillSummary(skills){
+    if(!skills) return '';
+    var parts = [];
+    if(skills.Sensors) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 16c2.2-3 4.9-4.5 8-4.5s5.8 1.5 8 4.5" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><path d="M7 12.5c1.4-1.8 3.1-2.7 5-2.7s3.6.9 5 2.7" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.6" fill="var(--cyan)"/></svg>+' + escapeHtml(String(skills.Sensors)) + ' Sensors</span>');
+    if(skills.Leadership) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.5" r="3" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M6.5 19c.7-3.2 3-5 5.5-5s4.8 1.8 5.5 5" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round"/></svg>+' + escapeHtml(String(skills.Leadership)) + ' Leadership</span>');
+    if(skills.Logistics) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(skills.Logistics)) + ' Logistics</span>');
+    if(skills.Science) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>+' + escapeHtml(String(skills.Science)) + ' Science</span>');
+    return parts.join('');
+  }
+  function renderClassInfo(){
+    var list = document.getElementById('classInfoList');
+    if(!list) return;
+    list.innerHTML = '';
+    var order = ['Support Class', 'Jump Class', 'Striker Class', 'Discovery Class'];
+    for(var i = 0; i < order.length; i++){
+      var name = order[i];
+      var preset = CLASS_PRESETS[name];
+      if(!preset) continue;
+      var item = document.createElement('div');
+      item.className = 'class-info-item';
+      var skillHtml = classSkillSummary(preset.skills || null);
+      var html = '<b>' + escapeHtml(name) + '</b>' +
+        '<p><strong>Stats:</strong></p><p class="class-stat-line">' + classStatsSummary(preset.stats || null) + '</p>';
+      if(skillHtml){
+        html += '<p><strong>Crew Skills:</strong></p><p class="class-stat-line">' + skillHtml + '</p>';
+      }
+      html += '<p><strong>Tech:</strong> ' + escapeHtml(preset.techName || 'None') + '</p>';
+      if(preset.modName){
+        html += '<p><strong>Module:</strong> ' + escapeHtml(preset.modName) + '</p>';
+      }
+      item.innerHTML = html;
+      list.appendChild(item);
+    }
+  }
+  function openClassInfo(){
+    renderClassInfo();
+    var modal = document.getElementById('classInfoModal');
+    if(modal) modal.classList.add('open');
+  }
+  function closeClassInfo(){
+    var modal = document.getElementById('classInfoModal');
+    if(modal) modal.classList.remove('open');
+  }
   function findTechByName(name){
     for(var i=0;i<TECHP_RESETS.length;i++){
       if(TECHP_RESETS[i].name === name) return TECHP_RESETS[i];
@@ -2284,6 +2400,11 @@
       bumpStat('shieldMax', s.shield);
     }
     if(s.storage) bumpStat('storage', s.storage);
+    if(s.speed) bumpStat('speed', s.speed);
+    var skills = preset.skills || {};
+    Object.keys(skills).forEach(function(name){
+      bumpStat('skill-' + name + '-pts', skills[name]);
+    });
     if(preset.techName){
       var t = findTechByName(preset.techName);
       if(t) addTechFromData(t);
@@ -2595,6 +2716,9 @@
       refreshModSections(e.target.closest('.mod-card'));
     }
   });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeClassInfo();
+  });
   buildModPresetMenu();
   refreshModSlotControls();
 
@@ -2866,6 +2990,15 @@
 </script>
 <div id="skillPopover"></div>
 <div class="preset-menu" id="slotPicker"></div>
+<div class="class-info-modal" id="classInfoModal" onclick="if(event.target===this) closeClassInfo()">
+  <div class="class-info-card">
+    <div class="class-info-head">
+      <div class="class-info-title">Class Info</div>
+      <button type="button" class="class-info-close" onclick="closeClassInfo()">Close</button>
+    </div>
+    <div class="class-info-list" id="classInfoList"></div>
+  </div>
+</div>
 <div class="hand-dock" id="handDock">
   <div class="hand-bar">
     <div class="hand-slider" id="handSlider">
