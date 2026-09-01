@@ -131,3 +131,9 @@ ipcMain.handle('frigate:zoom-current-window', (event, action) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   applyWindowZoom(win, action);
 });
+
+ipcMain.handle('frigate:set-click-through', (event, enabled) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win.isDestroyed()) return;
+  win.setIgnoreMouseEvents(!!enabled, { forward: !!enabled });
+});

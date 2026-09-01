@@ -5,5 +5,6 @@ contextBridge.exposeInMainWorld('frigateElectron', {
   closeCurrentWindow: () => ipcRenderer.invoke('frigate:close-current-window'),
   zoomInCurrentWindow: () => ipcRenderer.invoke('frigate:zoom-current-window', 'in'),
   zoomOutCurrentWindow: () => ipcRenderer.invoke('frigate:zoom-current-window', 'out'),
-  resetCurrentWindowZoom: () => ipcRenderer.invoke('frigate:zoom-current-window', 'reset')
+  resetCurrentWindowZoom: () => ipcRenderer.invoke('frigate:zoom-current-window', 'reset'),
+  setClickThrough: (enabled) => ipcRenderer.invoke('frigate:set-click-through', !!enabled)
 });
