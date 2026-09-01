@@ -23,6 +23,7 @@
     --icon-energy:#764795;
     --hand-card-h:210px;
     --hand-card-w:190px;
+    --hand-panel-w:1800px;
     --mono:'JetBrains Mono', monospace;
     --disp:'Orbitron', sans-serif;
     --body:'Rajdhani', sans-serif;
@@ -49,10 +50,27 @@
     transition:border-color .15s ease, color .15s ease;
   }
   .menu-toggle:hover{border-color:var(--cyan);color:var(--cyan);}
+  .menu-toggle,
+  .hand-popout-title,
+  .hand-filter-btn,
+  .hc-name,
+  .hc-traits,
+  .hc-sec,
+  .hc-foot,
+  .hc-tags,
+  .hc-state{
+    -webkit-user-select:none;
+    user-select:none;
+  }
   .hand-sort{
     display:flex;align-items:center;gap:6px;
     font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-dim);
     text-transform:uppercase;
+  }
+  .hand-sort .sort-wrap,
+  .hand-sort .hand-icon-btn{
+    -webkit-user-select:none;
+    user-select:none;
   }
   .hand-sort select{
     background:var(--panel-alt);border:1px solid var(--line-bright);color:var(--ink);
@@ -138,6 +156,7 @@
   .hand-popout-panel{
     min-height:0;
     max-height:100%;
+    width:min(100%, var(--hand-panel-w));
     margin-top:auto;
     display:flex;flex-direction:column;gap:10px;
     pointer-events:auto;
@@ -155,6 +174,16 @@
     backdrop-filter:blur(10px);
     -webkit-app-region:drag;
   }
+  .hand-resize-hit{
+    position:absolute;
+    top:0;bottom:0;
+    width:22px;
+    z-index:1600;
+    cursor:ew-resize;
+    -webkit-app-region:no-drag;
+  }
+  .hand-resize-hit.left{left:0;}
+  .hand-resize-hit.right{right:0;}
   .hand-popout-title{
     display:flex;align-items:center;gap:10px;
     min-width:0;
@@ -172,6 +201,29 @@
     display:flex;align-items:center;gap:8px;
     -webkit-app-region:no-drag;
   }
+  .hand-slider{
+    position:absolute;left:0;right:0;top:0;
+    height:8px;
+    display:none;
+    cursor:pointer;
+    touch-action:none;
+    -webkit-app-region:no-drag;
+  }
+  .hand-slider.on{display:block;}
+  .hand-slider-track{
+    position:absolute;left:12px;right:12px;top:3px;
+    height:3px;
+    background:var(--line);
+  }
+  .hand-slider-thumb{
+    position:absolute;top:2px;
+    height:5px;
+    min-width:28px;
+    background:var(--line-bright);
+    border-radius:3px;
+  }
+  .hand-slider:hover .hand-slider-thumb,
+  .hand-slider.dragging .hand-slider-thumb{background:var(--cyan);}
   .hand-popout-view{
     min-height:0;
     max-height:calc(100vh - 96px);
@@ -293,6 +345,12 @@
 <div class="hand-popout-shell">
   <div class="hand-popout-panel">
     <div class="hand-popout-bar">
+      <div class="hand-resize-hit left" id="handResizeLeft" title="Drag to resize"></div>
+      <div class="hand-resize-hit right" id="handResizeRight" title="Drag to resize"></div>
+      <div class="hand-slider" id="handPopoutSlider">
+        <div class="hand-slider-track"></div>
+        <div class="hand-slider-thumb" id="handPopoutSliderThumb"></div>
+      </div>
       <div class="hand-popout-title">
         <span class="hand-count" id="handPopoutCount">0</span>
         <span class="title-text" id="handPopoutTitleText">Tech Hand</span>
@@ -620,11 +678,119 @@
     var tight = cardW * 0.34;
     var step = loose;
     if(n > 1){
-      var usable = Math.max(0, view.clientWidth - 24);
-      var needed = (usable - cardW) / (n - 1);
+      var cs = getComputedStyle(strip);
+      var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      var avail = view.clientWidth - pad;
+      var needed = (avail - cardW) / (n - 1);
       step = Math.max(tight, Math.min(loose, needed));
     }
     strip.style.setProperty('--hand-step', step + 'px');
+  }
+  function updatePopoutHandSlider(){
+    var view = document.getElementById('handPopoutView');
+    var slider = document.getElementById('handPopoutSlider');
+    var thumb = document.getElementById('handPopoutSliderThumb');
+    if(!view || !slider || !thumb) return;
+    var sw = view.scrollWidth, cw = view.clientWidth;
+    if(sw <= cw + 1){
+      slider.classList.remove('on');
+      return;
+    }
+    slider.classList.add('on');
+    var track = slider.querySelector('.hand-slider-track');
+    var trackW = track.offsetWidth;
+    var w = Math.max(28, (cw / sw) * trackW);
+    var maxLeft = trackW - w;
+    var maxScroll = sw - cw;
+    var left = maxScroll > 0 ? (view.scrollLeft / maxScroll) * maxLeft : 0;
+    thumb.style.width = w + 'px';
+    thumb.style.left = (12 + left) + 'px';
+  }
+  function wirePopoutHandSlider(){
+    var view = document.getElementById('handPopoutView');
+    var slider = document.getElementById('handPopoutSlider');
+    if(!view || !slider) return;
+    view.addEventListener('scroll', updatePopoutHandSlider);
+    window.addEventListener('resize', updatePopoutHandSlider);
+    var dragging = false;
+    function scrollToPointer(clientX){
+      var track = slider.querySelector('.hand-slider-track');
+      var r = track.getBoundingClientRect();
+      var thumb = document.getElementById('handPopoutSliderThumb');
+      var w = thumb.offsetWidth;
+      var maxLeft = r.width - w;
+      if(maxLeft <= 0) return;
+      var pos = clientX - r.left - w / 2;
+      pos = Math.max(0, Math.min(maxLeft, pos));
+      view.scrollLeft = (pos / maxLeft) * (view.scrollWidth - view.clientWidth);
+    }
+    slider.addEventListener('pointerdown', function(e){
+      dragging = true;
+      slider.classList.add('dragging');
+      slider.setPointerCapture(e.pointerId);
+      scrollToPointer(e.clientX);
+      e.preventDefault();
+    });
+    slider.addEventListener('pointermove', function(e){
+      if(dragging) scrollToPointer(e.clientX);
+    });
+    function endDrag(){
+      dragging = false;
+      slider.classList.remove('dragging');
+    }
+    slider.addEventListener('pointerup', endDrag);
+    slider.addEventListener('pointercancel', endDrag);
+  }
+  var HAND_PANEL_MIN_W = 520;
+  function currentPanelWidth(){
+    var raw = getComputedStyle(document.documentElement).getPropertyValue('--hand-panel-w');
+    var px = parseFloat(raw);
+    return isNaN(px) ? 1800 : px;
+  }
+  function setPanelWidth(px){
+    var shell = document.querySelector('.hand-popout-shell');
+    var shellStyle = shell ? getComputedStyle(shell) : null;
+    var shellPad = shellStyle ? ((parseFloat(shellStyle.paddingLeft) || 0) + (parseFloat(shellStyle.paddingRight) || 0)) : 28;
+    var maxW = Math.max(HAND_PANEL_MIN_W, window.innerWidth - shellPad);
+    var next = Math.max(HAND_PANEL_MIN_W, Math.min(maxW, Math.round(px)));
+    document.documentElement.style.setProperty('--hand-panel-w', next + 'px');
+    updatePopoutHandSpread();
+    updatePopoutHandSlider();
+  }
+  function wirePanelResize(){
+    var panel = document.querySelector('.hand-popout-panel');
+    var left = document.getElementById('handResizeLeft');
+    var right = document.getElementById('handResizeRight');
+    if(!panel || !left || !right) return;
+    function beginResize(side, e){
+      var startX = e.clientX;
+      var startW = panel.getBoundingClientRect().width;
+      var pointerId = e.pointerId;
+      setWindowClickThrough(false);
+      function onMove(ev){
+        var delta = ev.clientX - startX;
+        var next = (side === 'right') ? (startW + delta) : (startW - delta);
+        setPanelWidth(next);
+      }
+      function end(ev){
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', end);
+        window.removeEventListener('pointercancel', end);
+        if(ev && ev.target && ev.target.releasePointerCapture){
+          try{ ev.target.releasePointerCapture(pointerId); }catch(err){}
+        }
+        syncClickThrough(document.elementFromPoint(ev.clientX, ev.clientY));
+      }
+      if(e.target && e.target.setPointerCapture){
+        try{ e.target.setPointerCapture(pointerId); }catch(err){}
+      }
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', end);
+      window.addEventListener('pointercancel', end);
+      e.preventDefault();
+    }
+    left.addEventListener('pointerdown', function(e){ beginResize('left', e); });
+    right.addEventListener('pointerdown', function(e){ beginResize('right', e); });
   }
   function syncHandRoom(){
     var view = document.getElementById('handPopoutView');
@@ -692,6 +858,7 @@
       titleEl.textContent = shipName ? shipName + ' // Tech Hand' : 'Tech Hand';
     }
     updatePopoutHandSpread();
+    updatePopoutHandSlider();
     syncHandRoom();
   }
   function postHandMessage(type, payload){
@@ -738,8 +905,12 @@
   window.addEventListener('blur', function(){
     setWindowClickThrough(true);
   });
-  window.addEventListener('resize', updatePopoutHandSpread);
+  window.addEventListener('resize', function(){
+    setPanelWidth(currentPanelWidth());
+  });
   buildFilterMenu();
+  wirePopoutHandSlider();
+  wirePanelResize();
   setupHandChannel();
   requestHandSnapshot();
   refreshHand();
