@@ -505,6 +505,8 @@
     cursor:pointer;
   }
   .preset-item:hover{background:var(--stat-bg);color:var(--cyan);}
+.preset-item .preset-class-tech{color:var(--icon-energy);}
+.preset-item:hover .preset-class-tech{color:var(--icon-energy);}
   .preset-tag{
     flex:none;
     font-family:var(--mono);
@@ -1484,7 +1486,7 @@
     {name:'Captain Janson', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
     {name:'Citadel', text_description:'You begin combat with 2 Core modules. Core modules gain "Req.: Adjacent to Core" and share your Hull HP.', combat_only:true},
      {name:'Co-leadership', text_description:'At the start of your turn if you succeed a DC 12 Leadership Check you gain 1 Energy (this may exceed your Max Energy).', combat_only:true},
-    {name:'Conservative', text_description:'At the start of a round, if you did not play any “Offense” technology cards last round, gain 2 shields.', combat_only:true},
+    {name:'Conservative', text_description:'At the start of your turn, if you did not activate any “Offense” technologies, modules or deployables last round, gain 2 shields.', combat_only:true},
      {name:'Hoarding', text_description:'+4 Storage', combat_only:false},
      {name:'Heat Sinks', text_description:'When you roll an attack, add one Heat here or to any ability that can take Heat. When you Move, discard any Heat here, gain 1 Move per 2 Heat discarded.', combat_only:true},
     {name:'Jamming', text_description:'When you Create Deployables, you may put them aside instead of on the board. They cannot activate or be targetted and do not occupy a particular space. At the start of your next turn, place them on the board following their normal Creation rules.', combat_only:true},
@@ -1580,7 +1582,7 @@
   ];
   var TECHP_RESETS = [
     {name:'Armor Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Armor', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'defense', storage:'0', deploy:'module'},
-    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nYour Cannons gain +1 Dmg and +2 Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nYour Cannons and P.D. Modules gain +1 Dmg and +2 Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Cannon', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nMove an Offense Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Torpedo Tubes', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'2', charges:'0', deploy:true},
@@ -1591,11 +1593,12 @@
     {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Field', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
     {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, Exhaust this to make a Piloting Check. On a success Move 1. If you move the Module targeted the target still remains on the original space, and may be negated as a result.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck, discard this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Targeting Strikes', traits:'Strike Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Targeting Strikes', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Graviton Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module Graviton Engine', tt:'offense', onbuildenergy:'', onactivateenergy:'2', storage:'0', deploy:'module'},
     {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'1', deploy:false},
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove a charge and Move a Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'1', charges:'0', deploy:false},
     {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nFor 1 round Checks from enemy Deployables targeting you automatically fail. After 1 round discard this.', tt:'defense', onactivateenergy:'1', storage:'1', deploy:false},
+    {name:'Fire Shield', traits:'Class Tech', onbuild:'', passive:'When your shield takes any damage add 1 Heat token here.', onactivate:'Exhaust to Target all objects:\n\nRange:Sensors, Attacks:Heat tokens discarded, Dmg:1 ⚡', tt:'defense', onactivateenergy:'3', storage:'0', charges:'0', deploy:false},
     {name:'Comms Relay', traits:'[Module]', onbuild:'Create Module Comms Relay', passive:'', onactivate:'', tt:'science', onbuildenergy:'', onactivateenergy:'', storage:'0', deploy:'module'},
     {name:'AI Piloting', traits:'', onbuild:'', passive:'You do not trigger collisions with Asteroids and may move through them (but may not end your turn in an Asteroid or your Module is destroyed).', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge token to this card OR remove 2 charge tokens to immediately Move any Modules up to 2.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
@@ -1731,6 +1734,7 @@
       item.className = 'preset-item';
       var label = document.createElement('span');
       label.textContent = p.name;
+      if((p.traits || '').indexOf('Class Tech') !== -1) label.className = 'preset-class-tech';
       item.appendChild(label);
       var firstTrailing = null;
       var deploySvg = '';
