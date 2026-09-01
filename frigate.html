@@ -631,7 +631,7 @@
     display:flex;align-items:center;gap:8px;
     padding:6px 8px 8px;border-top:1px solid var(--line);
   }
-  .tticker{
+  .tticker,.mticker{
     flex:none;cursor:pointer;font-size:15px;line-height:1;
   }
   .tstorage,.thull,.tcharges,.mspeed,.mdur,.mhull,.mcharges{
@@ -1101,6 +1101,7 @@
           <option>Jump Class</option>
           <option>Striker Class</option>
           <option>Discovery Class</option>
+          <option>Bulwark</option>
         </select>
         <button type="button" class="info-btn" onclick="openClassInfo()" title="Show class details">i</button>
       </div>
@@ -1302,6 +1303,7 @@
           </div>
         </div>
         <div class="mfoot">
+          <span class="mticker" data-mt="offense" title="Tech type: Offense">⚔</span>
           <button type="button" class="mtype-btn" data-mtype="module" title="Module"></button>
           <span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>
           <span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>
@@ -1469,9 +1471,13 @@
     {name:'Ambassador Kamar', text_description:'You have the legal right to travel into People’s Star space.<b><c>Diplomacy</c></b>', combat_only:false},
     {name:'Arc Agent Tha’n', text_description:'You have the legal right to travel into Vedlu space. <b><c>Leadership<c></b>', combat_only:false},
     {name:'Captain Janson', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
+    {name:'Citadel', text_description:'You begin combat with 2 Core modules. Core modules gain "Req.: Adjacent to Core"', combat_only:true},
     {name:'Co-leadership', text_description:'When assigning a Move value you may instead roll to assign it randomly. It does not cost energy to assign this way.', combat_only:true},
     {name:'Conservative', text_description:'At the start of a round, if you did not play any “Offense” technology cards last round, gain 2 shields.', combat_only:true},
     {name:'Hoarding', text_description:'+4', combat_only:false},
+    {name:'Heat Sinks', text_description:'When you roll an attack, add one Heat here or to any Trait, Technology or Module/Deployable that can take Heat. When you Move Modules, gain Move 1 extra per 2 Heat discarded.', combat_only:true},
+    {name:'Jamming', text_description:'When you Create Deployables, you may put them aside instead of on the board. They cannot activate or be targetted and do not occupy a particular space. At the start of your next turn, place them on the board following their normal Creation rules.', combat_only:true},
+    {name:'Crew Munitions Assignment', text_description:'When you add 1 or more charges to a Technology, Module or Deployable you may add 1 additional. Take 1 penalty to any Crew Skill.', combat_only:true},
     {name:'Motherly', text_description:'When an allied ship within scanning range takes shield damage, you may take that damage instead.', combat_only:true},
     {name:'Peace Loving', text_description:'When you fail a diplomacy check that would initiate combat, you may reroll.', combat_only:false},
     {name:'Scrappy', text_description:'Once per round, when you take Hull damage, you may make an Engineering Check against the enemy’s DC to negate the damage.', combat_only:true},
@@ -1565,7 +1571,7 @@
     {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nYour Cannons gain +1 Dmg and Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Cannon', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nMove a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Ion Torpedo', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', charges:'0', deploy:true},
+    {name:'Torpedo Tubes', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', charges:'0', deploy:true},
     {name:'P.D. Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module P.D.', onactivateenergy:'2', tt:'defense', storage:'0', deploy:'module'},
     {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 3 ⚡to Target an object:\n\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
     {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Trash.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
@@ -1575,7 +1581,7 @@
     {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck, discard this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Targeting Strikes', traits:'Strike Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Graviton Engine', traits:'[Module]', onbuild:'Create Module Graviton Engine', passive:'', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:'module'},
-    {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', charges:'0', deploy:false},
     {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E. For 1 round Checks from enemy Deployables fail. After 1 round trash this.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'AI Piloting', traits:'', onbuild:'', passive:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
@@ -2329,6 +2335,10 @@
       stats: {storage:2},
       skills: {Leadership:2},
       techName: 'Targeting Strikes'
+    },
+    'Bulwark': {
+      stats: {hull:2},
+      crewTraits: ['Citadel']
     }
   };
   function classStatsSummary(stats){
@@ -2353,7 +2363,7 @@
     var list = document.getElementById('classInfoList');
     if(!list) return;
     list.innerHTML = '';
-    var order = ['Support Class', 'Jump Class', 'Striker Class', 'Discovery Class'];
+    var order = ['Support Class', 'Jump Class', 'Striker Class', 'Discovery Class', 'Bulwark'];
     for(var i = 0; i < order.length; i++){
       var name = order[i];
       var preset = CLASS_PRESETS[name];
@@ -2369,6 +2379,9 @@
       html += '<p><strong>Tech:</strong> ' + escapeHtml(preset.techName || 'None') + '</p>';
       if(preset.modName){
         html += '<p><strong>Module:</strong> ' + escapeHtml(preset.modName) + '</p>';
+      }
+      if(preset.crewTraits && preset.crewTraits.length){
+        html += '<p><strong>Traits:</strong> ' + escapeHtml(preset.crewTraits.join(', ')) + '</p>';
       }
       item.innerHTML = html;
       list.appendChild(item);
@@ -2435,6 +2448,13 @@
       var m = findModByName(preset.modName);
       if(m) pickModPreset(m);
     }
+    (preset.crewTraits || []).forEach(function(traitName){
+      var found = null;
+      for(var k = 0; k < PRESETS.length; k++){
+        if(PRESETS[k].name === traitName){ found = PRESETS[k]; break; }
+      }
+      if(found) pickPreset(found);
+    });
   }
   document.addEventListener('click', function(e){
     var menu = document.getElementById('techPresetMenu');
@@ -2496,6 +2516,7 @@
         '<div class="msec onactivate hid"><div class="msec-head"><span>On Activate</span><span class="mcost" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcost-input" maxlength="2"></span></div><textarea placeholder="On Activate..."></textarea></div>' +
       '</div>' +
       '<div class="mfoot">' +
+        '<span class="mticker" data-mt="offense" title="Tech type: Offense">⚔</span>' +
         '<button type="button" class="mtype-btn" data-mtype="module" title="Module"></button>' +
         '<span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>' +
         '<span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>' +
@@ -2592,6 +2613,18 @@
     grid.removeChild(card);
     refreshModSlotControls();
   }
+  function setModTechType(el, key){
+    var meta = techTypeMeta(key);
+    el.setAttribute('data-mt', meta.key);
+    el.textContent = meta.icon;
+    el.title = 'Tech type: ' + meta.label;
+  }
+  function cycleModTechType(el){
+    var keys = TECH_TYPES.map(function(t){return t.key;});
+    var idx = keys.indexOf(el.getAttribute('data-mt'));
+    var next = keys[(idx + 1) % keys.length];
+    setModTechType(el, next);
+  }
   function setModType(el, type){
     var meta = (type === 'deployable') ? DEPLOY_STATES[1] : DEPLOY_STATES[2];
     el.setAttribute('data-mtype', meta.key);
@@ -2638,12 +2671,12 @@
     setModuleShape(el, MOD_SHAPES[(idx + 1) % MOD_SHAPES.length].key);
   }
   var MOD_PRESETS = [
-    {name:'Armor', req:'Adjacent to any, 2 spaces from Core', hull:'2', type:'module', onbuild:'', passive:'', onactivate:'', onactivateenergy:''},
-    {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', onbuild:'', passive:'', onactivate:'Exhaust to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2 💥', onactivateenergy:'2'},
-    {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'Gain 1 Speed per Module (if you later gain/lose modules adjust Speed).', onactivate:'', onactivateenergy:''},
-    {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'0', type:'deployable', onbuild:'Exhaust', passive:'', onactivate:'Remove this deployable to Target an object:\nRange: 8 from self, Check: Sensors, Dmg: 3💥', onactivateenergy:''},
-    {name:'P.D.', req:'Adjacent to core', hull:'1', type:'module', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'Exhaust to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2 💥', onactivateenergy:'2'},
-    {name:'Repulsor Field', req:'Adjacent to any', hull:'4', charges:'0', type:'module', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove a charge and give 4 shield to a ship within Sensor range from this.', onactivateenergy:'2'}
+    {name:'Armor', req:'Adjacent to any, 2 spaces from Core', hull:'2', type:'module', tt:'defense', onbuild:'', passive:'', onactivate:'', onactivateenergy:''},
+    {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', tt:'offense', onbuild:'', passive:'', onactivate:'Exhaust to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2 💥', onactivateenergy:'2'},
+    {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', tt:'movement', onbuild:'', passive:'Gain 1 Speed per Module (if you later gain/lose modules adjust Speed).', onactivate:'', onactivateenergy:''},
+    {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'0', type:'deployable', tt:'offense', onbuild:'Exhaust', passive:'', onactivate:'Remove this deployable to Target an object:\nRange: 8 from self, Check: Sensors, Dmg: 3💥', onactivateenergy:''},
+    {name:'P.D.', req:'Adjacent to core', hull:'1', type:'module', tt:'offense', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'Exhaust to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2 💥', onactivateenergy:'2'},
+    {name:'Repulsor Field', req:'Adjacent to any', hull:'4', charges:'0', type:'module', tt:'defense', onbuild:'', passive:'', onactivate:'Exhaust to add 2 charges to this OR remove 2 charges and give 4 shield to a ship within Sensor range from this.', onactivateenergy:'2'}
   ];
   MOD_PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
   function buildModPresetMenu(){
@@ -2697,6 +2730,7 @@
     card.querySelector('.msec.onactivate textarea').value = p.onactivate || '';
     card.querySelector('.mcost-input').value = (p.onactivateenergy !== undefined && p.onactivateenergy !== null) ? p.onactivateenergy : '';
     setModType(card.querySelector('.mtype-btn'), p.type || 'module');
+    setModTechType(card.querySelector('.mticker'), p.tt || 'offense');
     setModuleShape(card.querySelector('.mshape-btn'), p.shape || '');
     refreshModSections(card);
   }
@@ -2711,6 +2745,8 @@
     if(sh){ cycleModuleShape(sh); return; }
     var bt = e.target.closest('.mtype-btn');
     if(bt){ toggleModType(bt); return; }
+    var mt = e.target.closest('.mticker');
+    if(mt){ cycleModTechType(mt); return; }
     var hl = e.target.closest('.mhull, .mdur');
     var ch = e.target.closest('.mcharges');
     if(ch && !e.target.closest('input')){
@@ -2762,6 +2798,7 @@
         onactivate: card.querySelector('.msec.onactivate textarea').value,
         onactivateenergy: card.querySelector('.mcost-input').value,
         type: card.querySelector('.mtype-btn').getAttribute('data-mtype'),
+        tt: card.querySelector('.mticker').getAttribute('data-mt'),
         shape: card.querySelector('.mshape-btn').getAttribute('data-shape'),
         exhaust: card.querySelector('.mexhaust-btn').getAttribute('data-exhaust') === 'true'
       });
@@ -2795,6 +2832,7 @@
       card.querySelector('.msec.onactivate textarea').value = item.onactivate || '';
       card.querySelector('.mcost-input').value = item.onactivateenergy || '';
       setModType(card.querySelector('.mtype-btn'), item.type || 'module');
+      setModTechType(card.querySelector('.mticker'), item.tt || 'offense');
       setModuleShape(card.querySelector('.mshape-btn'), item.shape || '');
       applyModExhaust(card, item.exhaust === true);
       refreshModSections(card);
