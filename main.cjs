@@ -90,9 +90,7 @@ function openHandWindow() {
     }
   });
 
-  handWindow.loadFile(path.join(__dirname, 'frigate.html'), {
-    query: { view: 'hand-popout' }
-  });
+  handWindow.loadFile(path.join(__dirname, 'hand-popout.html'));
   wireZoomShortcuts(handWindow);
 
   handWindow.on('closed', () => {
