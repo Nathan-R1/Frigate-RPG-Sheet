@@ -1101,7 +1101,7 @@
           <option>Jump Class</option>
           <option>Striker Class</option>
           <option>Discovery Class</option>
-          <option>Bulwark</option>
+          <option>Bulwark Class</option>
         </select>
         <button type="button" class="info-btn" onclick="openClassInfo()" title="Show class details">i</button>
       </div>
@@ -1471,7 +1471,7 @@
     {name:'Ambassador Kamar', text_description:'You have the legal right to travel into People’s Star space.<b><c>Diplomacy</c></b>', combat_only:false},
     {name:'Arc Agent Tha’n', text_description:'You have the legal right to travel into Vedlu space. <b><c>Leadership<c></b>', combat_only:false},
     {name:'Captain Janson', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
-    {name:'Citadel', text_description:'You begin combat with 2 Core modules. Core modules gain "Req.: Adjacent to Core"', combat_only:true},
+    {name:'Citadel', text_description:'You begin combat with 2 Core modules. Core modules gain "Req.: Adjacent to Core" and share your Hull HP.', combat_only:true},
     {name:'Co-leadership', text_description:'When assigning a Move value you may instead roll to assign it randomly. It does not cost energy to assign this way.', combat_only:true},
     {name:'Conservative', text_description:'At the start of a round, if you did not play any “Offense” technology cards last round, gain 2 shields.', combat_only:true},
     {name:'Hoarding', text_description:'+4', combat_only:false},
@@ -2336,8 +2336,8 @@
       skills: {Leadership:2},
       techName: 'Targeting Strikes'
     },
-    'Bulwark': {
-      stats: {hull:2},
+    'Bulwark Class': {
+      stats: {hull:4},
       crewTraits: ['Citadel']
     }
   };
@@ -2363,7 +2363,7 @@
     var list = document.getElementById('classInfoList');
     if(!list) return;
     list.innerHTML = '';
-    var order = ['Support Class', 'Jump Class', 'Striker Class', 'Discovery Class', 'Bulwark'];
+    var order = ['Support Class', 'Jump Class', 'Striker Class', 'Discovery Class', 'Bulwark Class'];
     for(var i = 0; i < order.length; i++){
       var name = order[i];
       var preset = CLASS_PRESETS[name];
