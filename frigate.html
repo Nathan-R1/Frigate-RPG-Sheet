@@ -1372,7 +1372,7 @@
     'Leadership': 'Leadership is the maximum number of Traits & Officers slots (min. 0)',
     'Logistics': 'Logistics is added to Storage (min. 0)',
     'Navigation': 'Twice Navigation is added to Speed (min. 0)',
-    'Piloting': 'DC 6 Piloting saves are required if your ship suffers a collision (max once per turn). On a failure you lose 1 Hull HP.',
+    'Piloting': 'Sometimes you might have to dodge!!!',
     'Science': 'On turn 1 you may play {SCIENCE} extra Technologies (min 0.)',
     'Sensors': 'Sensor range = {SENSORS}, used to calculate the range of some effects and attacks'
   };
@@ -1584,6 +1584,7 @@
     {name:'Armor Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Armor', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'defense', storage:'0', deploy:'module'},
     {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nYour Cannons and P.D. Modules gain +1 Dmg and +2 Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Cannon', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'offense', storage:'0', deploy:'module'},
+    {name:'Cannon Unit', traits:'[Module]', onbuild:'Create Module Cannon', passive:'', onactivate:'', onbuildenergy:'', onactivateenergy:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nMove an Offense Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Torpedo Tubes', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'2', charges:'0', deploy:true},
     {name:'P.D. Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module P.D.', onactivateenergy:'2', tt:'defense', storage:'0', deploy:'module'},
@@ -1599,6 +1600,7 @@
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove a charge and Move a Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'1', charges:'0', deploy:false},
     {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nFor 1 round Checks from enemy Deployables targeting you automatically fail. After 1 round discard this.', tt:'defense', onactivateenergy:'1', storage:'1', deploy:false},
     {name:'Fire Shield', traits:'Class Tech', onbuild:'', passive:'When your shield takes any damage add 1 Heat token here.', onactivate:'Exhaust to Target all objects:\n\nRange:Sensors, Attacks:Heat tokens discarded, Dmg:1 ⚡', tt:'defense', onactivateenergy:'3', storage:'0', charges:'0', deploy:false},
+    {name:'Structural Hardening', traits:'', onbuild:'Place 2 * Engineering charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to add 1 Hull to any Module within Sensor range (this may exceed max Hull).', onbuildenergy:'3', onactivateenergy:'', tt:'defense', storage:'2', charges:'0', deploy:false},
     {name:'Comms Relay', traits:'[Module]', onbuild:'Create Module Comms Relay', passive:'', onactivate:'', tt:'science', onbuildenergy:'', onactivateenergy:'', storage:'0', deploy:'module'},
     {name:'AI Piloting', traits:'', onbuild:'', passive:'You do not trigger collisions with Asteroids and may move through them (but may not end your turn in an Asteroid or your Module is destroyed).', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge token to this card OR remove 2 charge tokens to immediately Move any Modules up to 2.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
