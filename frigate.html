@@ -1027,6 +1027,16 @@
     line-height:1.1;
   }
   .hand-card .hc-cost svg{width:13px;height:13px;flex:none;}
+  .hand-card .hc-charges{
+    flex:none;
+    display:flex;align-items:center;justify-content:center;gap:2px;
+    min-width:22px;
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-energy);
+    border:1px solid var(--icon-energy);
+    padding:1px 4px;
+    line-height:1.1;
+  }
+  .hand-card .hc-charges svg{width:13px;height:13px;flex:none;}
   .hand-empty{
     align-self:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;
     color:var(--ink-dim);text-transform:uppercase;
@@ -1863,7 +1873,8 @@
       passive: card.querySelector('.tsec.passive textarea').value,
       onactivate: card.querySelector('.tsec.onactivate textarea').value,
       onbuildenergy: card.querySelector('.tcost-onbuild').value,
-      onactivateenergy: card.querySelector('.tcost-onactivate').value
+      onactivateenergy: card.querySelector('.tcost-onactivate').value,
+      charges: card.querySelector('.tcharges-input').value
     };
   }
   var HAND_SORT = 'az';
@@ -1889,10 +1900,25 @@
   function nextHandCardState(cur){
     return (cur === 'played') ? 'exhausted' : 'played';
   }
+  function adjustTechCharges(card, delta){
+    if(!card || !delta) return;
+    var inp = card.querySelector('.tcharges-input');
+    if(!inp) return;
+    var cur = parseInt(inp.value, 10);
+    if(isNaN(cur)) cur = 0;
+    inp.value = Math.max(0, cur + delta);
+    refreshTechSections(card);
+    refreshHand();
+  }
   function handCardHtml(d, state){
     var costVal = (state === 'played') ? d.onactivateenergy : (state === 'hand' ? d.onbuildenergy : '');
     var costHtml = (costVal && costVal !== '0')
       ? '<span class="hc-cost">' + escapeHtml(costVal) +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
+      : '';
+    var chargesVal = (d.charges || '').trim();
+    var chargesHtml = (chargesVal !== '')
+      ? '<span class="hc-charges">' + escapeHtml(chargesVal) +
         '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
       : '';
     return '<div class="hc-head">' + costHtml +
@@ -1907,10 +1933,23 @@
       '<div class="hc-foot">' +
         '<span class="hc-tags">' + (d.type || '') +
           '<span class="hc-state" data-state="' + state + '">' + state + '</span>' +
-        '</span>' +
+        '</span>' + chargesHtml +
       '</div>';
   }
   function wireHandCardInteractions(el, onActivate, roomSync){
+    var charges = el.querySelector('.hc-charges');
+    if(charges){
+      charges.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(el._onChargeDelta) el._onChargeDelta(1);
+      });
+      charges.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(el._onChargeDelta) el._onChargeDelta(-1);
+      });
+    }
     el.addEventListener('mouseenter', function(){
       var popped = el.parentNode ? el.parentNode.querySelector('.hand-card.popped') : null;
       if(popped && popped !== el) popped.classList.remove('popped');
@@ -1962,6 +2001,10 @@
       }
       if(msg.type === 'set-tech-state'){
         applyHandPopoutStateChange(msg);
+        return;
+      }
+      if(msg.type === 'set-tech-charges'){
+        applyHandPopoutChargeChange(msg);
       }
     };
   }
@@ -1996,6 +2039,13 @@
     if(typeof idx !== 'number' || idx < 0 || idx >= grid.children.length) return;
     setTechState(grid.children[idx], msg.state);
     refreshHand();
+  }
+  function applyHandPopoutChargeChange(msg){
+    var grid = document.getElementById('techGrid');
+    if(!grid) return;
+    var idx = msg.index;
+    if(typeof idx !== 'number' || idx < 0 || idx >= grid.children.length) return;
+    adjustTechCharges(grid.children[idx], msg.delta);
   }
   var FILTER_CATS = [
     {key:'hand', label:'Hand', options:[
@@ -2215,6 +2265,11 @@
         el.className = 'hand-card';
         el.setAttribute('data-state', techState(cards[j]));
         el.innerHTML = handCardHtml(d, techState(cards[j]));
+        el._onChargeDelta = (function(card){
+          return function(delta){
+            adjustTechCharges(card, delta);
+          };
+        })(cards[j]);
         wireHandCardInteractions(el, (function(card){
           return function(){
             setTechState(card, nextHandCardState(techState(card)));
