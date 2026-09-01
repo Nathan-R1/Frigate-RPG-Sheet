@@ -1031,6 +1031,111 @@
     align-self:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;
     color:var(--ink-dim);text-transform:uppercase;
   }
+  .hand-popout-shell{
+    display:none;
+    position:fixed;inset:0;z-index:300;
+    padding:14px;
+    pointer-events:none;
+  }
+  .hand-popout-panel{
+    min-height:0;
+    max-height:100%;
+    margin-top:auto;
+    display:flex;flex-direction:column;gap:10px;
+    pointer-events:auto;
+  }
+  .hand-popout-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    min-height:44px;
+    padding:10px 14px;
+    background:rgba(16,21,31,.84);
+    border:1px solid rgba(61,77,110,.92);
+    border-radius:10px;
+    box-shadow:0 10px 28px rgba(0,0,0,.45);
+    backdrop-filter:blur(10px);
+    -webkit-app-region:drag;
+  }
+  .hand-popout-title{
+    display:flex;align-items:center;gap:10px;
+    min-width:0;
+    font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.12em;
+    color:var(--ink);text-transform:uppercase;
+  }
+  .hand-popout-title .title-text{
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .hand-popout-actions{
+    display:flex;align-items:center;gap:8px;
+    -webkit-app-region:no-drag;
+  }
+  .hand-popout-actions .zoom-controls{
+    display:flex;align-items:center;gap:6px;
+  }
+  .zoom-btn{
+    min-width:34px;
+    justify-content:center;
+    padding:6px 8px;
+  }
+  .hand-popout-actions .hand-sort{
+    display:flex;
+    margin-left:auto;
+  }
+  .hand-popout-actions .sort-wrap{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+  }
+  .hand-popout-actions .slot-menu-wrap{
+    position:relative;
+  }
+  .hand-popout-view{
+    min-height:0;
+    max-height:calc(100vh - 96px);
+    overflow-x:auto;overflow-y:auto;
+    padding:78px 18px 28px;
+    background:linear-gradient(180deg, rgba(8,11,19,0) 0%, rgba(8,11,19,.16) 100%);
+    border-radius:18px;
+    scrollbar-width:none;
+  }
+  .hand-popout-view::-webkit-scrollbar{display:none;}
+  .hand-popout-view.roomy{padding-top:78px;}
+  .hand-popout-view .hand{
+    justify-content:flex-start;
+    padding:0 12px 18px;
+  }
+  body.hand-popout-mode{
+    background:transparent;
+    background-image:none;
+    padding:0;
+    overflow:hidden;
+  }
+  body.hand-popout-mode > .menu-bar,
+  body.hand-popout-mode > .sheet,
+  body.hand-popout-mode > #skillPopover,
+  body.hand-popout-mode > #slotPicker,
+  body.hand-popout-mode > #classInfoModal,
+  body.hand-popout-mode > #handDock{
+    display:none !important;
+  }
+  body.hand-popout-mode .hand-popout-shell{display:flex;}
+  @media (max-width:640px){
+    .hand-popout-shell{padding:10px;}
+    .hand-popout-bar{padding:8px 10px;}
+    .hand-popout-view{
+      max-height:calc(100vh - 76px);
+      padding:74px 10px 22px;
+    }
+    .hand-popout-view.roomy{padding-top:74px;}
+    .hand-popout-actions .hand-sort label{display:none;}
+    .hand-popout-actions .sort-wrap > select{
+      position:absolute;top:0;left:0;width:100%;height:100%;
+      opacity:0;border:0;padding:0;z-index:2;
+    }
+    .hand-popout-actions .hand-icon-btn{display:inline-flex;}
+    .hand-popout-actions .hand-filter-btn{padding:5px 8px;}
+    .hand-popout-actions .hand-filter-btn .flabel{display:none;}
+    .hand-popout-actions .hand-filter-btn .fico{display:inline-block;}
+  }
   .tbuilt-btn{
     display:inline-flex;align-items:center;justify-content:center;
     font-family:var(--mono);font-size:11px;color:var(--ink-dim);line-height:1.4;
@@ -1068,6 +1173,7 @@
 <nav class="menu-bar">
   <div class="menu-brand">Starship Dossier</div>
   <div class="menu-actions">
+    <button type="button" class="menu-toggle" id="handPopoutLaunchBtn" onclick="openHandPopout()">⧉ Hand Window</button>
     <button type="button" class="menu-toggle" onclick="exportSheet()">⇩ Export</button>
     <button type="button" class="menu-toggle" onclick="importSheet()">⇧ Import</button>
     <button type="button" id="themeToggle" class="menu-toggle" onclick="toggleTheme()">☀ Light Mode</button>
@@ -1329,6 +1435,12 @@
 </div>
 
 <script>
+  var IS_HAND_POPOUT = /\bview=hand-popout\b/.test(window.location.search);
+  var HAND_CHANNEL_NAME = 'frigate-hand-sync';
+  var HAND_CHANNEL = null;
+  var HAND_INSTANCE_ID = 'hand-' + Math.random().toString(36).slice(2);
+  var HAND_SNAPSHOT = null;
+
   function toggleTurnBox(rhead){
     var box = rhead.parentNode;
     box.classList.toggle('collapsed');
@@ -1444,6 +1556,7 @@
     var next = current === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     updateToggleLabel(next);
+    if(!IS_HAND_POPOUT) broadcastHandSnapshot();
   }
 
   function slotLabel(n){
@@ -1865,6 +1978,209 @@
 
   /* Each category holds one value; '' means the attribute is not filtered on. */
   var HAND_FILTERS = { hand:'', type:'', energy:'', trait:'' };
+  function copyHandFilters(){
+    return {
+      hand: HAND_FILTERS.hand || '',
+      type: HAND_FILTERS.type || '',
+      energy: HAND_FILTERS.energy || '',
+      trait: HAND_FILTERS.trait || ''
+    };
+  }
+  function applyHandFilters(filters){
+    filters = filters || {};
+    HAND_FILTERS.hand = filters.hand || '';
+    HAND_FILTERS.type = filters.type || '';
+    HAND_FILTERS.energy = filters.energy || '';
+    HAND_FILTERS.trait = filters.trait || '';
+  }
+  function handItemViewData(item){
+    var meta = techTypeMeta(item.techType);
+    return {
+      name: (item.name || '').trim(),
+      type: meta.icon,
+      traits: (item.traits || '').trim(),
+      onbuild: item.onbuild || '',
+      passive: item.passive || '',
+      onactivate: item.onactivate || '',
+      onbuildenergy: item.onbuildenergy || '',
+      onactivateenergy: item.onactivateenergy || ''
+    };
+  }
+  function nextHandCardState(cur){
+    return (cur === 'played') ? 'exhausted' : 'played';
+  }
+  function handCardHtml(d, state){
+    var costVal = (state === 'played') ? d.onactivateenergy : (state === 'hand' ? d.onbuildenergy : '');
+    var costHtml = (costVal && costVal !== '0')
+      ? '<span class="hc-cost">' + escapeHtml(costVal) +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
+      : '';
+    return '<div class="hc-head">' + costHtml +
+        '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
+      '</div>' +
+      (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
+      '<div class="hc-secs">' +
+        (d.onbuild ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
+        (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
+        (d.onactivate ? '<div class="hc-sec"><b>' + energyLabel('On Activate', d.onactivateenergy) + '</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
+      '</div>' +
+      '<div class="hc-foot">' +
+        '<span class="hc-tags">' + (d.type || '') +
+          '<span class="hc-state" data-state="' + state + '">' + state + '</span>' +
+        '</span>' +
+      '</div>';
+  }
+  function wireHandCardInteractions(el, onActivate, roomSync){
+    el.addEventListener('mouseenter', function(){
+      var popped = el.parentNode ? el.parentNode.querySelector('.hand-card.popped') : null;
+      if(popped && popped !== el) popped.classList.remove('popped');
+      if(roomSync) roomSync();
+    });
+    el.addEventListener('mouseleave', function(){
+      if(roomSync) setTimeout(roomSync, 0);
+    });
+    el.addEventListener('click', function(){
+      var popped = el.parentNode ? el.parentNode.querySelector('.hand-card.popped') : null;
+      if(popped && popped !== el) popped.classList.remove('popped');
+      el.classList.toggle('popped');
+      if(roomSync) roomSync();
+    });
+    el.addEventListener('dblclick', function(e){
+      e.preventDefault();
+      if(onActivate) onActivate();
+    });
+  }
+  function canUseHandPopout(){
+    return !!(window.frigateElectron && window.frigateElectron.openHandWindow);
+  }
+  function openHandPopout(){
+    if(!canUseHandPopout()){
+      alert('Transparent hand popout requires running this sheet through the Electron wrapper.');
+      return;
+    }
+    broadcastHandSnapshot();
+    window.frigateElectron.openHandWindow();
+  }
+  function closeHandPopout(){
+    if(window.frigateElectron && window.frigateElectron.closeCurrentWindow){
+      window.frigateElectron.closeCurrentWindow();
+    } else {
+      window.close();
+    }
+  }
+  function zoomHandPopout(action){
+    if(!window.frigateElectron || !window.frigateElectron.zoomInCurrentWindow) return;
+    if(action === 'in') window.frigateElectron.zoomInCurrentWindow();
+    else if(action === 'out') window.frigateElectron.zoomOutCurrentWindow();
+    else window.frigateElectron.resetCurrentWindowZoom();
+  }
+  function setupHandChannel(){
+    if(!window.BroadcastChannel) return;
+    HAND_CHANNEL = new BroadcastChannel(HAND_CHANNEL_NAME);
+    HAND_CHANNEL.onmessage = function(event){
+      var msg = event && event.data ? event.data : null;
+      if(!msg || msg.source === HAND_INSTANCE_ID) return;
+      if(msg.type === 'request-snapshot'){
+        if(!IS_HAND_POPOUT) broadcastHandSnapshot();
+        return;
+      }
+      if(msg.type === 'snapshot'){
+        if(IS_HAND_POPOUT) applyHandSnapshot(msg.snapshot || null);
+        return;
+      }
+      if(msg.type === 'set-tech-state' && !IS_HAND_POPOUT){
+        applyHandPopoutStateChange(msg);
+      }
+    };
+  }
+  function postHandMessage(type, payload){
+    if(!HAND_CHANNEL) return;
+    var msg = payload || {};
+    msg.type = type;
+    msg.source = HAND_INSTANCE_ID;
+    HAND_CHANNEL.postMessage(msg);
+  }
+  function collectHandSnapshot(){
+    var tech = readTech();
+    for(var i=0;i<tech.length;i++){
+      tech[i].sourceIndex = i;
+    }
+    return {
+      theme: document.documentElement.getAttribute('data-theme') || 'dark',
+      shipName: (document.getElementById('shipName') || {}).value || '',
+      handSort: HAND_SORT,
+      handFilters: copyHandFilters(),
+      tech: tech
+    };
+  }
+  function broadcastHandSnapshot(){
+    if(IS_HAND_POPOUT || !HAND_CHANNEL) return;
+    postHandMessage('snapshot', { snapshot: collectHandSnapshot() });
+  }
+  function applyHandSnapshot(snapshot){
+    HAND_SNAPSHOT = snapshot;
+    if(!snapshot) return;
+    document.documentElement.setAttribute('data-theme', snapshot.theme || 'dark');
+    if(typeof updateToggleLabel === 'function') updateToggleLabel(snapshot.theme || 'dark');
+    HAND_SORT = snapshot.handSort || 'az';
+    applyHandFilters(snapshot.handFilters);
+    refreshHandPopout();
+  }
+  function requestHandSnapshot(){
+    postHandMessage('request-snapshot', {});
+  }
+  function applyHandPopoutStateChange(msg){
+    var grid = document.getElementById('techGrid');
+    if(!grid) return;
+    var idx = msg.index;
+    if(typeof idx !== 'number' || idx < 0 || idx >= grid.children.length) return;
+    setTechState(grid.children[idx], msg.state);
+    refreshHand();
+  }
+  function snapshotItemPasses(item){
+    var d = handItemViewData(item);
+    if(HAND_FILTERS.hand){
+      var st = item.state || 'played';
+      if(HAND_FILTERS.hand === 'nothand'){
+        if(st === 'hand') return false;
+      } else if(st !== HAND_FILTERS.hand){
+        return false;
+      }
+    }
+    if(HAND_FILTERS.type && item.techType !== HAND_FILTERS.type) return false;
+    if(HAND_FILTERS.energy){
+      var e = d.onbuildenergy;
+      var hasCost = !!(e && e.trim() !== '' && parseFloat(e) > 0);
+      if((HAND_FILTERS.energy === 'has') !== hasCost) return false;
+    }
+    if(HAND_FILTERS.trait){
+      if((HAND_FILTERS.trait === 'has') !== !!d.traits) return false;
+    }
+    return true;
+  }
+  function syncPopoutHandRoom(){
+    var view = document.getElementById('handPopoutView');
+    var strip = document.getElementById('handPopout');
+    if(!view || !strip) return;
+    var up = strip.querySelector('.hand-card.popped') || strip.querySelector('.hand-card:hover');
+    view.classList.toggle('roomy', !!up);
+  }
+  function updatePopoutHandSpread(){
+    var view = document.getElementById('handPopoutView');
+    var strip = document.getElementById('handPopout');
+    if(!view || !strip) return;
+    var n = strip.querySelectorAll('.hand-card').length;
+    var cardW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hand-card-w')) || 190;
+    var loose = cardW * 0.67;
+    var tight = cardW * 0.34;
+    var step = loose;
+    if(n > 1){
+      var usable = Math.max(0, view.clientWidth - 24);
+      var needed = (usable - cardW) / (n - 1);
+      step = Math.max(tight, Math.min(loose, needed));
+    }
+    strip.style.setProperty('--hand-step', step + 'px');
+  }
   var FILTER_CATS = [
     {key:'hand', label:'Hand', options:[
       {value:'', label:'N/A'},
@@ -1906,50 +2222,51 @@
     return 'N/A';
   }
   function buildFilterMenu(){
-    var menu = document.getElementById('handFilterMenu');
-    if(!menu) return;
-    menu.innerHTML = '';
-    FILTER_CATS.forEach(function(cat){
-      var row = document.createElement('div');
-      row.className = 'filter-row';
-      row.setAttribute('data-cat', cat.key);
+    ['handFilterMenu', 'handPopoutFilterMenu'].forEach(function(menuId){
+      var menu = document.getElementById(menuId);
+      if(!menu) return;
+      menu.innerHTML = '';
+      FILTER_CATS.forEach(function(cat){
+        var row = document.createElement('div');
+        row.className = 'filter-row';
+        row.setAttribute('data-cat', cat.key);
 
-      var name = document.createElement('span');
-      name.className = 'filter-cat';
-      name.textContent = cat.label;
-      row.appendChild(name);
+        var name = document.createElement('span');
+        name.className = 'filter-cat';
+        name.textContent = cat.label;
+        row.appendChild(name);
 
-      var val = document.createElement('span');
-      val.className = 'filter-val';
-      row.appendChild(val);
+        var val = document.createElement('span');
+        val.className = 'filter-val';
+        row.appendChild(val);
 
-      /* The select sits invisibly over the whole row, so tapping the row taps
-         the select itself and the platform opens its own native picker. */
-      var sel = document.createElement('select');
-      sel.setAttribute('data-cat', cat.key);
-      sel.setAttribute('aria-label', cat.label + ' filter');
-      cat.options.forEach(function(o){
-        var opt = document.createElement('option');
-        opt.value = o.value;
-        opt.textContent = o.label;
-        sel.appendChild(opt);
+        /* The select sits invisibly over the whole row, so tapping the row taps
+           the select itself and the platform opens its own native picker. */
+        var sel = document.createElement('select');
+        sel.setAttribute('data-cat', cat.key);
+        sel.setAttribute('aria-label', cat.label + ' filter');
+        cat.options.forEach(function(o){
+          var opt = document.createElement('option');
+          opt.value = o.value;
+          opt.textContent = o.label;
+          sel.appendChild(opt);
+        });
+        sel.value = HAND_FILTERS[cat.key];
+        sel.onchange = function(){
+          HAND_FILTERS[cat.key] = sel.value;
+          updateFilterUI();
+          refreshHand();
+        };
+        row.appendChild(sel);
+        menu.appendChild(row);
       });
-      sel.value = HAND_FILTERS[cat.key];
-      sel.onchange = function(){
-        HAND_FILTERS[cat.key] = sel.value;
-        updateFilterUI();
-        refreshHand();
-      };
-      row.appendChild(sel);
-
-      menu.appendChild(row);
+      var clear = document.createElement('button');
+      clear.type = 'button';
+      clear.className = 'filter-clear';
+      clear.textContent = 'Clear all';
+      clear.onclick = clearFilters;
+      menu.appendChild(clear);
     });
-    var clear = document.createElement('button');
-    clear.type = 'button';
-    clear.className = 'filter-clear';
-    clear.textContent = 'Clear all';
-    clear.onclick = clearFilters;
-    menu.appendChild(clear);
     updateFilterUI();
   }
   function activeFilterCount(){
@@ -1960,20 +2277,26 @@
     return n;
   }
   function updateFilterUI(){
-    var rows = document.querySelectorAll('#handFilterMenu .filter-row');
-    for(var i=0;i<rows.length;i++){
-      var key = rows[i].getAttribute('data-cat');
-      var valEl = rows[i].querySelector('.filter-val');
-      if(valEl) valEl.textContent = filterValueLabel(key);
-      rows[i].classList.toggle('off', !HAND_FILTERS[key]);
-      var sel = rows[i].querySelector('select');
-      if(sel) sel.value = HAND_FILTERS[key];
-    }
     var n = activeFilterCount();
-    var btn = document.getElementById('handFilterBtn');
-    var count = document.getElementById('handFilterCount');
-    if(count) count.textContent = n;
-    if(btn) btn.classList.toggle('active', n > 0);
+    ['handFilterMenu', 'handPopoutFilterMenu'].forEach(function(menuId){
+      var rows = document.querySelectorAll('#' + menuId + ' .filter-row');
+      for(var i=0;i<rows.length;i++){
+        var key = rows[i].getAttribute('data-cat');
+        var valEl = rows[i].querySelector('.filter-val');
+        if(valEl) valEl.textContent = filterValueLabel(key);
+        rows[i].classList.toggle('off', !HAND_FILTERS[key]);
+        var sel = rows[i].querySelector('select');
+        if(sel) sel.value = HAND_FILTERS[key];
+      }
+    });
+    ['handFilterBtn', 'handPopoutFilterBtn'].forEach(function(btnId){
+      var btn = document.getElementById(btnId);
+      if(btn) btn.classList.toggle('active', n > 0);
+    });
+    ['handFilterCount', 'handPopoutFilterCount'].forEach(function(countId){
+      var count = document.getElementById(countId);
+      if(count) count.textContent = n;
+    });
   }
   function clearFilters(){
     for(var k in HAND_FILTERS){
@@ -1984,19 +2307,36 @@
   }
   function toggleFilterMenu(e){
     e.stopPropagation();
-    document.getElementById('handFilterMenu').classList.toggle('open');
+    var btn = e.currentTarget || e.target;
+    var menuId = (btn && btn.id === 'handPopoutFilterBtn') ? 'handPopoutFilterMenu' : 'handFilterMenu';
+    var menu = document.getElementById(menuId);
+    if(menu) menu.classList.toggle('open');
   }
   function closeFilterMenu(){
-    document.getElementById('handFilterMenu').classList.remove('open');
+    var menus = document.querySelectorAll('.filter-menu');
+    for(var i=0;i<menus.length;i++) menus[i].classList.remove('open');
   }
   document.addEventListener('click', function(e){
-    var menu = document.getElementById('handFilterMenu');
-    if(menu && menu.classList.contains('open') && !menu.contains(e.target)){
-      closeFilterMenu();
+    var menus = document.querySelectorAll('.filter-menu.open');
+    for(var i=0;i<menus.length;i++){
+      if(!menus[i].contains(e.target)){
+        menus[i].classList.remove('open');
+      }
     }
   });
   function onHandSortChange(){
-    HAND_SORT = document.getElementById('handSort').value;
+    var dockSort = document.getElementById('handSort');
+    var popSort = document.getElementById('handPopoutSort');
+    var source = document.activeElement;
+    if(source && source.id === 'handPopoutSort' && popSort){
+      HAND_SORT = popSort.value;
+      if(dockSort) dockSort.value = HAND_SORT;
+    } else if(dockSort){
+      HAND_SORT = dockSort.value;
+      if(popSort) popSort.value = HAND_SORT;
+    } else if(popSort){
+      HAND_SORT = popSort.value;
+    }
     refreshHand();
   }
   function openHandSelect(id){
@@ -2034,8 +2374,10 @@
   }
   function handSortCards(cards){
     cards.sort(function(a,b){
-      var da = techCardViewData(a);
-      var db = techCardViewData(b);
+      var aIsDom = !!(a && a.querySelector);
+      var bIsDom = !!(b && b.querySelector);
+      var da = aIsDom ? techCardViewData(a) : handItemViewData(a);
+      var db = bIsDom ? techCardViewData(b) : handItemViewData(b);
       if(HAND_SORT === 'trait'){
         var ta = (da.traits || '').toLowerCase();
         var tb = (db.traits || '').toLowerCase();
@@ -2043,8 +2385,10 @@
         return (da.name || '').localeCompare(db.name || '');
       }
       if(HAND_SORT === 'type'){
-        var oa = HAND_TYPE_ORDER[a.querySelector('.tticker').getAttribute('data-tt')];
-        var ob = HAND_TYPE_ORDER[b.querySelector('.tticker').getAttribute('data-tt')];
+        var aType = aIsDom ? a.querySelector('.tticker').getAttribute('data-tt') : a.techType;
+        var bType = bIsDom ? b.querySelector('.tticker').getAttribute('data-tt') : b.techType;
+        var oa = HAND_TYPE_ORDER[aType];
+        var ob = HAND_TYPE_ORDER[bType];
         if(oa === undefined) oa = 99;
         if(ob === undefined) ob = 99;
         if(oa !== ob) return oa - ob;
@@ -2062,6 +2406,10 @@
     });
   }
   function refreshHand(){
+    if(IS_HAND_POPOUT){
+      refreshHandPopout();
+      return;
+    }
     var grid = document.getElementById('techGrid');
     var handEl = document.getElementById('hand');
     var countEl = document.getElementById('handCount');
@@ -2083,56 +2431,61 @@
         var el = document.createElement('div');
         el.className = 'hand-card';
         el.setAttribute('data-state', techState(cards[j]));
-        var st = techState(cards[j]);
-        var costVal = (st === 'played') ? d.onactivateenergy : (st === 'hand' ? d.onbuildenergy : '');
-        var costHtml = (costVal && costVal !== '0')
-          ? '<span class="hc-cost">' + escapeHtml(costVal) +
-            '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
-          : '';
-        el.innerHTML =
-          '<div class="hc-head">' + costHtml +
-            '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
-          '</div>' +
-          (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
-          '<div class="hc-secs">' +
-            (d.onbuild ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
-            (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
-            (d.onactivate ? '<div class="hc-sec"><b>' + energyLabel('On Activate', d.onactivateenergy) + '</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
-          '</div>' +
-          '<div class="hc-foot">' +
-            '<span class="hc-tags">' + (d.type || '') +
-              '<span class="hc-state" data-state="' + techState(cards[j]) + '">' + techState(cards[j]) + '</span>' +
-            '</span>' +
-          '</div>';
-        el.addEventListener('mouseenter', function(){
-          var popped = document.querySelector('.hand-card.popped');
-          if(popped && popped !== this) popped.classList.remove('popped');
-          syncHandRoom();
-        });
-        el.addEventListener('mouseleave', function(){
-          setTimeout(syncHandRoom, 0);
-        });
-        el.addEventListener('click', function(){
-          var popped = document.querySelector('.hand-card.popped');
-          if(popped && popped !== this) popped.classList.remove('popped');
-          this.classList.toggle('popped');
-          syncHandRoom();
-        });
-        el.addEventListener('dblclick', (function(card){
-          return function(e){
-            e.preventDefault();
-            var cur = techState(card);
-            var next = (cur === 'played') ? 'exhausted' : 'played';
-            setTechState(card, next);
+        el.innerHTML = handCardHtml(d, techState(cards[j]));
+        wireHandCardInteractions(el, (function(card){
+          return function(){
+            setTechState(card, nextHandCardState(techState(card)));
             refreshHand();
           };
-        })(cards[j]));
+        })(cards[j]), syncHandRoom);
         handEl.appendChild(el);
       }
     }
     countEl.textContent = cards.length;
     updateHandSpread();
     updateHandSlider();
+    broadcastHandSnapshot();
+  }
+  function refreshHandPopout(){
+    var handEl = document.getElementById('handPopout');
+    var countEl = document.getElementById('handPopoutCount');
+    var titleEl = document.getElementById('handPopoutTitleText');
+    var popSort = document.getElementById('handPopoutSort');
+    if(!handEl || !countEl) return;
+    if(popSort && popSort.value !== HAND_SORT) popSort.value = HAND_SORT;
+    updateFilterUI();
+    var tech = HAND_SNAPSHOT && Array.isArray(HAND_SNAPSHOT.tech) ? HAND_SNAPSHOT.tech.slice() : [];
+    tech = tech.filter(snapshotItemPasses);
+    handSortCards(tech);
+    handEl.innerHTML = '';
+    if(tech.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'hand-empty';
+      empty.textContent = activeFilterCount() ? 'No techs match' : 'No techs';
+      handEl.appendChild(empty);
+    } else {
+      for(var i=0;i<tech.length;i++){
+        var item = tech[i];
+        var d = handItemViewData(item);
+        var el = document.createElement('div');
+        el.className = 'hand-card';
+        el.setAttribute('data-state', item.state || 'played');
+        el.innerHTML = handCardHtml(d, item.state || 'played');
+        wireHandCardInteractions(el, (function(index, state){
+          return function(){
+            postHandMessage('set-tech-state', { index: index, state: nextHandCardState(state || 'played') });
+          };
+        })(typeof item.sourceIndex === 'number' ? item.sourceIndex : i, item.state), syncPopoutHandRoom);
+        handEl.appendChild(el);
+      }
+    }
+    countEl.textContent = tech.length;
+    if(titleEl){
+      var shipName = HAND_SNAPSHOT && HAND_SNAPSHOT.shipName ? HAND_SNAPSHOT.shipName.trim() : '';
+      titleEl.textContent = shipName ? shipName + ' // Tech Hand' : 'Tech Hand';
+    }
+    updatePopoutHandSpread();
+    syncPopoutHandRoom();
   }
   /* Cards overlap by 33% when the hand is small and there is room to fan out,
      tightening to 66% as the hand fills the strip. */
@@ -3052,7 +3405,19 @@
     };
     input.click();
   }
+  function initHandPopoutMode(){
+    document.body.classList.add('hand-popout-mode');
+    setupHandChannel();
+    window.addEventListener('resize', updatePopoutHandSpread);
+    requestHandSnapshot();
+    refreshHandPopout();
+  }
   (function(){
+    if(IS_HAND_POPOUT){
+      initHandPopoutMode();
+      return;
+    }
+    setupHandChannel();
     var cards = document.querySelectorAll('.tech-card');
     for(var i=0;i<cards.length;i++){
       setTechDeploy(cards[i].querySelector('.tdepbtn'), cards[i].querySelector('.tdepbtn').getAttribute('data-deploy'));
@@ -3127,10 +3492,53 @@
     <div class="hand" id="hand"></div>
   </div>
 </div>
+<div class="hand-popout-shell" id="handPopoutShell">
+  <div class="hand-popout-panel">
+    <div class="hand-popout-bar">
+      <div class="hand-popout-title">
+        <span class="hand-count" id="handPopoutCount">0</span>
+        <span class="title-text" id="handPopoutTitleText">Tech Hand</span>
+      </div>
+      <div class="hand-popout-actions">
+        <div class="hand-sort">
+          <label for="handPopoutSort">Sort</label>
+          <span class="sort-wrap">
+            <select id="handPopoutSort" onchange="onHandSortChange()">
+              <option value="az">Name</option>
+              <option value="trait">Trait</option>
+              <option value="type">Type</option>
+              <option value="energy">Energy</option>
+            </select>
+            <button type="button" class="hand-icon-btn" onclick="openHandSelect('handPopoutSort')" title="Sort hand">⇵</button>
+          </span>
+          <div class="slot-menu-wrap">
+            <button type="button" class="hand-filter-btn" id="handPopoutFilterBtn" onclick="toggleFilterMenu(event)" title="Filter hand">
+              <span class="fico" aria-hidden="true">ᯤ</span>
+              <span class="flabel">Filter</span>
+              <span class="fcount" id="handPopoutFilterCount">0</span>
+            </button>
+            <div class="preset-menu filter-menu" id="handPopoutFilterMenu"></div>
+          </div>
+        </div>
+        <div class="zoom-controls">
+          <button type="button" class="menu-toggle zoom-btn" onclick="zoomHandPopout('out')" title="Zoom out (Ctrl+-)">−</button>
+          <button type="button" class="menu-toggle zoom-btn" onclick="zoomHandPopout('reset')" title="Reset zoom (Ctrl+0)">100%</button>
+          <button type="button" class="menu-toggle zoom-btn" onclick="zoomHandPopout('in')" title="Zoom in (Ctrl+=)">+</button>
+        </div>
+        <button type="button" class="menu-toggle" onclick="closeHandPopout()">Close</button>
+      </div>
+    </div>
+    <div class="hand-popout-view" id="handPopoutView">
+      <div class="hand" id="handPopout"></div>
+    </div>
+  </div>
+</div>
 <script>
-  buildFilterMenu();
-  wireHandSlider();
-  refreshHand();
+  if(!IS_HAND_POPOUT){
+    buildFilterMenu();
+    wireHandSlider();
+    refreshHand();
+  }
 </script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "name": "frigate-rpg-sheet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Electron wrapper for the Frigate RPG sheet",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}
