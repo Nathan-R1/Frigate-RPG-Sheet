@@ -21,6 +21,7 @@
     --ink-dim:#89a1c4;
     --stat-bg:rgba(255,255,255,.02);
     --icon-energy:#764795;
+    --icon-charged:#e88ab4;
     --hand-card-h:210px;
     --hand-card-w:190px;
     --hand-panel-w:1800px;
@@ -322,8 +323,8 @@
     flex:none;
     display:flex;align-items:center;justify-content:center;gap:2px;
     min-width:22px;
-    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-energy);
-    border:1px solid var(--icon-energy);
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-charged);
+    border:1px solid var(--icon-charged);
     padding:1px 4px;line-height:1.1;
   }
   .hc-charges svg{width:13px;height:13px;flex:none;}
@@ -489,7 +490,7 @@
     var chargesVal = (d.charges || '').trim();
     var chargesHtml = (chargesVal !== '')
       ? '<span class="hc-charges">' + escapeHtml(chargesVal) +
-        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
+        '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg></span>'
       : '';
     return '<div class="hc-head">' + costHtml +
         '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +

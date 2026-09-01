@@ -31,6 +31,7 @@
     --icon-hull:#7fd88a;
     --icon-shield:#59b9e8;
     --icon-energy:#c98ee8;
+    --icon-charged:#e88ab4;
     --icon-amber:#e8a94a;
     --icon-cyan:#4fd8c9;
     --bg-radial:
@@ -67,6 +68,7 @@
     --icon-hull:#2f7a4d;
     --icon-shield:#215f8c;
     --icon-energy:#764795;
+    --icon-charged:#9c3f66;
     --icon-amber:#a06a17;
     --icon-cyan:#0e8f83;
     --bg-radial: none;
@@ -1031,8 +1033,8 @@
     flex:none;
     display:flex;align-items:center;justify-content:center;gap:2px;
     min-width:22px;
-    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-energy);
-    border:1px solid var(--icon-energy);
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-charged);
+    border:1px solid var(--icon-charged);
     padding:1px 4px;
     line-height:1.1;
   }
@@ -1284,7 +1286,7 @@
             <span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>
             <span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>
             <span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>
-            <span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>
+            <span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="tcharges-input" maxlength="4"></span>
             <span class="tdepbtn" data-deploy="normal" title="Normal">⍙</span>
           </div>
         </div>
@@ -1330,7 +1332,7 @@
           <span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>
           <span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>
           <span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>
-          <span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcharges-input" maxlength="4"></span>
+          <span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mcharges-input" maxlength="4"></span>
         </div>
       </div>
     </div>
@@ -1647,7 +1649,7 @@
         '<span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>' +
         '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
         '<span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>' +
-        '<span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>' +
+        '<span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="tcharges-input" maxlength="4"></span>' +
         '<span class="tdepbtn" data-deploy="normal" title="Normal">⍙</span>' +
       '</div>';
     grid.appendChild(card);
@@ -1919,7 +1921,7 @@
     var chargesVal = (d.charges || '').trim();
     var chargesHtml = (chargesVal !== '')
       ? '<span class="hc-charges">' + escapeHtml(chargesVal) +
-        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
+        '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg></span>'
       : '';
     return '<div class="hc-head">' + costHtml +
         '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
@@ -2702,7 +2704,7 @@
         '<span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>' +
         '<span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>' +
         '<span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>' +
-        '<span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcharges-input" maxlength="4"></span>' +
+        '<span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mcharges-input" maxlength="4"></span>' +
       '</div>';
     grid.appendChild(card);
     setModType(card.querySelector('.mtype-btn'), 'module');
