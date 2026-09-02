@@ -497,7 +497,7 @@
       '</div>' +
       (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
       '<div class="hc-secs">' +
-        (d.onbuild ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
+        (d.onbuild || d.onbuildenergy ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
         (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
         (d.onactivate ? '<div class="hc-sec"><b>' + energyLabel('On Activate', d.onactivateenergy) + '</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
       '</div>' +

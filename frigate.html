@@ -1664,6 +1664,7 @@
     {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, Exhaust this to make a Piloting Check. On a success Move 1. If you move the Module targeted the target still remains on the original space, and may be negated as a result.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck, trash this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
     {name:'Targeting Strikes', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Target Locking', traits:'', onbuild:'', passive:'When you dmg an Object add 1 charge here (resets if you dmg a new target).', onactivate:'Exhaust to Target an object:\n\nRange: Sensors, Attacks: Charges, Dmg: 1', tt:'offense', onbuildenergy:'3', onactivateenergy:'', storage:'0', charges:'0', deploy:false},
     {name:'Graviton Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module Graviton Engine', tt:'offense', onbuildenergy:'', onactivateenergy:'2', storage:'0', deploy:'module'},
     {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'1', deploy:false},
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove a charge and Move a Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'1', charges:'0', deploy:false},
@@ -1980,7 +1981,7 @@
       '</div>' +
       (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
       '<div class="hc-secs">' +
-        (d.onbuild ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
+        (d.onbuild || d.onbuildenergy ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
         (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
         (d.onactivate ? '<div class="hc-sec"><b>' + energyLabel('On Activate', d.onactivateenergy) + '</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
       '</div>' +
@@ -2464,8 +2465,19 @@
     for(var i=0;i<secs.length;i++){
       var field = secs[i].querySelector('textarea');
       var hasText = field && field.value.trim() !== '';
-      secs[i].classList.toggle('hid', !hasText && !editing);
-      if(field) field.disabled = !editing;
+      var diamond = secs[i].querySelector('.tdiamond');
+      var hasCost = diamond && !!diamond.querySelector('input') && diamond.querySelector('input').value.trim() !== '';
+      if(secs[i].classList.contains('onbuild')){
+        secs[i].classList.toggle('hid', !hasText && !hasCost && !editing);
+      } else {
+        secs[i].classList.toggle('hid', !hasText && !editing);
+      }
+      if(field){
+        field.disabled = !editing;
+        if(secs[i].classList.contains('onbuild')){
+          field.placeholder = editing ? 'On Play...' : '';
+        }
+      }
         var diamond = secs[i].querySelector('.tdiamond');
         if(diamond){
           var inp = diamond.querySelector('input');
