@@ -872,6 +872,7 @@
         var el = document.createElement('div');
         el.className = 'hand-card';
         el.setAttribute('data-state', item.state || 'played');
+        el._sourceIndex = typeof item.sourceIndex === 'number' ? item.sourceIndex : i;
         el.innerHTML = handCardHtml(d, item.state || 'played');
         el._onChargeDelta = (function(index){
           return function(delta){
@@ -916,6 +917,23 @@
     applyHandFilters(snapshot.handFilters);
     refreshHand();
   }
+  function applyHandPopoutChargeSync(msg){
+    var handEl = document.getElementById('handPopout');
+    if(!handEl) return;
+    var idx = msg.index;
+    if(typeof idx !== 'number' || idx < 0) return;
+    var cards = handEl.querySelectorAll('.hand-card');
+    for(var i=0;i<cards.length;i++){
+      if(cards[i]._sourceIndex !== idx) continue;
+      var span = cards[i].querySelector('.hc-charges');
+      if(span && span.firstChild && span.firstChild.nodeType === 3){
+        span.firstChild.nodeValue = msg.value || '';
+      } else {
+        refreshHand();
+      }
+      return;
+    }
+  }
   function requestHandSnapshot(){
     postHandMessage('request-snapshot', {});
   }
@@ -927,6 +945,9 @@
       if(!msg || msg.source === HAND_INSTANCE_ID) return;
       if(msg.type === 'snapshot'){
         applyHandSnapshot(msg.snapshot || null);
+      }
+      if(msg.type === 'sync-tech-charges'){
+        applyHandPopoutChargeSync(msg);
       }
     };
   }
