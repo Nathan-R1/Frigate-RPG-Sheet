@@ -263,7 +263,7 @@
     border-color:var(--cyan);
     z-index:500;
   }
-  .hand-card[data-state="discarded"]{
+  .hand-card[data-state="trashed"]{
     background:
       linear-gradient(180deg, rgba(154,102,54,.26) 0%, rgba(154,102,54,.15) 100%),
       linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
@@ -310,7 +310,7 @@
   }
   .hc-state[data-state="exhausted"]{color:var(--amber);border-color:var(--amber);}
   .hc-state[data-state="played"]{color:var(--cyan);border-color:var(--cyan-dim);}
-  .hc-state[data-state="discarded"]{color:var(--brown);border-color:var(--brown);}
+  .hc-state[data-state="trashed"]{color:var(--brown);border-color:var(--brown);}
   .hc-cost{
     flex:none;
     display:flex;align-items:center;justify-content:center;gap:2px;
@@ -414,7 +414,7 @@
       {value:'nothand', label:'Not in hand'},
       {value:'played', label:'Played'},
       {value:'exhausted', label:'Exhausted'},
-      {value:'discarded', label:'Discarded'}
+      {value:'trashed', label:'Trash'}
     ]},
     {key:'type', label:'Type', options:[
       {value:'', label:'N/A'},
