@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quantum Jump Map Generator</title>
+<style>
+  :root{
+    --bg: #06060c;
+    --panel: #0d0e1a;
+    --line: rgba(255,255,255,0.18);
+    --text: #e9e9f2;
+    --muted: #8b8ba3;
+    --fertile: #4c7a3f;
+    --fertile-2: #6a9c58;
+    --infertile: #23506b;
+    --infertile-2: #2f6d8f;
+    --void: #14141f;
+    --accent: #d4a139;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    height:100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  body{
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+  header{
+    padding: 20px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+  }
+  h1{
+    font-size: 1.3rem;
+    letter-spacing: 0.04em;
+    margin:0;
+    font-weight:600;
+  }
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .field{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:0.85rem;
+    color:var(--muted);
+  }
+  .field input[type=number]{
+    width:60px;
+    padding:6px 8px;
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    color:var(--text);
+    font-size:0.9rem;
+  }
+  .field input[type=range]{
+    width:100px;
+  }
+  button#randomize{
+    padding:9px 20px;
+    border-radius:8px;
+    border:1px solid var(--accent);
+    background: rgba(212,161,57,0.12);
+    color: var(--accent);
+    font-weight:600;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    font-size:0.9rem;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  button#randomize:hover{
+    background: rgba(212,161,57,0.22);
+  }
+  button#randomize:active{
+    transform: scale(0.97);
+  }
+  .legend{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:0.82rem;
+    color: var(--muted);
+  }
+  .swatch{
+    width:16px;
+    height:16px;
+    border-radius:3px;
+    display:inline-block;
+    border:1px solid rgba(255,255,255,0.25);
+  }
+  .swatch.fertile{ background: linear-gradient(135deg, var(--fertile-2), var(--fertile)); }
+  .swatch.infertile{ background: linear-gradient(135deg, var(--infertile-2), var(--infertile)); }
+  .swatch.void{ background: var(--void); }
+
+  main{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 30px;
+    overflow:auto;
+  }
+  svg{
+    max-width:100%;
+    height:auto;
+  }
+  .hex{
+    stroke: var(--line);
+    stroke-width: 1.5;
+  }
+  .hex-fertile{ fill: url(#fertileGrad); }
+  .hex-infertile{ fill: url(#infertileGrad); }
+  .hex-void{ fill: var(--void); }
+  .hex-you{ fill: url(#youGrad); }
+
+  .you-label{
+    fill: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+
+  .star{
+    fill: #fff;
+  }
+
+  .hex{
+    cursor: pointer;
+  }
+  .hex:hover{
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+  .poi{
+    fill: #9b3fd4;
+    stroke: #4a1868;
+    stroke-width: 1.5;
+    pointer-events: none;
+  }
+  .hex.anomaly{
+    stroke: #e0393e;
+    stroke-width: 4;
+  }
+
+  footer{
+    text-align:center;
+    color: var(--muted);
+    font-size:0.75rem;
+    padding: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .collapse-toggle{
+    padding:8px 14px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background: var(--panel);
+    color: var(--muted);
+    font-size:0.8rem;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .collapse-toggle:hover{
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .controls.collapsed{
+    display:none;
+  }
+
+  button#hint{
+    padding:9px 20px;
+    border-radius:8px;
+    border:1px solid #6fb0d6;
+    background: rgba(111,176,214,0.12);
+    color: #6fb0d6;
+    font-weight:600;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    font-size:0.9rem;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  button#hint:hover{
+    background: rgba(111,176,214,0.22);
+  }
+  button#hint:active{
+    transform: scale(0.97);
+  }
+  button#hint.active{
+    background: rgba(111,176,214,0.35);
+  }
+  .hint-msg{
+    font-size:0.8rem;
+    color: var(--muted);
+  }
+  .hint-ring{
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 3;
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px){
+    header{ padding: 16px; }
+    .controls{ gap:10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>QUANTUM JUMP MAP</h1>
+  <button id="toggleControls" class="collapse-toggle">Hide controls</button>
+  <div class="controls" id="controlsPanel">
+    <div class="field">
+      <label for="cols">Cols</label>
+      <input type="number" id="cols" min="2" max="30" value="9">
+    </div>
+    <div class="field">
+      <label for="rows">Rows</label>
+      <input type="number" id="rows" min="2" max="30" value="6">
+    </div>
+    <div class="field">
+      <label for="blankChance">Blank %</label>
+      <input type="range" id="blankChance" min="0" max="60" value="15">
+      <span id="blankChanceVal" style="color:var(--text); width:28px; display:inline-block;">15%</span>
+    </div>
+    <div class="field">
+      <label for="anomalyChance">Anomaly %</label>
+      <input type="range" id="anomalyChance" min="0" max="80" value="33">
+      <span id="anomalyChanceVal" style="color:var(--text); width:28px; display:inline-block;">33%</span>
+    </div>
+    <button id="randomize">⟲ Randomize</button>
+    <button id="hint">HINT</button>
+    <span class="hint-msg" id="hintMsg"></span>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="swatch fertile"></span>Fertile</div>
+    <div class="legend-item"><span class="swatch infertile"></span>Infertile</div>
+    <div class="legend-item"><span class="swatch void"></span>Blank</div>
+    <div class="legend-item"><span style="width:12px;height:12px;border-radius:50%;background:#9b3fd4;display:inline-block;border:1px solid #4a1868;"></span>Object of interest</div>
+    <div class="legend-item"><span style="width:16px;height:16px;display:inline-block;border-radius:3px;border:2.5px solid #e0393e;"></span>Anomaly</div>
+    <div class="legend-item"><span class="swatch" style="background: linear-gradient(135deg, #a869d1, #5c2a7d);"></span>You</div>
+  </div>
+</header>
+
+<main>
+  <svg id="grid" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="fertileGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#6a9c58"/>
+        <stop offset="100%" stop-color="#3b5f30"/>
+      </linearGradient>
+      <linearGradient id="infertileGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2f6d8f"/>
+        <stop offset="100%" stop-color="#173a4d"/>
+      </linearGradient>
+      <linearGradient id="youGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#a869d1"/>
+        <stop offset="100%" stop-color="#5c2a7d"/>
+      </linearGradient>
+    </defs>
+    <g id="hexLayer"></g>
+  </svg>
+</main>
+
+<footer>Flat-top hex grid · click Randomize to reroll terrain</footer>
+
+<script>
+(function(){
+  const svg = document.getElementById('grid');
+  const hexLayer = document.getElementById('hexLayer');
+  const colsInput = document.getElementById('cols');
+  const rowsInput = document.getElementById('rows');
+  const blankChance = document.getElementById('blankChance');
+  const blankChanceVal = document.getElementById('blankChanceVal');
+  const anomalyChance = document.getElementById('anomalyChance');
+  const anomalyChanceVal = document.getElementById('anomalyChanceVal');
+  const randomizeBtn = document.getElementById('randomize');
+  const toggleControls = document.getElementById('toggleControls');
+  const controlsPanel = document.getElementById('controlsPanel');
+  const hintBtn = document.getElementById('hint');
+  const hintMsg = document.getElementById('hintMsg');
+
+  toggleControls.addEventListener('click', ()=>{
+    const isHidden = controlsPanel.classList.toggle('collapsed');
+    toggleControls.textContent = isHidden ? 'Show controls' : 'Hide controls';
+  });
+
+  const HEX_SIZE = 42; // "radius" of the flat-top hex
+
+  function hexPoints(cx, cy, size){
+    // flat-top hexagon vertices
+    const pts = [];
+    for(let i=0;i<6;i++){
+      const angle_deg = 60 * i;
+      const angle_rad = Math.PI/180 * angle_deg;
+      pts.push([cx + size * Math.cos(angle_rad), cy + size * Math.sin(angle_rad)]);
+    }
+    return pts.map(p => p.join(',')).join(' ');
+  }
+
+  function randomStars(cx, cy, size){
+    const n = Math.floor(Math.random()*4);
+    let s = '';
+    for(let i=0;i<n;i++){
+      const dx = (Math.random()-0.5) * size * 1.2;
+      const dy = (Math.random()-0.5) * size * 1.0;
+      const r = Math.random()*1.1 + 0.4;
+      const op = (Math.random()*0.5 + 0.4).toFixed(2);
+      s += `<circle class="star" cx="${cx+dx}" cy="${cy+dy}" r="${r}" opacity="${op}"/>`;
+    }
+    return s;
+  }
+
+  function pickType(blankPct){
+    const r = Math.random() * 100;
+    if(r < blankPct) return 'void';
+    // remaining split between fertile / infertile, weighted toward infertile like the reference
+    return Math.random() < 0.35 ? 'fertile' : 'infertile';
+  }
+
+  let gridState = null; // { cols, rows, cells: [col][row] = {type, group} }
+  let hintActive = false;
+  let hintElements = [];
+
+  const EVEN_COL_DIRS = [[+1,0],[+1,-1],[0,-1],[-1,-1],[-1,0],[0,+1]];
+  const ODD_COL_DIRS  = [[+1,+1],[+1,0],[0,-1],[-1,0],[-1,+1],[0,+1]];
+
+  function neighborsOf(col, row){
+    const dirs = (col % 2 === 0) ? EVEN_COL_DIRS : ODD_COL_DIRS;
+    const result = [];
+    for(const [dc, dr] of dirs){
+      const nc = col + dc, nr = row + dr;
+      if(nc >= 0 && nc < gridState.cols && nr >= 0 && nr < gridState.rows){
+        result.push([nc, nr]);
+      }
+    }
+    return result;
+  }
+
+  function generate(){
+    const cols = Math.max(2, Math.min(30, parseInt(colsInput.value) || 9));
+    const rows = Math.max(2, Math.min(30, parseInt(rowsInput.value) || 6));
+    const blankPct = parseInt(blankChance.value);
+    const anomalyPct = parseInt(anomalyChance.value);
+
+    const size = HEX_SIZE;
+    const hexW = Math.sqrt(3) * size;   // width of pointy... but we're flat-top: width = 2*size, height = sqrt(3)*size
+    const w = size * 2;
+    const h = Math.sqrt(3) * size;
+
+    const horizSpacing = w * 0.75;
+    const vertSpacing = h;
+
+    const margin = size + 10;
+    const totalWidth = margin*2 + horizSpacing * (cols-1) + w;
+    const totalHeight = margin*2 + vertSpacing * rows + h/2;
+
+    svg.setAttribute('viewBox', `0 0 ${totalWidth} ${totalHeight}`);
+    svg.setAttribute('width', Math.min(totalWidth, 1400));
+    svg.setAttribute('height', totalHeight * (Math.min(totalWidth,1400)/totalWidth));
+
+    let markup = '';
+    const totalCells = cols * rows;
+    // Build list of indices that sit on the edge of the board (first/last column or row)
+    const edgeIndices = [];
+    for(let col=0; col<cols; col++){
+      for(let row=0; row<rows; row++){
+        const idxCheck = col * rows + row;
+        if(col === 0 || col === cols - 1 || row === 0 || row === rows - 1){
+          edgeIndices.push(idxCheck);
+        }
+      }
+    }
+    const youIndex = edgeIndices[Math.floor(Math.random() * edgeIndices.length)];
+    let idx = 0;
+    const cellTypes = [];
+    for(let col=0; col<cols; col++){
+      cellTypes.push([]);
+      for(let row=0; row<rows; row++){
+        cellTypes[col].push(null);
+      }
+    }
+    for(let col=0; col<cols; col++){
+      for(let row=0; row<rows; row++){
+        const cx = margin + col * horizSpacing + size;
+        const cy = margin + row * vertSpacing + (col % 2 === 1 ? vertSpacing/2 : 0) + h/2;
+        const isYou = idx === youIndex;
+        const type = isYou ? 'you' : pickType(blankPct);
+        cellTypes[col][row] = type;
+        const cls = type === 'fertile' ? 'hex-fertile' : (type === 'infertile' ? 'hex-infertile' : (type === 'you' ? 'hex-you' : 'hex-void'));
+        const isAnomalyTile = (type === 'fertile' || type === 'infertile') && (Math.random() * 100 < anomalyPct);
+        const anomalyCls = isAnomalyTile ? ' anomaly' : '';
+        const stars = (type !== 'void' && type !== 'you') ? randomStars(cx, cy, size) : '';
+        const youLabel = isYou ? `<text class="you-label" x="${cx}" y="${cy}">YOU</text>` : '';
+        markup += `<g class="hexGroup" data-col="${col}" data-row="${row}" data-cx="${cx}" data-cy="${cy}">
+          <polygon class="hex ${cls}${anomalyCls}" points="${hexPoints(cx, cy, size)}"/>
+          ${stars}
+          ${youLabel}
+        </g>`;
+        idx++;
+      }
+    }
+    hexLayer.innerHTML = markup;
+
+    // Rebuild the grid state model, mapping each coordinate to its DOM group and terrain type
+    const cells = [];
+    for(let col=0; col<cols; col++){
+      cells.push([]);
+      for(let row=0; row<rows; row++){
+        cells[col].push({ type: cellTypes[col][row], group: null });
+      }
+    }
+    hexLayer.querySelectorAll('.hexGroup').forEach(g => {
+      const c = parseInt(g.getAttribute('data-col'));
+      const r = parseInt(g.getAttribute('data-row'));
+      cells[c][r].group = g;
+    });
+    gridState = { cols, rows, cells };
+    hintActive = false;
+    hintElements = [];
+    hintBtn.classList.remove('active');
+    hintMsg.textContent = '';
+  }
+
+  // Click a tile to cycle: none -> purple "object of interest" dot -> red anomaly border -> none
+  hexLayer.addEventListener('click', (e)=>{
+    const group = e.target.closest('.hexGroup');
+    if(!group) return;
+
+    const hexPoly = group.querySelector('.hex');
+    const existingDot = group.querySelector('.poi');
+
+    clearHint();
+
+    if(existingDot && !hexPoly.classList.contains('anomaly')){
+      // state 1 -> state 2: swap dot for anomaly border
+      existingDot.remove();
+      hexPoly.classList.add('anomaly');
+      return;
+    }
+
+    if(hexPoly.classList.contains('anomaly')){
+      // state 2 -> state 0: clear everything
+      hexPoly.classList.remove('anomaly');
+      return;
+    }
+
+    // state 0 -> state 1: add purple dot
+    const cx = parseFloat(group.getAttribute('data-cx'));
+    const cy = parseFloat(group.getAttribute('data-cy'));
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('class', 'poi');
+    dot.setAttribute('cx', cx);
+    dot.setAttribute('cy', cy);
+    dot.setAttribute('r', 6);
+    group.appendChild(dot);
+  });
+
+  // Right-click a tile to cycle its terrain: fertile -> infertile -> blank -> fertile
+  hexLayer.addEventListener('contextmenu', (e)=>{
+    const group = e.target.closest('.hexGroup');
+    if(!group) return;
+    e.preventDefault();
+
+    const col = parseInt(group.getAttribute('data-col'));
+    const row = parseInt(group.getAttribute('data-row'));
+    const cell = gridState.cells[col][row];
+    if(cell.type === 'you') return; // leave the YOU tile's terrain alone
+
+    const order = ['fertile', 'infertile', 'void'];
+    const nextType = order[(order.indexOf(cell.type) + 1) % order.length];
+
+    const hexPoly = group.querySelector('.hex');
+    hexPoly.classList.remove('hex-fertile', 'hex-infertile', 'hex-void');
+    hexPoly.classList.add(nextType === 'fertile' ? 'hex-fertile' : (nextType === 'infertile' ? 'hex-infertile' : 'hex-void'));
+
+    // remove old stars
+    group.querySelectorAll('.star').forEach(s => s.remove());
+
+    if(nextType === 'void'){
+      // blank tiles can't hold a POI/anomaly marker
+      const dot = group.querySelector('.poi');
+      if(dot) dot.remove();
+      hexPoly.classList.remove('anomaly');
+    } else {
+      const cx = parseFloat(group.getAttribute('data-cx'));
+      const cy = parseFloat(group.getAttribute('data-cy'));
+      const starMarkup = randomStars(cx, cy, HEX_SIZE);
+      if(starMarkup){
+        hexPoly.insertAdjacentHTML('afterend', starMarkup);
+      }
+    }
+
+    cell.type = nextType;
+    clearHint();
+  });
+  function clearHint(){
+    hintElements.forEach(el => el.remove());
+    hintElements = [];
+    hintActive = false;
+    hintBtn.classList.remove('active');
+    hintMsg.textContent = '';
+  }
+
+  function tupleLess(a, b){
+    if(a[0] !== b[0]) return a[0] < b[0];
+    return a[1] < b[1];
+  }
+
+  function findBestRoute(){
+    const { cols, rows, cells } = gridState;
+
+    let start = null;
+    const pois = [];
+    for(let col=0; col<cols; col++){
+      for(let row=0; row<rows; row++){
+        const cell = cells[col][row];
+        if(cell.type === 'you'){
+          start = [col, row];
+        }
+        if(cell.group && cell.group.querySelector('.poi')){
+          pois.push([col, row]);
+        }
+      }
+    }
+
+    if(!start){ return { error: 'No YOU tile found.' }; }
+    if(pois.length === 0){ return { error: 'No object of interest on the board.' }; }
+
+    // Work out the actual landing tile(s) for each point of interest: if the POI sits on a
+    // fertile tile, prefer landing on an adjacent infertile tile (within 1 hex) instead of
+    // stepping onto the fertile tile itself. Falls back to the POI tile if no infertile
+    // neighbor exists. Anomaly tiles are never used as a landing/end tile (still passable
+    // through, just not where the route stops).
+    const isAnomaly = (c, r) => cells[c][r].group.querySelector('.hex').classList.contains('anomaly');
+
+    const targetKeySet = new Set();
+    const targets = [];
+    for(const [pc, pr] of pois){
+      if(cells[pc][pr].type === 'fertile'){
+        const infertileNeighbors = neighborsOf(pc, pr).filter(([nc, nr]) => cells[nc][nr].type === 'infertile' && !isAnomaly(nc, nr));
+        if(infertileNeighbors.length > 0){
+          for(const t of infertileNeighbors){
+            const k = t[0] + ',' + t[1];
+            if(!targetKeySet.has(k)){ targetKeySet.add(k); targets.push(t); }
+          }
+          continue;
+        }
+      }
+      if(isAnomaly(pc, pr)) continue; // never end the route on an anomaly tile
+      const k = pc + ',' + pr;
+      if(!targetKeySet.has(k)){ targetKeySet.add(k); targets.push([pc, pr]); }
+    }
+
+    if(targets.length === 0){ return { error: 'No safe tile to land on near any object of interest.' }; }
+
+    // Dijkstra with lexicographic cost: [anomaliesCrossed, stepsTaken]
+    const key = (c,r) => c + ',' + r;
+    const dist = {};
+    const prev = {};
+    const visited = {};
+    dist[key(...start)] = [0, 0];
+
+    while(true){
+      // pick unvisited node with smallest tuple distance
+      let bestKey = null, bestDist = null;
+      for(const k in dist){
+        if(visited[k]) continue;
+        if(bestDist === null || tupleLess(dist[k], bestDist)){
+          bestDist = dist[k];
+          bestKey = k;
+        }
+      }
+      if(bestKey === null) break; // nothing left reachable
+      visited[bestKey] = true;
+      const [col, row] = bestKey.split(',').map(Number);
+
+      const isTarget = targets.some(([tc,tr]) => tc === col && tr === row) && !(col === start[0] && row === start[1]);
+      if(isTarget){
+        // Reconstruct path
+        const path = [];
+        let curKey = bestKey;
+        while(curKey){
+          const [c,r] = curKey.split(',').map(Number);
+          path.push([c,r]);
+          curKey = prev[curKey];
+        }
+        path.reverse();
+        return { path };
+      }
+
+      for(const [nc, nr] of neighborsOf(col, row)){
+        const nType = cells[nc][nr].type;
+        if(nType === 'void') continue; // cannot cross blanks
+        const nAnomaly = cells[nc][nr].group.querySelector('.hex').classList.contains('anomaly');
+        const nKey = key(nc, nr);
+        const cand = [bestDist[0] + (nAnomaly ? 1 : 0), bestDist[1] + 1];
+        if(!(nKey in dist) || tupleLess(cand, dist[nKey])){
+          dist[nKey] = cand;
+          prev[nKey] = bestKey;
+        }
+      }
+    }
+
+    return { error: 'No route avoiding blank tiles could be found.' };
+  }
+
+  hintBtn.addEventListener('click', ()=>{
+    if(!gridState) return;
+
+    if(hintActive){
+      clearHint();
+      return;
+    }
+
+    const result = findBestRoute();
+    if(result.error){
+      hintMsg.textContent = result.error;
+      return;
+    }
+
+    hintMsg.textContent = '';
+    result.path.forEach(([col, row]) => {
+      const cell = gridState.cells[col][row];
+      const cx = parseFloat(cell.group.getAttribute('data-cx'));
+      const cy = parseFloat(cell.group.getAttribute('data-cy'));
+      const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      ring.setAttribute('class', 'hint-ring');
+      ring.setAttribute('cx', cx);
+      ring.setAttribute('cy', cy);
+      ring.setAttribute('r', 14);
+      cell.group.appendChild(ring);
+      hintElements.push(ring);
+    });
+    hintActive = true;
+    hintBtn.classList.add('active');
+  });
+
+  blankChance.addEventListener('input', ()=>{
+    blankChanceVal.textContent = blankChance.value + '%';
+  });
+  anomalyChance.addEventListener('input', ()=>{
+    anomalyChanceVal.textContent = anomalyChance.value + '%';
+  });
+  randomizeBtn.addEventListener('click', generate);
+  colsInput.addEventListener('change', generate);
+  rowsInput.addEventListener('change', generate);
+  blankChance.addEventListener('change', generate);
+  anomalyChance.addEventListener('change', generate);
+
+  generate();
+})();
+</script>
+
+</body>
+</html>
