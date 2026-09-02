@@ -568,6 +568,13 @@
   .crew-card textarea{
     flex:1;resize:none;padding:2px 10px 10px;font-size:13px;line-height:1.5;color:var(--ink-mid);
   }
+  .cfoot{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 8px 8px;border-top:1px solid var(--line);
+  }
+  .cticker{
+    flex:none;cursor:pointer;font-size:15px;line-height:1;
+  }
 
   .tech-grid{
     display:grid;
@@ -1236,16 +1243,19 @@
           <div class="ch">Slot 01</div>
           <div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
           <textarea placeholder="Effect or role..."></textarea>
+          <div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>
         </div>
         <div class="crew-card">
           <div class="ch">Slot 02</div>
           <div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
           <textarea placeholder="Effect or role..."></textarea>
+          <div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>
         </div>
         <div class="crew-card">
           <div class="ch">Slot 03</div>
           <div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
           <textarea placeholder="Effect or role..."></textarea>
+          <div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>
         </div>
       </div>
     </div>
@@ -1479,7 +1489,8 @@
     card.innerHTML =
       '<div class="ch">' + slotLabel(n) + '</div>' +
       '<div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>' +
-      '<textarea placeholder="Effect or role..."></textarea>';
+      '<textarea placeholder="Effect or role..."></textarea>' +
+      '<div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>';
     grid.appendChild(card);
     refreshSlotControls();
   }
@@ -1499,26 +1510,41 @@
   }
 
   var PRESETS = [
-    {name:'Ambassador Kamar', text_description:'You have the legal right to travel into People’s Star space.<b><c>Diplomacy</c></b>', combat_only:false},
-    {name:'Arc Agent Tha’n', text_description:'You have the legal right to travel into Vedlu space. <b><c>Leadership<c></b>', combat_only:false},
-    {name:'Captain Janson', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
-    {name:'Citadel', text_description:'You begin combat with 2 Core modules. Core modules gain "Req.: Adjacent to Core" and share your Hull HP.', combat_only:true},
-     {name:'Co-leadership', text_description:'At the start of your turn if you succeed a DC 12 Leadership Check you gain 1 Energy (this may exceed your Max Energy).', combat_only:true},
-    {name:'Conservative', text_description:'At the start of your turn, if you did not activate any “Offense” technologies, modules or deployables last round, gain 2 shields.', combat_only:true},
-     {name:'Hoarding', text_description:'+4 Storage', combat_only:false},
-     {name:'Heat Sinks', text_description:'When you roll an attack, add one Heat here or to any ability that can take Heat. When you Move, discard any Heat here, gain 1 Move per 2 Heat discarded.', combat_only:true},
-    {name:'Jamming', text_description:'When you Create Deployables, you may put them aside instead of on the board. They cannot activate or be targetted and do not occupy a particular space. At the start of your next turn, place them on the board following their normal Creation rules.', combat_only:true},
-    {name:'Crew Munitions Assignment', text_description:'When you add 1 or more charges to a Technology, Module or Deployable you may add 1 additional. Take 1 penalty to any Crew Skill.', combat_only:true},
-     {name:'Motherly', text_description:'When an allied ship within Sensor range takes Hull damage, you may reduce it by 1 and take 1 Hull HP damage to your Core Module.', combat_only:true},
-     {name:'Peace Loving', text_description:'When you fail a Diplomacy check that would initiate combat, you may reroll once.', combat_only:false},
-     {name:'Scrappy', text_description:'Once per round, when you take Hull damage, you may make an Engineering Save against the enemy’s DC to take 1 less Hull HP damage.', combat_only:true},
-     {name:'Sir Athruul', text_description:'After you complete your Move, you may Move 1 any asteroids which your Modules passed adjacent to.', combat_only:true},
-         {name:'The Sky Walker', text_description:'+1 Navigation\n\nChecks for piloting and navigation are made with advantage. <b><c>Navigation</c></b>', combat_only:true},
-         {name:'Watchful', text_description:'Sensor range is calculated by 2 x Sensors plus Cyber', combat_only:true},
-    {name:'Zealots', text_description:'Expedition penalties are ignored. When you would receive any type of Crew Penalty gain an Inspiration.', combat_only:false}
+    {name:'Ambassador Kamar', type:'science', text_description:'You have the legal right to travel into People’s Star space.<b><c>Diplomacy</c></b>', combat_only:false},
+    {name:'Arc Agent Tha’n', type:'science', text_description:'You have the legal right to travel into Vedlu space. <b><c>Leadership<c></b>', combat_only:false},
+    {name:'Captain Janson', type:'science', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
+    {name:'Citadel', type:'defense', text_description:'You begin combat with 2 Core modules. Core modules gain "Req.: Adjacent to Core" and share your Hull HP.', combat_only:true},
+     {name:'Co-leadership', type:'science', text_description:'At the start of your turn if you succeed a DC 12 Leadership Check you gain 1 Energy (this may exceed your Max Energy).', combat_only:true},
+    {name:'Conservative', type:'defense', text_description:'At the start of your turn, if you did not activate any “Offense” technologies, modules or deployables last round, gain 2 shields.', combat_only:true},
+     {name:'Hoarding', type:'science', text_description:'+4 Storage', combat_only:false},
+     {name:'Heat Sinks', type:'movement', text_description:'When you roll an attack, add one Heat here or to any ability that can take Heat. When you Move, discard any Heat here, gain 1 Move per 2 Heat discarded.', combat_only:true},
+    {name:'Jamming', type:'science', text_description:'When you Create Deployables, you may put them aside instead of on the board. They cannot activate or be targetted and do not occupy a particular space. At the start of your next turn, place them on the board following their normal Creation rules.', combat_only:true},
+    {name:'Crew Munitions Assignment', type:'offense', text_description:'When you add 1 or more charges to a Technology, Module or Deployable you may add 1 additional. Take 1 penalty to any Crew Skill.', combat_only:true},
+     {name:'Motherly', type:'defense', text_description:'When an allied ship within Sensor range takes Hull damage, you may reduce it by 1 and take 1 Hull HP damage to your Core Module.', combat_only:true},
+     {name:'Peace Loving', type:'science', text_description:'When you fail a Diplomacy check that would initiate combat, you may reroll once.', combat_only:false},
+     {name:'Scrappy', type:'defense', text_description:'Once per round, when you take Hull damage, you may make an Engineering Save against the enemy’s DC to take 1 less Hull HP damage.', combat_only:true},
+     {name:'Sir Athruul', type:'movement', text_description:'After you complete your Move, you may Move 1 any asteroids which your Modules passed adjacent to.', combat_only:true},
+         {name:'The Sky Walker', type:'movement', text_description:'+1 Navigation\n\nChecks for piloting and navigation are made with advantage. <b><c>Navigation</c></b>', combat_only:true},
+         {name:'Watchful', type:'science', text_description:'Sensor range is calculated by 2 x Sensors plus Cyber', combat_only:true},
+    {name:'Zealots', type:'science', text_description:'Expedition penalties are ignored. When you would receive any type of Crew Penalty gain an Inspiration.', combat_only:false},
+    {name:'Fire-Control Director', type:'offense', combat_only:true, text_description:'Gain +1 range on all weapons'}
   ];
   PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
 
+  var CREW_TYPES = [
+    {key:'offense', icon:'⚔', label:'Offense'},
+    {key:'defense', icon:'🛡', label:'Defense'},
+    {key:'movement', icon:'➤', label:'Movement'},
+    {key:'science', icon:'⚛︎', label:'Science'}
+  ];
+  function crewTypeIcon(key){
+    for(var i=0;i<CREW_TYPES.length;i++){ if(CREW_TYPES[i].key===key) return CREW_TYPES[i].icon; }
+    return '';
+  }
+  function crewTypeMeta(key){
+    for(var i=0;i<CREW_TYPES.length;i++){ if(CREW_TYPES[i].key===key) return CREW_TYPES[i]; }
+    return CREW_TYPES[0];
+  }
   function stripTags(html){
     var div = document.createElement('div');
     div.innerHTML = html;
@@ -1543,12 +1569,22 @@
       var label = document.createElement('span');
       label.textContent = p.name;
       item.appendChild(label);
+      var firstTrailing = null;
       if(p.combat_only){
         var tag = document.createElement('span');
         tag.className = 'preset-tag';
         tag.textContent = 'combat';
         item.appendChild(tag);
+        if(!firstTrailing) firstTrailing = tag;
       }
+      if(p.type){
+        var ttag = document.createElement('span');
+        ttag.className = 'preset-tag preset-type';
+        ttag.textContent = crewTypeIcon(p.type);
+        item.appendChild(ttag);
+        if(!firstTrailing) firstTrailing = ttag;
+      }
+      if(firstTrailing) firstTrailing.style.marginLeft = 'auto';
       item.onclick = function(){
         pickPreset(p);
         closePresetMenu();
@@ -1570,6 +1606,7 @@
     card.querySelector('textarea').value = stripTags(p.text_description);
     var tag = card.querySelector('.crew-tag-btn');
     if(p.combat_only) setCombatTag(tag, true);
+    if(p.type) setCrewType(card.querySelector('.cticker'), p.type);
   }
   function toggleCombatTag(el){
     setCombatTag(el, el.getAttribute('data-combat') === '0');
@@ -1577,6 +1614,18 @@
   function setCombatTag(el, on){
     el.setAttribute('data-combat', on ? '1' : '0');
     el.classList.toggle('on', on);
+  }
+  function setCrewType(el, key){
+    var meta = crewTypeMeta(key);
+    el.setAttribute('data-ctype', meta.key);
+    el.textContent = meta.icon;
+    el.title = 'Crew type: ' + meta.label;
+  }
+  function cycleCrewType(el){
+    var keys = CREW_TYPES.map(function(t){return t.key;});
+    var idx = keys.indexOf(el.getAttribute('data-ctype'));
+    var next = keys[(idx + 1) % keys.length];
+    setCrewType(el, next);
   }
   document.addEventListener('click', function(e){
     var menu = document.getElementById('presetMenu');
@@ -1587,6 +1636,8 @@
   document.getElementById('crewGrid').addEventListener('click', function(e){
     var el = e.target.closest('.crew-tag-btn');
     if(el) toggleCombatTag(el);
+    var c = e.target.closest('.cticker');
+    if(c) cycleCrewType(c);
   });
   buildPresetMenu();
   refreshSlotControls();
@@ -1621,7 +1672,8 @@
     {name:'Structural Hardening', traits:'', onbuild:'Place 2 * Engineering charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to add 1 Hull to any Module within Sensor range (this may exceed max Hull).', onbuildenergy:'3', onactivateenergy:'', tt:'defense', storage:'2', charges:'0', deploy:false},
     {name:'Comms Relay', traits:'[Module]', onbuild:'Create Module Comms Relay', passive:'', onactivate:'', tt:'science', onbuildenergy:'', onactivateenergy:'', storage:'0', deploy:'module'},
     {name:'AI Piloting', traits:'', onbuild:'', passive:'You do not trigger collisions with Asteroids and may move through them (but may not end your turn in an Asteroid or your Module is destroyed).', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge token to this card OR remove 2 charge tokens to immediately Move any Modules up to 2.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
+    {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge token to this card OR remove 2 charge tokens to immediately Move any Modules up to 2.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'SU Scanners', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to identify the location of any Stealth Objects in sensor range.', tt:'science', onactivateenergy:'2', storage:'0', deploy:false}
   ];
   function techTypeMeta(key){
     for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
@@ -3050,7 +3102,8 @@
       out.push({
         name: card.querySelector('.cname').value,
         text: card.querySelector('textarea').value,
-        combat: card.querySelector('.crew-tag-btn').getAttribute('data-combat') === '1'
+        combat: card.querySelector('.crew-tag-btn').getAttribute('data-combat') === '1',
+        type: card.querySelector('.cticker').getAttribute('data-ctype')
       });
     }
     return out;
@@ -3067,6 +3120,7 @@
       card.querySelector('.cname').value = item.name || '';
       card.querySelector('textarea').value = item.text || '';
       setCombatTag(card.querySelector('.crew-tag-btn'), item.combat === true);
+      setCrewType(card.querySelector('.cticker'), item.type);
     }
     relabelSlots();
   }

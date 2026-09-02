@@ -55,8 +55,8 @@ The class `<select id="shipClass">` ("Unclassified" / Support / Jump / Striker /
 After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max (hull/shield) or single-value stats (storage); `findTechByName()` / `findModByName()` resolve the signature tech/mod in the preset arrays, and `addTechFromData()` / `pickModPreset()` add them.
 
 ### Traits & Crew
-- Panel header controls → `addCrewSlot()`, `removeCrewSlot()`, and `☰` → `buildPresetMenu()` from the `PRESETS` array (sorted by name; `combat_only` presets get a "combat" tag in the menu).
-- Cards are `.crew-card` with class header "Slot 0N" (`.ch`), a name (`input.cname`) + combat tag button (`.crew-tag-btn` ⚔, `toggleCombatTag`/`setCombatTag`), and a role/effect textarea.
+- Panel header controls → `addCrewSlot()`, `removeCrewSlot()`, and `☰` → `buildPresetMenu()` from the `PRESETS` array (sorted by name; `combat_only` presets get a "combat" tag in the menu). Presets may also define a `type` (`offense`/`defense`/`movement`/`science`); when present, the menu shows the matching ⚔/🛡/➤/⚛︎ icon via `crewTypeIcon()` (from the `CREW_TYPES` array).
+- Cards are `.crew-card` with class header "Slot 0N" (`.ch`), a name (`input.cname`) + combat tag button (`.crew-tag-btn` ⚔, `toggleCombatTag`/`setCombatTag`), a role/effect textarea, and a footer `.cfoot` whose `.cticker` shows the crew type icon at bottom-left (default `offense` ⚔, click to cycle via `cycleCrewType`; `setCrewType(el, key)` sets it and the tooltip. Type is persisted as `type` on each crew record via `readCrew`/`writeCrew`, and set from a preset's `type` in `pickPreset`).
 - Slot removal is shared: `showSlotPicker(e, btn, 'crewGrid', '.cname')` → `deleteSlotAt('crewGrid', idx)` which also calls `relabelSlots()` so Slot numbers stay sequential.
 
 ### Technologies
