@@ -1245,18 +1245,6 @@
           <textarea placeholder="Effect or role..."></textarea>
           <div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>
         </div>
-        <div class="crew-card">
-          <div class="ch">Slot 02</div>
-          <div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
-          <textarea placeholder="Effect or role..."></textarea>
-          <div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>
-        </div>
-        <div class="crew-card">
-          <div class="ch">Slot 03</div>
-          <div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
-          <textarea placeholder="Effect or role..."></textarea>
-          <div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>
-        </div>
       </div>
     </div>
 
@@ -1527,7 +1515,10 @@
          {name:'The Sky Walker', type:'movement', text_description:'+1 Navigation\n\nChecks for piloting and navigation are made with advantage. <b><c>Navigation</c></b>', combat_only:true},
          {name:'Watchful', type:'science', text_description:'Sensor range is calculated by 2 x Sensors plus Cyber', combat_only:true},
     {name:'Zealots', type:'science', text_description:'Expedition penalties are ignored. When you would receive any type of Crew Penalty gain an Inspiration.', combat_only:false},
-    {name:'Fire-Control Director', type:'offense', combat_only:true, text_description:'Gain +1 range on all weapons'}
+    {name:'Fire-Control Director', type:'offense', combat_only:true, text_description:'Gain +1 range on all weapons'},
+    {name:'Charge Battery', type:'science', combat_only:true, text_description:'The first time you add Charge to a Technology, Module or Deployable this combat, add 2 extra.'},
+    {name:'Advancement', type:'science', combat_only:false, text_description:'+1 DC'},
+    {name:'Energy Conduit', type:'science', combat_only:true, text_description:'At the end of your turn, if you have at least 1 Energy remaining, an ally within Sensor range gains +1 Energy on their next turn (this may exceed their Energy max).'}
   ];
   PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
 
@@ -1655,26 +1646,26 @@
     {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Cannon', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Cannon Unit', traits:'[Module]', onbuild:'Create Module Cannon', passive:'', onactivate:'', onbuildenergy:'', onactivateenergy:'', tt:'offense', storage:'0', deploy:'module'},
     {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nMove an Offense Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Torpedo Launcher', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'2', charges:'0', deploy:true},
+    {name:'Torpedo Launcher', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'2', charges:'4', deploy:true},
     {name:'P.D. Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module P.D.', onactivateenergy:'2', tt:'defense', storage:'0', deploy:'module'},
     {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to Target an Object:\n\nRange: Sensors from any Offense Module, Check: Cyber, Dmg: 0\n\nOn success Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'1', deploy:false},
     {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Discard.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
     {name:'Rocket Array', traits:'', onbuild:'Place 1 charge on this card. Exhaust.', passive:'', onactivate:'Exhaust and remove 1 charge from this card to Target an object: Range: 9 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'1', charges:'0', deploy:false},
     {name:'Repulsor Unit', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Unit', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
     {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, Exhaust this to make a Piloting Check. On a success Move 1. If you move the Module targeted the target still remains on the original space, and may be negated as a result.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck, trash this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Targeting Strikes', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Unwinder Array', traits:'', onbuild:'Place 2 charges on this. Exhaust.', passive:'', onactivate:'Exhaust and remove 1 charge from this card to Target an object: Range: Cyber, Save: Cyber, Dmg: 0\n\nOn failed save the enemy’s Speed is reduced to 0 until your next turn', tt:'offense', onbuildenergy:'3', onactivateenergy:'', storage:'1', charges:'0', deploy:false},
-    {name:'Target Locking', traits:'', onbuild:'', passive:'When you dmg an Object add 1 charge here (resets if you dmg a new target).', onactivate:'Exhaust to Target an object:\n\nRange: Sensors, Attacks: Charges, Dmg: 1', tt:'offense', onbuildenergy:'3', onactivateenergy:'', storage:'0', charges:'0', deploy:false},
+    {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck into yours, trash this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Decomp Strikes', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Unwinder Array', traits:'', onbuild:'Place 4 charges on this. Exhaust.', passive:'', onactivate:'Exhaust and remove 2 charges from this card to Target an object: Range: Cyber, Save: Cyber, Dmg: 0\n\nOn failed save the enemy’s Speed is reduced to 0 until your next turn', tt:'offense', onbuildenergy:'3', onactivateenergy:'', storage:'1', charges:'0', deploy:false},
+    {name:'Target Locking', traits:'Class Tech', onbuild:'', passive:'When you dmg an Object add 1 charge here (resets if you dmg a new target).', onactivate:'Exhaust to Target an object:\n\nRange: Sensors, Attacks: Charges, Dmg: 1', tt:'offense', onbuildenergy:'3', onactivateenergy:'', storage:'0', charges:'0', deploy:false},
     {name:'Graviton Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module Graviton Engine', tt:'offense', onbuildenergy:'', onactivateenergy:'2', storage:'0', deploy:'module'},
-    {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'1', deploy:false},
+    {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'1', charges:'0', deploy:false},
     {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove a charge and Move a Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'1', charges:'0', deploy:false},
     {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nFor 1 round Checks from enemy Deployables targeting you automatically fail. After 1 round trash this.', tt:'defense', onactivateenergy:'1', storage:'1', deploy:false},
     {name:'Fire Shield', traits:'Class Tech', onbuild:'', passive:'When your shield takes any damage add 1 Heat token here.', onactivate:'Exhaust to Target all objects:\n\nRange:Sensors, Attacks:Heat tokens discarded, Dmg:1 ⚡', tt:'defense', onactivateenergy:'3', storage:'0', charges:'0', deploy:false},
     {name:'Hardening Array', traits:'', onbuild:'Place 2 * Engineering charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to add 1 Hull to any Module within Sensor range (this may exceed max Hull).', onbuildenergy:'3', onactivateenergy:'', tt:'defense', storage:'2', charges:'0', deploy:false},
-    {name:'Comms Unit', traits:'[Module]', onbuild:'Create Module Comms Unit', passive:'', onactivate:'', tt:'science', onbuildenergy:'', onactivateenergy:'', storage:'0', deploy:'module'},
+    {name:'Comms Unit', traits:'[Module] Class Tech', onbuild:'Create Module Comms Unit', passive:'', onactivate:'', tt:'science', onbuildenergy:'', onactivateenergy:'', storage:'0', deploy:'module'},
     {name:'AI Piloting', traits:'', onbuild:'', passive:'You do not trigger collisions with Asteroids and may move through them (but may not end your turn in an Asteroid or your Module is destroyed).', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Grav Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge token to this card OR remove 2 charge tokens to immediately Move any Modules up to 2.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Grav Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge token to this card OR remove 2 charge tokens to immediately Move any Modules up to 2.', tt:'science', onactivateenergy:'1', storage:'0', charges:'0', deploy:false},
     {name:'SU Scanners', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to identify the location of any Stealth Objects in sensor range.', tt:'science', onactivateenergy:'2', storage:'0', deploy:false}
   ];
   function techTypeMeta(key){
@@ -2601,7 +2592,7 @@
     'Striker Class': {
       stats: {storage:2},
       skills: {Leadership:2},
-      techName: 'Targeting Strikes'
+      techName: 'Decomp Strikes'
     },
     'Bulwark Class': {
       stats: {hull:4},
@@ -2942,9 +2933,10 @@
     {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', tt:'offense', onbuild:'', passive:'', onactivate:'Exhaust to Target an object:\nRange: 6 from self, Attacks: 2, Dmg: 2 💥', onactivateenergy:'2'},
     {name:'Comms Unit', req:'Adjacent to any', hull:'2', type:'module', tt:'science', onbuild:'', passive:'Allies within Sensor range of this gain a +2 bonus on all Checks and Saves.', onactivate:'', onactivateenergy:''},
     {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', tt:'movement', onbuild:'', passive:'Gain 1 Speed per non Engine module on your ship (if you later gain/lose modules adjust Speed).', onactivate:'', onactivateenergy:''},
-    {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'0', type:'deployable', tt:'offense', onbuild:'Exhaust', passive:'', onactivate:'You may move this deployable up to 12 spaces, then Target an object:\nRange: 1 from self, Check: Sensors, Dmg: 3💥\n\nAfter activating remove this deployable.', onactivateenergy:''},
+    {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'12', type:'deployable', tt:'offense', onbuild:'Exhaust', passive:'', onactivate:'You may move this deployable up to 12 spaces, then Target an object:\nRange: 1 from self, Check: Sensors, Dmg: 3💥\n\nAfter activating remove this deployable.', onactivateenergy:''},
     {name:'P.D.', req:'Adjacent to core', hull:'1', type:'module', tt:'offense', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'Exhaust to Target an object:\nRange: 2 from self, Attacks: 3, Dmg: 2 💥', onactivateenergy:'2'},
-    {name:'Repulsor Unit', req:'Adjacent to any', hull:'4', charges:'0', type:'module', tt:'defense', onbuild:'', passive:'', onactivate:'Exhaust to add 2 charges to this OR remove 2 charges and give 4 shield to an allied ship within Sensor range from this.', onactivateenergy:'2'}
+    {name:'Repulsor Unit', req:'Adjacent to any', hull:'4', charges:'0', type:'module', tt:'defense', onbuild:'', passive:'', onactivate:'Exhaust to add 2 charges to this OR remove 2 charges and give 4 shield to an allied ship within Sensor range from this.', onactivateenergy:'2'},
+    {name:'Shuttle Craft I', req:'', hull:'1', speed:'2', charges:'1', type:'deployable', tt:'science', onbuild:'This gains 1 charge. This charge acts as a shield.', passive:'', onactivate:'Exhaust to Move 2, and choose one of the following:\n- Target an Object: Range: 1, Attacks: 1, Dmg: 1; OR\n- Make a Sensor Check to Scan; OR\n- Make an Engineering Check to tow an adjacent object', onactivateenergy:''}
   ];
   MOD_PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
   function buildModPresetMenu(){
