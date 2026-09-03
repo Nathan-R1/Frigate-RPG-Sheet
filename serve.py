@@ -4,9 +4,14 @@ import http.server
 PORT = 8000
 PAGE = "frigate.html"
 
+HEX_PAGE = "hex-grid-generator.html"
+
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
-        with open(PAGE, "rb") as f:
+        page = PAGE
+        if self.path.rstrip("/") == "/hex" or self.path.rstrip("/").endswith("/hex/index.html"):
+            page = HEX_PAGE
+        with open(page, "rb") as f:
             body = f.read()
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
@@ -19,4 +24,5 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 with http.server.ThreadingHTTPServer(("0.0.0.0", PORT), Handler) as httpd:
     print(f"Serving {PAGE} at http://localhost:{PORT}")
+    print(f"Serving {HEX_PAGE} at http://localhost:{PORT}/hex/")
     httpd.serve_forever()
