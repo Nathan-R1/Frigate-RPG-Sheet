@@ -18,6 +18,8 @@
     --amber:#e8a94a;
     --red:#d75b4e;
     --red-dim:#5e2a26;
+    --brown:#9a6636;
+    --brown-dim:#4a3018;
     --ink:#eef2f8;
     --ink-mid:#9aa8c4;
     --ink-dim:#5a6684;
@@ -29,6 +31,7 @@
     --icon-hull:#7fd88a;
     --icon-shield:#59b9e8;
     --icon-energy:#c98ee8;
+    --icon-charged:#e88ab4;
     --icon-amber:#e8a94a;
     --icon-cyan:#4fd8c9;
     --bg-radial:
@@ -38,6 +41,8 @@
     --mono: 'JetBrains Mono', monospace;
     --disp: 'Orbitron', sans-serif;
     --body: 'Rajdhani', sans-serif;
+    --hand-card-h: 210px;
+    --hand-card-w: 190px;
   }
   [data-theme="light"]{
     --void:#ffffff;
@@ -50,6 +55,8 @@
     --amber:#a06a17;
     --red:#b8382a;
     --red-dim:#b8382a;
+    --brown:#7d5122;
+    --brown-dim:#c8b294;
     --ink:#12151c;
     --ink-mid:#4a5468;
     --ink-dim:#828da2;
@@ -61,6 +68,7 @@
     --icon-hull:#2f7a4d;
     --icon-shield:#215f8c;
     --icon-energy:#764795;
+    --icon-charged:#9c3f66;
     --icon-amber:#a06a17;
     --icon-cyan:#0e8f83;
     --bg-radial: none;
@@ -80,7 +88,7 @@
     background-size:auto, 34px 34px, 34px 34px;
     font-family:var(--body);
     color:var(--ink);
-    padding:28px 18px 60px;
+    padding:28px 18px 110px;
     transition:background-color .2s ease, color .2s ease;
   }
   .sheet{max-width:1220px;margin:0 auto;}
@@ -203,6 +211,19 @@
     gap:16px;
     margin-top:16px;
   }
+
+  /* collapsed panels break out of their row and drop below */
+  .grid:has(> .panel.collapsed),
+  .row2:has(> .panel.collapsed),
+  .grid.has-collapsed,
+  .row2.has-collapsed{
+    grid-template-columns:1fr;
+  }
+  .grid > .panel.collapsed,
+  .row2 > .panel.collapsed{
+    order:2;
+  }
+
   @media (max-width:880px){
     .grid, .row2{grid-template-columns:1fr;}
     .stat-strip{grid-template-columns:repeat(4,1fr);}
@@ -330,6 +351,65 @@
     cursor:pointer;vertical-align:middle;border-radius:50%;
   }
   .info-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .class-info-modal{
+    position:fixed;inset:0;z-index:1000;
+    display:none;align-items:center;justify-content:center;
+    background:rgba(6,10,15,.68);
+    padding:20px;
+  }
+  .class-info-modal.open{display:flex;}
+  .class-info-card{
+    width:min(560px, 100%);
+    max-height:min(80vh, 720px);
+    overflow:auto;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    box-shadow:0 18px 50px rgba(0,0,0,.45);
+    padding:16px 16px 14px;
+  }
+  .class-info-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin-bottom:10px;
+  }
+  .class-info-title{
+    font-family:var(--disp);font-size:18px;font-weight:700;color:var(--cyan);
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .class-info-close{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:28px;height:28px;padding:0 8px;
+    background:var(--stat-bg);border:1px solid var(--line-bright);
+    color:var(--ink-dim);font-family:var(--mono);font-size:12px;line-height:1;
+    cursor:pointer;
+  }
+  .class-info-close:hover{border-color:var(--cyan);color:var(--cyan);}
+  .class-info-list{display:flex;flex-direction:column;gap:10px;}
+  .class-info-item{
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.02);
+    padding:10px 12px;
+  }
+  .class-info-item b{
+    display:block;
+    font-family:var(--disp);font-size:14px;letter-spacing:.03em;
+    color:var(--amber);text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .class-info-item p{
+    margin:3px 0;
+    font-size:13px;line-height:1.45;color:var(--ink);
+  }
+  .class-stat-line{
+    display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+  }
+  .class-stat-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 6px;
+    border:1px solid var(--line-bright);
+    background:var(--stat-bg);
+    font-family:var(--mono);font-size:11px;letter-spacing:.04em;
+    color:var(--ink);
+  }
   #skillPopover{
     position:fixed;z-index:999;display:none;
     background:var(--panel);
@@ -385,6 +465,9 @@
   .slot-btn:hover{border-color:var(--cyan);color:var(--cyan);}
   .slot-btn:disabled{opacity:.35;cursor:not-allowed;}
   .slot-btn:disabled:hover{border-color:var(--line-bright);color:var(--ink);}
+  .panel-collapse-btn{font-size:14px;}
+  .panel.collapsed .slot-controls .panel-collapse-btn{color:var(--cyan);border-color:var(--cyan);}
+  .panel.collapsed .tech-grid,.panel.collapsed .mod-grid,.panel.collapsed .crew-grid,.panel.collapsed .skills{display:none;}
   .slot-menu-wrap{position:relative;}
   .preset-menu{
     position:absolute;
@@ -412,7 +495,7 @@
   }
   .preset-item{
     width:100%;
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    display:flex;align-items:center;gap:8px;
     padding:7px 8px;
     background:transparent;
     border:none;
@@ -424,6 +507,8 @@
     cursor:pointer;
   }
   .preset-item:hover{background:var(--stat-bg);color:var(--cyan);}
+.preset-item .preset-class-tech{color:var(--icon-energy);}
+.preset-item:hover .preset-class-tech{color:var(--icon-energy);}
   .preset-tag{
     flex:none;
     font-family:var(--mono);
@@ -435,12 +520,21 @@
     text-transform:uppercase;
   }
   .preset-tag.preset-deploy{
-    margin-left:auto;
     color:var(--cyan);
     border-color:var(--cyan);
     font-size:11px;
     padding:0 4px;
   }
+  .preset-tag.preset-type{
+    color:var(--ink-mid);
+    border-color:var(--ink-mid);
+  }
+  .preset-tag.preset-storage{
+    color:var(--icon-amber);
+    border-color:var(--icon-amber);
+    display:inline-flex;align-items:center;gap:2px;
+  }
+  .preset-tag.preset-storage .kw-icon{width:12px;height:12px;flex:none;}
   .crew-card{
     background:var(--crew-bg);
     border:1px solid var(--line);
@@ -474,6 +568,13 @@
   .crew-card textarea{
     flex:1;resize:none;padding:2px 10px 10px;font-size:13px;line-height:1.5;color:var(--ink-mid);
   }
+  .cfoot{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 8px 8px;border-top:1px solid var(--line);
+  }
+  .cticker{
+    flex:none;cursor:pointer;font-size:15px;line-height:1;
+  }
 
   .tech-grid{
     display:grid;
@@ -494,8 +595,7 @@
     font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--cyan);
     text-transform:uppercase;letter-spacing:.02em;
   }
-  .tech-card .thead .tsecedit{margin-left:auto;}
-  .tech-card input:disabled{
+  .tech-card input:disabled,.mod-card .mname:disabled{
     opacity:1;cursor:default;-webkit-text-fill-color:currentColor;color:currentColor;
   }
   .tsub{
@@ -507,65 +607,66 @@
     font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
     padding:2px 10px 6px;
   }
-  .tsecs{display:flex;flex-direction:column;flex:1;min-height:0;}
-  .tsec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
-  .tsec.hid{display:none;}
-  .tsec-head{
+  .tsecs,.msecs{display:flex;flex-direction:column;flex:1;min-height:0;}
+  .tsec,.msec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
+  .tsec.hid,.msec.hid{display:none;}
+  .tsec-head,.msec-head{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
     font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
     text-transform:uppercase;padding:5px 10px 2px;
   }
-  .tsec textarea{
+  .tsec textarea,.msec textarea{
     flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
   }
-  .tsec textarea:disabled{
+  .tsec textarea:disabled,.msec textarea:disabled{
     opacity:1;cursor:default;-webkit-text-fill-color:var(--ink-mid);color:var(--ink-mid);
   }
   .tsec.dep textarea{background:rgba(232,169,74,.30);}
   .tsec.mod textarea{background:rgba(14,120,90,.30);}
-  .tsecedit{
+  .tsecedit,.msecedit{
     flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
     text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
     padding:2px 7px;border-radius:3px;margin-left:auto;
   }
-  .tsecedit:hover{color:var(--cyan);border-color:var(--cyan);}
-  .texhaust-btn{
-    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
-    padding:2px 7px;border-radius:3px;display:none;
+  .tsecedit:hover,.msecedit:hover{color:var(--cyan);border-color:var(--cyan);}
+  .t-delete,.m-delete{
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:11px;line-height:1;
+    color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 6px;border-radius:3px;display:none;
   }
-  .texhaust-btn:hover{color:var(--cyan);border-color:var(--cyan);}
-  .tech-card.editing .texhaust-btn{display:inline-flex;}
-  .tech-card.exhausted .texhaust-btn{color:var(--amber);border-color:var(--amber);}
-  .tech-card.exhausted{opacity:.55;}
-  .tech-card.editing .tsec.hid{display:flex;}
-  .tech-card .ttraits.hid{display:none;}
-  .tech-card .tstorage.hid{display:none;}
-  .tech-card .thull.hid{display:none;}
-  .tech-card .tcharges.hid{display:none;}
-  .tfoot{
+  .t-delete:hover,.m-delete:hover{color:#e5534b;border-color:#e5534b;}
+  .tech-card.editing .t-delete,.mod-card.editing .m-delete{display:inline-flex;}
+  .tech-card.state-exhausted{opacity:.55;}
+  .tech-card.state-hand{opacity:.6;}
+  .tech-card.state-trashed{
+    background:
+      linear-gradient(180deg, rgba(154,102,54,.26) 0%, rgba(154,102,54,.15) 100%),
+      var(--crew-bg);
+    border-color:var(--brown);
+    opacity:.85;
+  }
+  .tech-card.editing .tsec.hid,.mod-card.editing .msec.hid{display:flex;}
+  .tech-card .ttraits.hid,.tech-card .tstorage.hid,.mod-card .mreq.hid{display:none;}
+  .tfoot,.mfoot{
     display:flex;align-items:center;gap:8px;
     padding:6px 8px 8px;border-top:1px solid var(--line);
   }
-  .tticker{
+  .tticker,.mticker{
     flex:none;cursor:pointer;font-size:15px;line-height:1;
   }
-  .tstorage{
+  .tstorage,.thull,.tcharges,.mspeed,.mdur,.mhull,.mcharges{
     display:flex;align-items:center;gap:3px;
     font-size:12px;color:var(--ink-dim);
   }
-  .tstorage .ticon{width:14px;height:14px;flex:none;}
-  .tstorage input.tstorage-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  .thull,.tcharges,.mcharges{cursor:pointer;}
+  .mspeed,.mdur,.mhull,.mcharges{flex:none;}
+  .tstorage .ticon,.thull .ticon,.tcharges .ticon,
+  .mspeed .kw-icon,.mdur .kw-icon,.mhull .kw-icon,.mcharges .kw-icon{
+    width:14px;height:14px;flex:none;margin:0;
   }
-  .thull,.tcharges{
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);cursor:pointer;
-  }
-  .thull .ticon{width:14px;height:14px;flex:none;}
-  .tcharges .ticon{width:14px;height:14px;flex:none;}
-  .thull input.thull-input,.tcharges input.tcharges-input{
+  .thull.hid,.tcharges.hid,.mspeed.hid,.mdur.hid,.mhull.hid,.mcharges.hid{display:none;}
+  .tstorage input.tstorage-input,.thull input.thull-input,.tcharges input.tcharges-input,
+  .mspeed input.mspeed-input,.mdur input.mdur-input,.mhull input.mhull-input,.mcharges input.mcharges-input{
     width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
     background:var(--stat-bg);border:1px solid var(--line);padding:1px;
   }
@@ -574,17 +675,17 @@
   }
   .tdepbtn.on{opacity:1;}
   .tech-card.editing .tdepbtn{opacity:1;}
-  .tdiamond{
+  .tdiamond,.mcost{
     display:flex;align-items:center;justify-content:center;gap:3px;
     width:24px;height:24px;
     border:1px solid var(--icon-energy);color:var(--icon-energy);
     transform:rotate(45deg);
-    margin-left:auto;flex:none;
   }
-  .tdiamond.hid{display:none;}
-  .tdiamond .ticon,.tdiamond input{transform:rotate(-45deg);}
-  .tdiamond .ticon{width:11px;height:11px;flex:none;}
-  .tdiamond input{
+  .tdiamond{margin-left:auto;flex:none;}
+  .tdiamond.hid,.mcost.hid{display:none;}
+  .tdiamond .ticon,.tdiamond input,.mcost .ticon,.mcost input{transform:rotate(-45deg);}
+  .tdiamond .ticon,.mcost .ticon{width:11px;height:11px;flex:none;}
+  .tdiamond input,.mcost input{
     width:13px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
     background:transparent;border:none;padding:0;
   }
@@ -637,12 +738,6 @@
     font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--amber);
     text-transform:uppercase;letter-spacing:.02em;
   }
-  .mod-card .msecedit{
-    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
-    padding:2px 7px;border-radius:3px;
-  }
-  .msecedit:hover{color:var(--cyan);border-color:var(--cyan);}
   .mexhaust-btn{
     flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
     text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
@@ -661,88 +756,6 @@
     font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
     padding:2px 10px 6px;
   }
-  .mfoot{
-    display:flex;align-items:center;gap:8px;
-    border-top:1px solid var(--line);
-    padding:6px 8px 8px;
-  }
-  .mhull{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);
-  }
-  .mhull .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mhull.hid{display:none;}
-  .mdur{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);
-  }
-  .mdur .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mdur.hid{display:none;}
-  .mdur input.mdur-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .mspeed{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);
-  }
-  .mspeed .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mspeed.hid{display:none;}
-  .mspeed input.mspeed-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .mhull input.mhull-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .mcharges{
-    flex:none;
-    display:flex;align-items:center;gap:3px;
-    font-size:12px;color:var(--ink-dim);cursor:pointer;
-  }
-  .mcharges .kw-icon{width:14px;height:14px;flex:none;margin:0;}
-  .mcharges.hid{display:none;}
-  .mcharges input.mcharges-input{
-    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
-    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
-  }
-  .msecs{display:flex;flex-direction:column;flex:1;min-height:0;}
-  .msec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
-  .msec.hid{display:none;}
-  .msec-head{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-    font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
-    text-transform:uppercase;padding:5px 10px 2px;
-  }
-  .msec textarea{
-    flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
-  }
-  .msec textarea:disabled{
-    opacity:1;cursor:default;-webkit-text-fill-color:var(--ink-mid);color:var(--ink-mid);
-  }
-  .mod-card.editing .msec.hid{display:flex;}
-  .mod-card .mreq.hid{display:none;}
-  .mod-card .mname:disabled{
-    opacity:1;cursor:default;-webkit-text-fill-color:currentColor;color:currentColor;
-  }
-  .mcost{
-    display:flex;align-items:center;justify-content:center;gap:3px;
-    width:24px;height:24px;
-    border:1px solid var(--icon-energy);color:var(--icon-energy);
-    transform:rotate(45deg);
-  }
-  .mcost.hid{display:none;}
-  .mcost .ticon,.mcost input{transform:rotate(-45deg);}
-  .mcost .ticon{width:11px;height:11px;flex:none;}
-  .mcost input{
-    width:13px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
-    background:transparent;border:none;padding:0;
-  }
-
   footer{
     text-align:center;margin-top:22px;
     font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-dim);
@@ -765,7 +778,288 @@
   .menu-toggle:hover{border-color:var(--cyan);color:var(--cyan);}
   @media print{
     .menu-toggle{display:none;}
+    .hand-dock{display:none;}
   }
+
+  /* ===== Hand Dock (bottom tech hand) ===== */
+  .hand-dock{
+    position:fixed;left:0;right:0;bottom:0;z-index:100;
+    display:flex;flex-direction:column;
+  }
+  .hand-bar{
+    position:relative;z-index:100;
+    display:flex;align-items:center;
+    background:var(--panel);
+    border-top:1px solid var(--line-bright);
+    box-shadow:0 -6px 20px rgba(0,0,0,.35);
+  }
+  .hand-tab{
+    position:absolute;left:50%;transform:translateX(-50%);
+    display:flex;align-items:center;gap:10px;
+    padding:10px 0;
+    background:none;border:none;
+    color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;cursor:pointer;
+  }
+  .hand-tab:hover{color:var(--cyan);}
+  .hand-tab .hand-count{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:18px;height:18px;padding:0 5px;border-radius:9px;
+    background:var(--cyan);color:var(--void);font-weight:700;
+  }
+  .hand-caret{transition:transform .18s ease;}
+  .hand-dock.expanded .hand-caret{transform:rotate(180deg);}
+  .hand-sort{
+    display:flex;align-items:center;gap:6px;
+    margin-left:auto;
+    padding:10px 16px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-dim);
+    text-transform:uppercase;
+  }
+  .hand-sort select{
+    background:var(--panel-alt);border:1px solid var(--line-bright);color:var(--ink);
+    font-family:var(--mono);font-size:10px;text-transform:uppercase;
+    padding:2px 6px;cursor:pointer;
+  }
+  .hand-sort select:focus{outline:none;border-color:var(--cyan);}
+  .hand-icon-btn{
+    display:none;
+    align-items:center;justify-content:center;
+    background:none;border:1px solid var(--line-bright);color:var(--ink-dim);
+    cursor:pointer;font-size:14px;line-height:1;padding:3px 8px;
+  }
+  .hand-icon-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .sort-wrap{position:relative;display:inline-flex;align-items:center;}
+  @media (max-width:640px){
+    .hand-sort label{display:none;}
+    .sort-wrap > select{
+      position:absolute;top:0;left:0;width:100%;height:100%;
+      opacity:0;border:0;padding:0;z-index:2;
+    }
+    .hand-sort .hand-icon-btn{display:inline-flex;}
+  }
+
+  /* ===== hand filter menu ===== */
+  .hand-filter-btn{
+    display:flex;align-items:center;gap:6px;
+    background:none;border:1px solid var(--line-bright);color:var(--ink-dim);
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 9px;cursor:pointer;line-height:1;
+  }
+  .hand-filter-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .hand-filter-btn.active{color:var(--cyan);border-color:var(--cyan);}
+  .hand-filter-btn .fico{
+    display:none;font-size:15px;line-height:1;flex:none;
+  }
+  .hand-filter-btn .fcount{
+    display:none;align-items:center;justify-content:center;
+    min-width:15px;height:15px;padding:0 4px;border-radius:8px;
+    background:var(--cyan);color:var(--void);font-weight:700;font-size:9px;
+  }
+  .hand-filter-btn.active .fcount{display:inline-flex;}
+  @media (max-width:640px){
+    .hand-filter-btn{padding:5px 8px;}
+    .hand-filter-btn .flabel{display:none;}
+    .hand-filter-btn .fico{display:inline-block;}
+  }
+  .filter-menu{
+    top:auto;
+    bottom:calc(100% + 8px);
+    right:0;
+    min-width:250px;
+    z-index:300;
+  }
+  .filter-row{
+    position:relative;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:9px 10px;
+    cursor:pointer;
+  }
+  .filter-row:hover{background:var(--stat-bg);}
+  .filter-row + .filter-row{border-top:1px solid var(--line);}
+  .filter-cat{
+    font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  .filter-val{
+    font-family:var(--body);font-weight:700;font-size:13.5px;color:var(--cyan);
+  }
+  .filter-row.off .filter-val{color:var(--ink-dim);font-weight:600;}
+  .filter-row > select{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    opacity:0;border:0;padding:0;margin:0;cursor:pointer;z-index:2;
+  }
+  .filter-clear{
+    width:100%;
+    margin-top:4px;
+    background:none;border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 0;cursor:pointer;
+  }
+  .filter-clear:hover{color:var(--cyan);border-color:var(--cyan);}
+  .hc-state{
+    font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--line-bright);color:var(--ink-dim);
+    padding:1px 4px;margin-left:6px;
+  }
+  .hc-state[data-state="exhausted"]{color:var(--amber);border-color:var(--amber);}
+  .hc-state[data-state="played"]{color:var(--cyan);border-color:var(--cyan-dim);}
+  .hc-state[data-state="trashed"]{color:var(--brown);border-color:var(--brown);}
+  .hand-card[data-state="trashed"]{
+    background:
+      linear-gradient(180deg, rgba(154,102,54,.34) 0%, rgba(154,102,54,.20) 100%),
+      linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border-color:var(--brown);
+  }
+  .hand-card[data-state="exhausted"]{
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,.34) 100%),
+      linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+  }
+  .hand-view{
+    /* out of the dock's flow, so the bar keeps its place at the bottom
+       and the cards sit behind it */
+    position:absolute;left:0;right:0;bottom:0;
+    height:0;overflow:hidden;
+    transition:height .22s ease;
+    background:transparent;
+  }
+  .hand-dock.expanded .hand-view{
+    /* just tall enough to reach the top of the resting cards */
+    height:calc(var(--hand-card-h) + var(--hand-bar-h, 44px) + 8px);
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y;
+  }
+  /* room for the 62px hover pop plus shadow, added only while a card is up */
+  .hand-dock.expanded .hand-view.roomy{
+    height:calc(var(--hand-card-h) + var(--hand-bar-h, 44px) + 100px);
+    transition:none;
+  }
+  .hand-view{scrollbar-width:none;}
+  .hand-view::-webkit-scrollbar{display:none;}
+  .hand-slider{
+    position:absolute;left:0;right:0;top:0;
+    height:8px;
+    display:none;
+    cursor:pointer;
+    touch-action:none;
+  }
+  .hand-dock.expanded .hand-slider.on{display:block;}
+  .hand-slider-track{
+    position:absolute;left:12px;right:12px;top:3px;
+    height:3px;
+    background:var(--line);
+  }
+  .hand-slider-thumb{
+    position:absolute;top:2px;
+    height:5px;
+    min-width:28px;
+    background:var(--line-bright);
+    border-radius:3px;
+  }
+  .hand-slider:hover .hand-slider-thumb,
+  .hand-slider.dragging .hand-slider-thumb{background:var(--cyan);}
+  .hand{
+    display:flex;align-items:flex-end;
+    justify-content:center;
+    justify-content:safe center;
+    padding:12px 24px calc(var(--hand-bar-h, 44px) + 8px);
+    height:100%;
+    width:max-content;
+    min-width:100%;
+  }
+  .hand-card{
+    position:relative;
+    width:var(--hand-card-w);height:var(--hand-card-h);flex:none;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    border-radius:6px;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);
+    padding:12px 12px 10px;
+    cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease, z-index .16s ease;
+    display:flex;flex-direction:column;gap:6px;
+    /* --hand-step is the visible width of each card before the next overlaps
+       it; set by updateHandSpread() between 67% (loose) and 34% (tight) */
+    margin-right:calc(var(--hand-step, 67px) - var(--hand-card-w));
+  }
+  .hand-card:last-child{margin-right:0;}
+  .hand-card:hover{
+    transform:translateY(-55px) scale(1.06);
+    box-shadow:0 18px 40px rgba(0,0,0,.6);
+    border-color:var(--cyan);
+    z-index:500;
+  }
+  .hand-card.popped{
+    transform:translateY(-55px) scale(1.06);
+    box-shadow:0 18px 40px rgba(0,0,0,.6);
+    border-color:var(--cyan);
+    z-index:500;
+  }
+  .hand-card .hc-head{
+    display:flex;align-items:flex-start;gap:6px;
+  }
+  .hand-card .hc-name{
+    flex:1;min-width:0;
+    font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.03em;
+    color:var(--cyan);text-transform:uppercase;line-height:1.2;
+  }
+  .hand-card .hc-traits{
+    font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--ink-mid);
+  }
+  .hand-card .hc-secs{display:flex;flex-direction:column;gap:6px;overflow:hidden;flex:1;}
+  .hand-card .hc-sec{font-size:11px;line-height:1.3;color:var(--ink);white-space:pre-wrap;}
+  .hand-card .hc-sec b{display:block;font-family:var(--mono);font-size:8.5px;color:var(--ink-dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1px;}
+  .hand-card .hc-sec b .hc-cost-inline{
+    display:inline-flex;align-items:center;gap:2px;text-transform:none;
+    font-weight:700;font-size:10px;color:var(--icon-energy);letter-spacing:0;
+    margin-left:4px;vertical-align:middle;
+  }
+  .hand-card .hc-sec b .hc-cost-inline svg{width:11px;height:11px;flex:none;}
+  .hand-card .hc-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    border-top:1px solid var(--line);padding-top:6px;margin-top:auto;
+  }
+  .hand-card .hc-tags{
+    display:flex;align-items:center;
+    font-size:16px;line-height:1;
+  }
+  .hand-card .hc-cost{
+    flex:none;
+    display:flex;align-items:center;justify-content:center;gap:2px;
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-energy);
+    border:1px solid var(--icon-energy);
+    padding:1px 4px;
+    line-height:1.1;
+  }
+  .hand-card .hc-cost svg{width:13px;height:13px;flex:none;}
+  .hand-card .hc-charges{
+    flex:none;
+    display:flex;align-items:center;justify-content:center;gap:2px;
+    min-width:22px;
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-charged);
+    border:1px solid var(--icon-charged);
+    padding:1px 4px;
+    line-height:1.1;
+  }
+  .hand-card .hc-charges svg{width:13px;height:13px;flex:none;}
+  .hand-empty{
+    align-self:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  .tbuilt-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:11px;color:var(--ink-dim);line-height:1.4;
+    border:1px solid var(--line-bright);background:var(--panel);
+    padding:1px 6px;cursor:pointer;margin-left:4px;
+  }
+  .tbuilt-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .tech-card.state-hand .tbuilt-btn{color:var(--cyan);border-color:var(--cyan-dim);}
+  .tech-card.state-exhausted .tbuilt-btn{color:var(--amber);border-color:var(--amber);}
+  .tech-card.state-trashed .tbuilt-btn{color:var(--brown);border-color:var(--brown);}
 
   .menu-bar{
     position:sticky;top:0;z-index:50;
@@ -793,6 +1087,7 @@
 <nav class="menu-bar">
   <div class="menu-brand">Starship Dossier</div>
   <div class="menu-actions">
+    <button type="button" class="menu-toggle" id="handPopoutLaunchBtn" onclick="openHandPopout()">⧉ Hand Window</button>
     <button type="button" class="menu-toggle" onclick="exportSheet()">⇩ Export</button>
     <button type="button" class="menu-toggle" onclick="importSheet()">⇧ Import</button>
     <button type="button" id="themeToggle" class="menu-toggle" onclick="toggleTheme()">☀ Light Mode</button>
@@ -837,7 +1132,9 @@
           <option>Jump Class</option>
           <option>Striker Class</option>
           <option>Discovery Class</option>
+          <option>Bulwark Class</option>
         </select>
+        <button type="button" class="info-btn" onclick="openClassInfo()" title="Show class details">i</button>
       </div>
 
       <div class="class-body">
@@ -863,8 +1160,8 @@
           <div class="lbl">Storage</div>
         </div>
         <div class="stat speed">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="val" style="justify-content:center"><input id="speed" value="2" maxlength="2" style="width:26px"></div>
+          <svg class="icon dec" onclick="decrementStat('speedCur')" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="val"><input id="speedCur" value="2" maxlength="2"><span class="sep">/</span><input id="speedMax" value="2" maxlength="2"></div>
           <div class="lbl">Speed</div>
         </div>
       </div>
@@ -873,25 +1170,26 @@
         <div class="rhead" onclick="toggleTurnBox(this)">At the start of your turn <span class="collapse-ind">▼</span></div>
         <ul>
           <li>Recharge <b>Energy</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg> <button type="button" class="rule-btn" onclick="rechargeEnergy()" title="Set energy to max">↻</button></li>
-          <li>Refresh any exhausted <b>Technologies</b>, <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> or <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> <button type="button" class="rule-btn" onclick="refreshAllTechs()" title="Refresh all exhausted techs, modules and deployables">↻</button></li>
+          <li>Refresh any exhausted <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>, <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> or <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> <button type="button" class="rule-btn" onclick="refreshAllTechs()" title="Refresh all exhausted techs, modules and deployables">↻</button></li>
+          <li>Draw 5 cards from your Deck. Play 1 <b>Technology</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> (* see Science). Discard the remainder.</li>
           <li>Move any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> (up to <b>Speed</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> distance)</li>
           <li>Destroy any <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> that do not meet their requirements</li>
-          <li>Build any 1 <b>Technology</b> from your <b>Hand</b> (apply its On Build effect)</li>
         </ul>
       </div>
 
       <div class="rules-block" id="duringBox">
         <div class="rhead" onclick="toggleTurnBox(this)">During your turn <span class="collapse-ind">▼</span></div>
         <ul>
-          <li>Activate <b>Technologies</b>, <b>Deployable</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> or <b>Module</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> effects (pay Energy where required)
+          <li>Activate <b>Technologies</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>, <b>Deployable</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> or <b>Module</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> effects (pay Energy where required)
             <ul class="sub">
-              <li>Unless otherwise noted, after activating a Technology, Deployable or Module it is Exhausted.</li>
+              <li>Unless otherwise noted, a Technology, Deployable or Module cannot use its passive or activate when Exhausted.</li>
             </ul>
           </li>
-          <li>Some Technologies create <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> and <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg>
+          <li>When you Create <b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> and <b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> you place them on the board
             <ul class="sub">
-              <li><b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> are placed on the board represented by a token. They have a Hull value, Duration until they are destroyed and Speed that they may move each turn. Most <b>Deployables</b> also have conditions for removal and effects they can activate for free.</li>
-              <li><b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> are placed on the board represented by a token. <b>Modules</b> have a Hull value, they generally use your ships Shield and they have requirements they must meet. As long as these req. are met their effects and/or abilities can be used.</li>
+              <li><b>Modules</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> cannot share the space with other objects. They can be built in any empty space that meets their Requirements.</li>
+              <li><b>Deployables</b><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg> can share a location with objects. They can be built in any adjacent space to your ship.</li>
+              <li>Unless otherwise noted, "Adjacent" means horizontally/vertically adjacent NOT diagonal.</li>
             </ul>
           </li>
         </ul>
@@ -902,18 +1200,23 @@
     <!-- SKILLS -->
     <div class="panel skills-panel">
       <div class="bl"></div><div class="br"></div>
-      <div class="eyebrow">Crew Skills</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="eyebrow" style="margin-bottom:0;">Crew Skills</div>
+        <div class="slot-controls">
+          <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
+        </div>
+      </div>
       <table class="skills">
         <tr><th>Name</th><th class="pt">Points</th><th class="pt">Penalty</th></tr>
         <tr><td>Cyber</td><td class="pt"><input id="skill-Cyber-pts" value="1"></td><td class="pt"><input id="skill-Cyber-pen" value="" placeholder="—"></td></tr>
         <tr><td>Diplomacy</td><td class="pt"><input id="skill-Diplomacy-pts" value="0"></td><td class="pt"><input id="skill-Diplomacy-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Engineering</td><td class="pt"><input id="skill-Engineering-pts" value="3"></td><td class="pt"><input id="skill-Engineering-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Leadership</td><td class="pt"><input id="skill-Leadership-pts" value="0"></td><td class="pt"><input id="skill-Leadership-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Logistics</td><td class="pt"><input id="skill-Logistics-pts" value="2"></td><td class="pt"><input id="skill-Logistics-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Navigation</td><td class="pt"><input id="skill-Navigation-pts" value="3"></td><td class="pt"><input id="skill-Navigation-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Engineering<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.6" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Engineering-pts" value="3"></td><td class="pt"><input id="skill-Engineering-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Leadership<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.5" r="3" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M6.5 19c.7-3.2 3-5 5.5-5s4.8 1.8 5.5 5" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round"/></svg></td><td class="pt"><input id="skill-Leadership-pts" value="0"></td><td class="pt"><input id="skill-Leadership-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Logistics<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Logistics-pts" value="2"></td><td class="pt"><input id="skill-Logistics-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Navigation<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Navigation-pts" value="3"></td><td class="pt"><input id="skill-Navigation-pen" value="" placeholder="—"></td></tr>
         <tr><td>Piloting</td><td class="pt"><input id="skill-Piloting-pts" value="3"></td><td class="pt"><input id="skill-Piloting-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Sensors</td><td class="pt"><input id="skill-Sensors-pts" value="2"></td><td class="pt"><input id="skill-Sensors-pen" value="" placeholder="—"></td></tr>
-        <tr><td>Science</td><td class="pt"><input id="skill-Science-pts" value="-1"></td><td class="pt"><input id="skill-Science-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Sensors<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 16c2.2-3 4.9-4.5 8-4.5s5.8 1.5 8 4.5" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><path d="M7 12.5c1.4-1.8 3.1-2.7 5-2.7s3.6.9 5 2.7" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.6" fill="var(--cyan)"/></svg></td><td class="pt"><input id="skill-Sensors-pts" value="2"></td><td class="pt"><input id="skill-Sensors-pen" value="" placeholder="—"></td></tr>
+        <tr><td>Science<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></td><td class="pt"><input id="skill-Science-pts" value="-1"></td><td class="pt"><input id="skill-Science-pen" value="" placeholder="—"></td></tr>
       </table>
     </div>
   </div>
@@ -925,12 +1228,12 @@
     <div class="panel">
       <div class="bl"></div><div class="br"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="eyebrow" style="margin-bottom:0;">Traits &amp; Crew</div>
+        <div class="eyebrow" style="margin-bottom:0;">Traits &amp; Officers<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.5" r="3" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M6.5 19c.7-3.2 3-5 5.5-5s4.8 1.8 5.5 5" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round"/></svg></div>
         <div class="slot-controls">
+          <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="slotRemoveBtn" onclick="showSlotPicker(event, this, 'crewGrid', '.cname')" title="Remove a slot">−</button>
-          <button type="button" class="slot-btn" onclick="addCrewSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
-            <button type="button" class="slot-btn" onclick="togglePresetMenu(event)" title="Add from catalog">☰</button>
+            <button type="button" class="slot-btn" onclick="togglePresetMenu(event)" title="Add from catalog">+</button>
             <div class="preset-menu" id="presetMenu"></div>
           </div>
         </div>
@@ -938,18 +1241,9 @@
       <div class="crew-grid" id="crewGrid" style="margin-top:12px;">
         <div class="crew-card">
           <div class="ch">Slot 01</div>
-          <div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
+          <div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
           <textarea placeholder="Effect or role..."></textarea>
-        </div>
-        <div class="crew-card">
-          <div class="ch">Slot 02</div>
-          <div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
-          <textarea placeholder="Effect or role..."></textarea>
-        </div>
-        <div class="crew-card">
-          <div class="ch">Slot 03</div>
-          <div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>
-          <textarea placeholder="Effect or role..."></textarea>
+          <div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>
         </div>
       </div>
     </div>
@@ -958,24 +1252,24 @@
     <div class="panel tech-panel">
       <div class="bl"></div><div class="br"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="eyebrow" style="margin-bottom:0;">Technologies</div>
+        <div class="eyebrow" style="margin-bottom:0;">Technologies<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="slot-controls">
+          <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
           <button type="button" class="slot-btn" id="techSlotRemoveBtn" onclick="showSlotPicker(event, this, 'techGrid', '.tname')" title="Remove a slot">−</button>
-          <button type="button" class="slot-btn" onclick="addTechSlot()" title="Add slot">+</button>
           <div class="slot-menu-wrap">
-            <button type="button" class="slot-btn" onclick="toggleTechPresetMenu(event)" title="Add from catalog">☰</button>
+            <button type="button" class="slot-btn" onclick="toggleTechPresetMenu(event)" title="Add from catalog">+</button>
             <div class="preset-menu" id="techPresetMenu"></div>
           </div>
         </div>
       </div>
       <div class="tech-grid" id="techGrid" style="margin-top:12px;">
-        <div class="tech-card">
-          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
+        <div class="tech-card" data-state="played">
+          <div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-state="played" onclick="toggleTechState(this)" title="Cycle state: hand / played / exhausted / trash">⇅</button><button type="button" class="t-delete" onclick="removeTechCard(this)" title="Delete this tech">🗑</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>
           <div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>
           <div class="tsecs">
             <div class="tsec onbuild hid">
-              <div class="tsec-head"><span>On Build</span><span class="tdiamond" title="On Build energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div>
-              <textarea placeholder="On Build..."></textarea>
+              <div class="tsec-head"><span>On Play</span><span class="tdiamond" title="On Play energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div>
+              <textarea placeholder="On Play..."></textarea>
             </div>
             <div class="tsec passive hid">
               <div class="tsec-head"><span>Passive</span></div>
@@ -990,7 +1284,7 @@
             <span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>
             <span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>
             <span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>
-            <span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>
+            <span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="tcharges-input" maxlength="4"></span>
             <span class="tdepbtn" data-deploy="normal" title="Normal">⍙</span>
           </div>
         </div>
@@ -1002,24 +1296,24 @@
   <div class="panel" style="margin-top:16px;">
     <div class="bl"></div><div class="br"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div class="eyebrow" style="margin-bottom:0;">Modules / Deployables</div>
+      <div class="eyebrow" style="margin-bottom:0;">Modules<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 21 8v8l-9 5.5L3 16V8l9-5.5Z" stroke="var(--icon-cyan)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="var(--icon-cyan)" stroke-width="1.6"/></svg> / Deployables<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg></div>
       <div class="slot-controls">
+        <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
         <button type="button" class="slot-btn" id="modSlotRemoveBtn" onclick="showSlotPicker(event, this, 'modGrid', '.mname')" title="Remove a slot">−</button>
-        <button type="button" class="slot-btn" onclick="addModSlot()" title="Add slot">+</button>
         <div class="slot-menu-wrap">
-          <button type="button" class="slot-btn" onclick="toggleModPresetMenu(event)" title="Add from catalog">☰</button>
+          <button type="button" class="slot-btn" onclick="toggleModPresetMenu(event)" title="Add from catalog">+</button>
           <div class="preset-menu" id="modPresetMenu"></div>
         </div>
       </div>
     </div>
     <div class="mod-grid" id="modGrid" style="margin-top:12px;">
       <div class="mod-card">
-        <div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="mexhaust-btn" data-exhaust="false" onclick="toggleModExhaust(this)" title="Exhaust this module">Exhaust</button><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>
+        <div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="mexhaust-btn" data-exhaust="false" onclick="toggleModExhaust(this)" title="Exhaust this module">Exhaust</button><button type="button" class="m-delete" onclick="removeModCard(this)" title="Delete this module">🗑</button><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>
         <div class="msub"><input class="mreq" placeholder="REQUIREMENTS"></div>
         <div class="msecs">
           <div class="msec onbuild hid">
-            <div class="msec-head"><span>On Build</span></div>
-            <textarea placeholder="On Build..."></textarea>
+            <div class="msec-head"><span>On Play</span></div>
+            <textarea placeholder="On Play..."></textarea>
           </div>
           <div class="msec passive hid">
             <div class="msec-head"><span>Passive</span></div>
@@ -1031,11 +1325,12 @@
           </div>
         </div>
         <div class="mfoot">
+          <span class="mticker" data-mt="offense" title="Tech type: Offense">⚔</span>
           <button type="button" class="mtype-btn" data-mtype="module" title="Module"></button>
           <span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>
           <span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>
-          <span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>
-          <span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcharges-input" maxlength="4"></span>
+          <span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>
+          <span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mcharges-input" maxlength="4"></span>
         </div>
       </div>
     </div>
@@ -1045,9 +1340,24 @@
 </div>
 
 <script>
+  var HAND_CHANNEL_NAME = 'frigate-hand-sync';
+  var HAND_CHANNEL = null;
+  var HAND_INSTANCE_ID = 'hand-' + Math.random().toString(36).slice(2);
+
   function toggleTurnBox(rhead){
     var box = rhead.parentNode;
     box.classList.toggle('collapsed');
+  }
+  function togglePanelCollapse(btn){
+    var panel = btn.closest('.panel');
+    if(!panel) return;
+    panel.classList.toggle('collapsed');
+    syncGridCollapse(panel.parentNode);
+  }
+  function syncGridCollapse(container){
+    if(!container || !container.classList) return;
+    if(!container.classList.contains('grid') && !container.classList.contains('row2')) return;
+    container.classList.toggle('has-collapsed', !!container.querySelector('.panel.collapsed'));
   }
   function rechargeEnergy(){
     var cur = document.getElementById('energyCur');
@@ -1055,14 +1365,15 @@
     if(cur && max) cur.value = max.value;
   }
   function refreshAllTechs(){
-    var techs = document.querySelectorAll('#techGrid .tech-card .texhaust-btn');
+    var techs = document.querySelectorAll('#techGrid .tech-card');
     for(var i=0;i<techs.length;i++){
-      applyTechExhaust(techs[i].closest('.tech-card'), false);
+      if(techState(techs[i]) === 'exhausted') setTechState(techs[i], 'played');
     }
     var mods = document.querySelectorAll('#modGrid .mod-card .mexhaust-btn');
     for(var j=0;j<mods.length;j++){
       applyModExhaust(mods[j].closest('.mod-card'), false);
     }
+    refreshHand();
   }
   function decrementStat(id){
     var el = document.getElementById(id);
@@ -1072,8 +1383,13 @@
     if(v > 0) el.value = v - 1;
   }
   var SKILL_DESCRIPTIONS = {
-    'Science': '- In the first Build phase, you may build {SCIENCE} Technologies.',
-    'Sensors': 'Used to calculate the range of effects triggered by Technologies, Modules and Deployables'
+    'Engineering': 'Engineering is added to Hull HP (min. 0)',
+    'Leadership': 'Leadership is the maximum number of Traits & Officers slots (min. 0)',
+    'Logistics': 'Logistics is added to Storage (min. 0)',
+    'Navigation': 'Twice Navigation is added to Speed (min. 0)',
+    'Piloting': 'Sometimes you might have to dodge!!!',
+    'Science': 'On turn 1 you may play {SCIENCE} extra Technologies (1/2 Science + Science Penalty, rounded down, min 0.)',
+    'Sensors': 'Sensor range = {SENSORS}, used to calculate the range of some effects and attacks'
   };
   function skillValue(skillName){
     var pts = document.getElementById('skill-' + skillName + '-pts');
@@ -1085,7 +1401,8 @@
   }
   function skillDescription(skillName){
     var desc = SKILL_DESCRIPTIONS[skillName] || '';
-    desc = desc.replace(/\{SCIENCE\}/g, Math.max(1, skillValue('Science')));
+    desc = desc.replace(/\{SCIENCE\}/g, Math.max(0, Math.floor(skillValue('Science') / 2)));
+    desc = desc.replace(/\{SENSORS\}/g, Math.max(0, skillValue('Sensors') * 2));
     return desc;
   }
   function showSkillInfo(e, btn, skillName){
@@ -1142,6 +1459,7 @@
     var next = current === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     updateToggleLabel(next);
+    broadcastHandSnapshot();
   }
 
   function slotLabel(n){
@@ -1158,8 +1476,9 @@
     card.className = 'crew-card';
     card.innerHTML =
       '<div class="ch">' + slotLabel(n) + '</div>' +
-      '<div class="cname-row"><input class="cname" placeholder="TRAIT / CREW NAME"><span class="crew-tag-btn" data-combat="0">⚔</span></div>' +
-      '<textarea placeholder="Effect or role..."></textarea>';
+      '<div class="cname-row"><input class="cname" placeholder="TRAIT / OFFICER"><span class="crew-tag-btn" data-combat="0">⚔</span></div>' +
+      '<textarea placeholder="Effect or role..."></textarea>' +
+      '<div class="cfoot"><span class="cticker" data-ctype="offense" title="Crew type: Offense">⚔</span></div>';
     grid.appendChild(card);
     refreshSlotControls();
   }
@@ -1179,21 +1498,44 @@
   }
 
   var PRESETS = [
-    {name:'Ambassador Kamar', text_description:'You have the legal right to travel into People’s Star space.<b><c>Diplomacy</c></b>', combat_only:false},
-    {name:'Arc Agent Tha’n', text_description:'You have the legal right to travel into Vedlu space. <b><c>Leadership<c></b>', combat_only:false},
-    {name:'Captain Janson', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
-    {name:'Co-leadership', text_description:'When assigning a Move value you may instead roll to assign it randomly. It does not cost energy to assign this way.', combat_only:true},
-    {name:'Conservative', text_description:'At the start of a round, if you did not play any “Offense” technology cards last round, gain 2 shields.', combat_only:true},
-    {name:'Hoarding', text_description:'+4', combat_only:false},
-    {name:'Motherly', text_description:'When an allied ship within scanning range takes shield damage, you may take that damage instead.', combat_only:true},
-    {name:'Peace Loving', text_description:'When you fail a diplomacy check that would initiate combat, you may reroll.', combat_only:false},
-    {name:'Scrappy', text_description:'Once per round, when you take Hull damage, you may make an Engineering Check against the enemy’s DC to negate the damage.', combat_only:true},
-    {name:'The Sky Walker', text_description:'Checks for piloting and navigation are made with advantage. <b><c>Navigation</c></b>', combat_only:true},
-    {name:'Watchful', text_description:'Your scan range is doubled.', combat_only:true},
-    {name:'Zealots', text_description:'Expedition penalties are ignored. When you would receive any type of Crew Penalty gain an Inspiration.', combat_only:false}
+    {name:'Ambassador Kamar', type:'science', text_description:'You have the legal right to travel into People’s Star space.<b><c>Diplomacy</c></b>', combat_only:false},
+    {name:'Arc Agent Tha’n', type:'science', text_description:'You have the legal right to travel into Vedlu space. <b><c>Leadership<c></b>', combat_only:false},
+    {name:'Captain Janson', type:'science', text_description:'If you are scanned, you are notified and can respond with any known ship design.<b><c>Sensors</c></b>', combat_only:false},
+    {name:'Citadel', type:'defense', text_description:'You begin combat with 2 Core modules. Core modules gain "Req.: Adjacent to Core" and share your Hull HP.', combat_only:true},
+     {name:'Co-leadership', type:'science', text_description:'At the start of your turn if you succeed a DC 12 Leadership Check you gain 1 Energy (this may exceed your Max Energy).', combat_only:true},
+    {name:'Conservative', type:'defense', text_description:'At the start of your turn, if you did not activate any “Offense” technologies, modules or deployables last round, gain 2 shields.', combat_only:true},
+     {name:'Hoarding', type:'science', text_description:'+4 Storage', combat_only:false},
+     {name:'Heat Sinks', type:'movement', text_description:'When you roll an attack, add one Heat here or to any ability that can take Heat. When you Move, discard any Heat here, gain 1 Move per 2 Heat discarded.', combat_only:true},
+    {name:'Jamming', type:'science', text_description:'When you Create Deployables, you may put them aside instead of on the board. They cannot activate or be targetted and do not occupy a particular space. At the start of your next turn, place them on the board following their normal Creation rules.', combat_only:true},
+    {name:'Crew Munitions Assignment', type:'offense', text_description:'When you add 1 or more charges to a Technology, Module or Deployable you may add 1 additional. Take 1 penalty to any Crew Skill.', combat_only:true},
+     {name:'Motherly', type:'defense', text_description:'When an allied ship within Sensor range takes Hull damage, you may reduce it by 1 and take 1 Hull HP damage to your Core Module.', combat_only:true},
+     {name:'Peace Loving', type:'science', text_description:'When you fail a Diplomacy check that would initiate combat, you may reroll once.', combat_only:false},
+     {name:'Scrappy', type:'defense', text_description:'Once per round, when you take Hull damage, you may make an Engineering Save against the enemy’s DC to take 1 less Hull HP damage.', combat_only:true},
+     {name:'Sir Athruul', type:'movement', text_description:'After you complete your Move, you may Move 1 any asteroids which your Modules passed adjacent to.', combat_only:true},
+         {name:'The Sky Walker', type:'movement', text_description:'+1 Navigation\n\nChecks for piloting and navigation are made with advantage. <b><c>Navigation</c></b>', combat_only:true},
+         {name:'Watchful', type:'science', text_description:'Sensor range is calculated by 2 x Sensors plus Cyber', combat_only:true},
+    {name:'Zealots', type:'science', text_description:'Expedition penalties are ignored. When you would receive any type of Crew Penalty gain an Inspiration.', combat_only:false},
+    {name:'Fire-Control Director', type:'offense', combat_only:true, text_description:'Gain +1 range on all weapons'},
+    {name:'Charge Battery', type:'science', combat_only:true, text_description:'The first time you add Charge to a Technology, Module or Deployable this combat, add 2 extra.'},
+    {name:'Advancement', type:'science', combat_only:false, text_description:'+1 DC'},
+    {name:'Energy Conduit', type:'science', combat_only:true, text_description:'At the end of your turn, if you have at least 1 Energy remaining, an ally within Sensor range gains +1 Energy on their next turn (this may exceed their Energy max).'}
   ];
   PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
 
+  var CREW_TYPES = [
+    {key:'offense', icon:'⚔', label:'Offense'},
+    {key:'defense', icon:'🛡', label:'Defense'},
+    {key:'movement', icon:'➤', label:'Movement'},
+    {key:'science', icon:'⚛︎', label:'Science'}
+  ];
+  function crewTypeIcon(key){
+    for(var i=0;i<CREW_TYPES.length;i++){ if(CREW_TYPES[i].key===key) return CREW_TYPES[i].icon; }
+    return '';
+  }
+  function crewTypeMeta(key){
+    for(var i=0;i<CREW_TYPES.length;i++){ if(CREW_TYPES[i].key===key) return CREW_TYPES[i]; }
+    return CREW_TYPES[0];
+  }
   function stripTags(html){
     var div = document.createElement('div');
     div.innerHTML = html;
@@ -1202,6 +1544,15 @@
   function buildPresetMenu(){
     var menu = document.getElementById('presetMenu');
     menu.innerHTML = '';
+    var blankItem = document.createElement('button');
+    blankItem.type = 'button';
+    blankItem.className = 'preset-item';
+    blankItem.textContent = 'Blank';
+    blankItem.onclick = function(){
+      addCrewSlot();
+      closePresetMenu();
+    };
+    menu.appendChild(blankItem);
     PRESETS.forEach(function(p){
       var item = document.createElement('button');
       item.type = 'button';
@@ -1209,12 +1560,22 @@
       var label = document.createElement('span');
       label.textContent = p.name;
       item.appendChild(label);
+      var firstTrailing = null;
       if(p.combat_only){
         var tag = document.createElement('span');
         tag.className = 'preset-tag';
         tag.textContent = 'combat';
         item.appendChild(tag);
+        if(!firstTrailing) firstTrailing = tag;
       }
+      if(p.type){
+        var ttag = document.createElement('span');
+        ttag.className = 'preset-tag preset-type';
+        ttag.textContent = crewTypeIcon(p.type);
+        item.appendChild(ttag);
+        if(!firstTrailing) firstTrailing = ttag;
+      }
+      if(firstTrailing) firstTrailing.style.marginLeft = 'auto';
       item.onclick = function(){
         pickPreset(p);
         closePresetMenu();
@@ -1236,6 +1597,7 @@
     card.querySelector('textarea').value = stripTags(p.text_description);
     var tag = card.querySelector('.crew-tag-btn');
     if(p.combat_only) setCombatTag(tag, true);
+    if(p.type) setCrewType(card.querySelector('.cticker'), p.type);
   }
   function toggleCombatTag(el){
     setCombatTag(el, el.getAttribute('data-combat') === '0');
@@ -1243,6 +1605,18 @@
   function setCombatTag(el, on){
     el.setAttribute('data-combat', on ? '1' : '0');
     el.classList.toggle('on', on);
+  }
+  function setCrewType(el, key){
+    var meta = crewTypeMeta(key);
+    el.setAttribute('data-ctype', meta.key);
+    el.textContent = meta.icon;
+    el.title = 'Crew type: ' + meta.label;
+  }
+  function cycleCrewType(el){
+    var keys = CREW_TYPES.map(function(t){return t.key;});
+    var idx = keys.indexOf(el.getAttribute('data-ctype'));
+    var next = keys[(idx + 1) % keys.length];
+    setCrewType(el, next);
   }
   document.addEventListener('click', function(e){
     var menu = document.getElementById('presetMenu');
@@ -1253,6 +1627,8 @@
   document.getElementById('crewGrid').addEventListener('click', function(e){
     var el = e.target.closest('.crew-tag-btn');
     if(el) toggleCombatTag(el);
+    var c = e.target.closest('.cticker');
+    if(c) cycleCrewType(c);
   });
   buildPresetMenu();
   refreshSlotControls();
@@ -1265,24 +1641,33 @@
     {key:'science', icon:'⚛︎', label:'Science'}
   ];
   var TECHP_RESETS = [
-    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nYour Cannons gain +1 Dmg and Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Create Module Cannon.', onbuildenergy:'', onactivateenergy:'1', passive:'', tt:'offense', storage:'0', deploy:'module'},
-    {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay  1 ⚡to:\n\nMove a “Cannon” Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'Ion Torpedo', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', charges:'0', deploy:true},
-    {name:'P.D.', traits:'[Module]', onbuild:'Create Module P.D.', passive:'', onactivate:'', onactivateenergy:'', tt:'defense', storage:'0', deploy:'module'},
-    {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 3 ⚡to Target an object:\n\nRange: 2 from any Offense Module, Check: Engr., Dmg: 0 *\n\n* Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'0', deploy:false},
-    {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Trash.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Rocket Array', traits:'charge 0', onbuild:'Place 1 charge on this card', passive:'', onactivate:'Exhaust to A) remove 1 charge, or B) if there are no charges Target an object: Range: 6 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
-    {name:'Repulsor Field', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Field', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
-    {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, exhaust to Move 1.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck. Trash.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Targeting Computer', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a Ballistic 💥 weapon you may reroll results of 1.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Graviton Engine', traits:'[Module]', onbuild:'Create Module Graviton Engine', passive:'Gain +2 Speed.', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:'module'},
-    {name:'Shield', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge to this OR remove a charge and Move a Module any number of spaces, it must touch another of your Modules.', tt:'offense', onactivateenergy:'2', storage:'0', deploy:false},
-    {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E. For 1 round Checks from enemy Deployables fail. After 1 round trash this.', tt:'defense', onactivateenergy:'1', storage:'0', deploy:false},
-    {name:'AI Piloting', traits:'', onbuild:'', passive:'When you would trigger an Asteroid collision, you do not and may enter the Asteroid’s square.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
-    {name:'Grav Vortexer', traits:'', onbuild:'', passive:'', onactivate:'Exhaust and pay 1E to add a charge token to this card OR remove 2 charge tokens to immediately Move 2 for any Modules.', tt:'science', onactivateenergy:'1', storage:'0', deploy:false}
+    {name:'Armor Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Armor', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'defense', storage:'0', deploy:'module'},
+    {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nYour Cannons and P.D. Modules gain +1 Dmg and +2 Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Cannon', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'offense', storage:'0', deploy:'module'},
+    {name:'Cannon Unit', traits:'[Module]', onbuild:'Create Module Cannon', passive:'', onactivate:'', onbuildenergy:'', onactivateenergy:'', tt:'offense', storage:'0', deploy:'module'},
+    {name:'Rotating Cannon', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nMove an Offense Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
+    {name:'Torpedo Launcher', traits:'', onbuild:'Place 4 charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to Create Deployable Ion Torpedo', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'2', charges:'4', deploy:true},
+    {name:'P.D. Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module P.D.', onactivateenergy:'2', tt:'defense', storage:'0', deploy:'module'},
+    {name:'Tract Beam', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to Target an Object:\n\nRange: Sensors from any Offense Module, Check: Cyber, Dmg: 0\n\nOn success Move the object 1 space', tt:'science', onactivateenergy:'3', storage:'1', deploy:false},
+    {name:'Full Volley', traits:'', onbuild:'', passive:'', onactivate:'Activate all “Cannon” and “P.D.” Modules for free. Discard.', tt:'offense', onactivateenergy:'0', storage:'0', deploy:false},
+    {name:'Rocket Array', traits:'', onbuild:'Place 1 charge on this card. Exhaust.', passive:'', onactivate:'Exhaust and remove 1 charge from this card to Target an object: Range: 9 from any, Attacks: 4, Dmg: 1', tt:'offense', onactivateenergy:'0', storage:'1', charges:'0', deploy:false},
+    {name:'Repulsor Unit', traits:'[Module] Class Tech', onbuild:'Create Module Repulsor Unit', passive:'', onactivate:'', tt:'defense', onactivateenergy:'', storage:'0', charges:'', deploy:'module'},
+    {name:'Phantom', traits:'Reaction Class Tech', onbuild:'', passive:'When an Object within Sensors range targets you with an Attack, Check or Save, Exhaust this to make a Piloting Check. On a success Move 1. If you move the Module targeted the target still remains on the original space, and may be negated as a result.', onactivate:'', tt:'movement', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Experimental Reconnaissance', traits:'Class Tech', onbuild:'', passive:'When an enemy ship is destroyed, you may gain 1 random tech card from their deck into yours, trash this.', onactivate:'', tt:'science', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Decomp Strikes', traits:'Class Tech', onbuild:'', passive:'When you make an attack roll with a module adjacent to an Asteroid or other terrain you may reroll each missed attack once.', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Unwinder Array', traits:'', onbuild:'Place 4 charges on this. Exhaust.', passive:'', onactivate:'Exhaust and remove 2 charges from this card to Target an object: Range: Cyber, Save: Cyber, Dmg: 0\n\nOn failed save the enemy’s Speed is reduced to 0 until your next turn', tt:'offense', onbuildenergy:'3', onactivateenergy:'', storage:'1', charges:'0', deploy:false},
+    {name:'Target Locking', traits:'Class Tech', onbuild:'', passive:'When you dmg an Object add 1 charge here (resets if you dmg a new target).', onactivate:'Exhaust to Target an object:\n\nRange: Sensors, Attacks: Charges, Dmg: 1', tt:'offense', onbuildenergy:'3', onactivateenergy:'', storage:'0', charges:'0', deploy:false},
+    {name:'Graviton Builder', traits:'[Module]', onbuild:'', passive:'', onactivate:'Exhaust to Create Module Graviton Engine', tt:'offense', onbuildenergy:'', onactivateenergy:'2', storage:'0', deploy:'module'},
+    {name:'Shield Generator', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove 1 charge and Gain 2 Shield.', tt:'defense', onactivateenergy:'1', storage:'1', charges:'0', deploy:false},
+    {name:'Turn Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge to this OR remove a charge and Move a Module any number of spaces to a location adjacent to another of your Modules.', tt:'offense', onactivateenergy:'1', storage:'1', charges:'0', deploy:false},
+    {name:'Chaff Clouds', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nFor 1 round Checks from enemy Deployables targeting you automatically fail. After 1 round trash this.', tt:'defense', onactivateenergy:'1', storage:'1', deploy:false},
+    {name:'Fire Shield', traits:'Class Tech', onbuild:'', passive:'When your shield takes any damage add 1 Heat token here.', onactivate:'Exhaust to Target all objects:\n\nRange:Sensors, Attacks:Heat tokens discarded, Dmg:1 ⚡', tt:'defense', onactivateenergy:'3', storage:'0', charges:'0', deploy:false},
+    {name:'Hardening Array', traits:'', onbuild:'Place 2 * Engineering charges on this card', passive:'', onactivate:'Exhaust and remove 1 charge to add 1 Hull to any Module within Sensor range (this may exceed max Hull).', onbuildenergy:'3', onactivateenergy:'', tt:'defense', storage:'2', charges:'0', deploy:false},
+    {name:'Comms Unit', traits:'[Module] Class Tech', onbuild:'Create Module Comms Unit', passive:'', onactivate:'', tt:'science', onbuildenergy:'', onactivateenergy:'', storage:'0', deploy:'module'},
+    {name:'AI Piloting', traits:'', onbuild:'', passive:'You do not trigger collisions with Asteroids and may move through them (but may not end your turn in an Asteroid or your Module is destroyed).', onactivate:'', tt:'offense', onactivateenergy:'', storage:'0', deploy:false},
+    {name:'Grav Jet', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to add a charge token to this card OR remove 2 charge tokens to immediately Move any Modules up to 2.', tt:'science', onactivateenergy:'1', storage:'0', charges:'0', deploy:false},
+    {name:'SU Scanners', traits:'', onbuild:'', passive:'', onactivate:'Exhaust to identify the location of any Stealth Objects in sensor range.', tt:'science', onactivateenergy:'2', storage:'0', deploy:false},
+    {name:'Ramming Sheilds', traits:'Class Tech', onbuild:'', passive:'You may move into spaces occupied by Modules. When you do, make an Engineering Check. If you beat the enemy’s ship DC you may move the enemy module 1 and deal 1 hull dmg to it. If you fail the check you are returned to your space.', onactivate:'', tt:'offense', onbuildenergy:'2', onactivateenergy:'', storage:'0', deploy:false}
   ];
   function techTypeMeta(key){
     for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
@@ -1299,10 +1684,10 @@
     var card = document.createElement('div');
     card.className = 'tech-card';
     card.innerHTML =
-      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="texhaust-btn" data-exhaust="false" onclick="toggleTechExhaust(this)" title="Exhaust this tech">Exhaust</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-state="played" onclick="toggleTechState(this)" title="Cycle state: hand / played / exhausted / trash">⇅</button><button type="button" class="t-delete" onclick="removeTechCard(this)" title="Delete this tech">🗑</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
       '<div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>' +
       '<div class="tsecs">' +
-        '<div class="tsec onbuild hid"><div class="tsec-head"><span>On Build</span><span class="tdiamond" title="On Build energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div><textarea placeholder="On Build..."></textarea></div>' +
+        '<div class="tsec onbuild hid"><div class="tsec-head"><span>On Play</span><span class="tdiamond" title="On Play energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div><textarea placeholder="On Play..."></textarea></div>' +
         '<div class="tsec passive hid"><div class="tsec-head"><span>Passive</span></div><textarea placeholder="Passive..."></textarea></div>' +
         '<div class="tsec onactivate hid"><div class="tsec-head"><span>On Activate</span><span class="tdiamond" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onactivate" maxlength="2"></span></div><textarea placeholder="On Activate..."></textarea></div>' +
       '</div>' +
@@ -1310,12 +1695,14 @@
         '<span class="tticker" data-tt="offense" title="Tech type: Offense">⚔</span>' +
         '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
         '<span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>' +
-        '<span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcharges-input" maxlength="4"></span>' +
+        '<span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="tcharges-input" maxlength="4"></span>' +
         '<span class="tdepbtn" data-deploy="normal" title="Normal">⍙</span>' +
       '</div>';
     grid.appendChild(card);
     refreshTechSections(card);
+    syncTechStateUI(card);
     refreshTechSlotControls();
+    refreshHand();
   }
   function removeTechSlot(){
     var grid = document.getElementById('techGrid');
@@ -1323,6 +1710,18 @@
       grid.removeChild(grid.lastElementChild);
     }
     refreshTechSlotControls();
+    refreshHand();
+  }
+  function removeTechCard(btn){
+    var card = btn.closest('.tech-card');
+    if(!card) return;
+    var grid = document.getElementById('techGrid');
+    if(grid.children.length <= 1){
+      addTechSlot();
+    }
+    grid.removeChild(card);
+    refreshTechSlotControls();
+    refreshHand();
   }
   function showSlotPicker(e, btn, gridId, nameSel){
     e.stopPropagation();
@@ -1370,6 +1769,7 @@
       relabelMods();
     }else{
       refreshTechSlotControls();
+      refreshHand();
     }
   }
   function closeSlotPicker(){
@@ -1384,6 +1784,15 @@
   function buildTechPresetMenu(){
     var menu = document.getElementById('techPresetMenu');
     menu.innerHTML = '';
+    var blankItem = document.createElement('button');
+    blankItem.type = 'button';
+    blankItem.className = 'preset-item';
+    blankItem.textContent = 'Blank';
+    blankItem.onclick = function(){
+      addTechSlot();
+      closeTechPresetMenu();
+    };
+    menu.appendChild(blankItem);
     var sorted = TECHP_RESETS.slice().sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
     sorted.forEach(function(p){
       var item = document.createElement('button');
@@ -1391,7 +1800,9 @@
       item.className = 'preset-item';
       var label = document.createElement('span');
       label.textContent = p.name;
+      if((p.traits || '').indexOf('Class Tech') !== -1) label.className = 'preset-class-tech';
       item.appendChild(label);
+      var firstTrailing = null;
       var deploySvg = '';
       if(p.deploy === 'module'){ deploySvg = DEPLOY_STATES[2].svg; }
       else if(p.deploy === true || p.deploy === 'true' || p.deploy === 1 || p.deploy === '1'){ deploySvg = DEPLOY_STATES[1].svg; }
@@ -1400,11 +1811,22 @@
         dtag.className = 'preset-tag preset-deploy';
         dtag.innerHTML = deploySvg;
         item.appendChild(dtag);
+        if(!firstTrailing) firstTrailing = dtag;
+      }
+      var st = parseInt(p.storage, 10);
+      if(!isNaN(st) && st > 0){
+        var sttag = document.createElement('span');
+        sttag.className = 'preset-tag preset-storage';
+        sttag.innerHTML = '<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg>' + st;
+        item.appendChild(sttag);
+        if(!firstTrailing) firstTrailing = sttag;
       }
       var icon = document.createElement('span');
-      icon.className = 'preset-tag';
+      icon.className = 'preset-tag preset-type';
       icon.textContent = techTypeMeta(p.tt).icon;
       item.appendChild(icon);
+      if(!firstTrailing) firstTrailing = icon;
+      firstTrailing.style.marginLeft = 'auto';
       item.onclick = function(){
         pickTechPreset(p);
         closeTechPresetMenu();
@@ -1438,6 +1860,603 @@
     setTechType(card.querySelector('.tticker'), t.tt);
     setTechDeploy(card.querySelector('.tdepbtn'), t.deploy);
     refreshTechSections(card);
+    refreshHand();
+  }
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  var TECH_STATE_ORDER = ['hand','played','exhausted','trashed'];
+  function isTechState(s){ return TECH_STATE_ORDER.indexOf(s) !== -1; }
+  function techState(card){
+    var s = card ? (card.getAttribute('data-state') || 'played') : 'played';
+    if(!isTechState(s)) s = 'played';
+    return s;
+  }
+  function setTechState(card, state){
+    if(!card) return;
+    if(!isTechState(state)) state = 'played';
+    card.setAttribute('data-state', state);
+    syncTechStateUI(card);
+  }
+  function syncTechStateUI(card){
+    if(!card) return;
+    card.classList.remove('state-hand','state-played','state-exhausted','state-trashed');
+    card.classList.add('state-' + techState(card));
+    var btn = card.querySelector('.tbuilt-btn');
+    if(btn){
+      btn.setAttribute('data-state', techState(card));
+      btn.textContent = (techState(card) === 'hand') ? '🂱' : '⇅';
+    }
+  }
+  function toggleTechState(btn){
+    var card = btn.closest ? btn.closest('.tech-card') : null;
+    if(!card) return;
+    var cur = techState(card);
+    var next = TECH_STATE_ORDER[(TECH_STATE_ORDER.indexOf(cur) + 1) % TECH_STATE_ORDER.length];
+    setTechState(card, next);
+    refreshHand();
+  }
+  function energyLabel(label, cost){
+    if(cost && cost !== '0'){
+      return label + ' <span class="hc-cost-inline">' + escapeHtml(cost) +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>';
+    }
+    return label;
+  }
+  function techCardViewData(card){
+    var typeBtn = card.querySelector('.tticker');
+    var meta = techTypeMeta(typeBtn.getAttribute('data-tt'));
+    var depBtn = card.querySelector('.tdepbtn');
+    var dep = depBtn ? depBtn.getAttribute('data-deploy') : 'normal';
+    var tag;
+    if(dep === 'module'){ tag = 'Module'; }
+    else if(dep === 'deployable' || dep === 'true' || dep === '1'){ tag = 'Deployable'; }
+    else { tag = meta.label; }
+    return {
+      name: card.querySelector('.tname').value.trim(),
+      type: meta.icon,
+      tag: tag,
+      traits: card.querySelector('.ttraits').value.trim(),
+      onbuild: card.querySelector('.tsec.onbuild textarea').value,
+      passive: card.querySelector('.tsec.passive textarea').value,
+      onactivate: card.querySelector('.tsec.onactivate textarea').value,
+      onbuildenergy: card.querySelector('.tcost-onbuild').value,
+      onactivateenergy: card.querySelector('.tcost-onactivate').value,
+      charges: card.querySelector('.tcharges-input').value
+    };
+  }
+  var HAND_SORT = 'az';
+  var HAND_TYPE_ORDER = { offense:0, defense:1, movement:2, science:3 };
+
+  /* Each category holds one value; '' means the attribute is not filtered on. */
+  var HAND_FILTERS = { hand:'', type:'', energy:'', trait:'' };
+  function copyHandFilters(){
+    return {
+      hand: HAND_FILTERS.hand || '',
+      type: HAND_FILTERS.type || '',
+      energy: HAND_FILTERS.energy || '',
+      trait: HAND_FILTERS.trait || ''
+    };
+  }
+  function applyHandFilters(filters){
+    filters = filters || {};
+    HAND_FILTERS.hand = filters.hand || '';
+    HAND_FILTERS.type = filters.type || '';
+    HAND_FILTERS.energy = filters.energy || '';
+    HAND_FILTERS.trait = filters.trait || '';
+  }
+  function nextHandCardState(cur){
+    return (cur === 'played') ? 'exhausted' : 'played';
+  }
+  function adjustTechCharges(card, delta){
+    if(!card || !delta) return;
+    var inp = card.querySelector('.tcharges-input');
+    if(!inp) return;
+    var cur = parseInt(inp.value, 10);
+    if(isNaN(cur)) cur = 0;
+    inp.value = Math.max(0, cur + delta);
+    refreshTechSections(card);
+    var grid = document.getElementById('techGrid');
+    var gi = grid ? Array.prototype.indexOf.call(grid.children, card) : -1;
+    syncHandCardCharges(gi, inp.value);
+    if(gi >= 0) postHandMessage('sync-tech-charges', { index: gi, value: inp.value });
+  }
+  function syncHandCardCharges(gi, val){
+    var handEl = document.getElementById('hand');
+    if(!handEl) return;
+    var cards = handEl.querySelectorAll('.hand-card');
+    for(var i=0;i<cards.length;i++){
+      if(cards[i]._sourceIndex !== gi) continue;
+      var span = cards[i].querySelector('.hc-charges');
+      if(span && span.firstChild && span.firstChild.nodeType === 3){
+        span.firstChild.nodeValue = val;
+      } else {
+        refreshHand();
+      }
+      return;
+    }
+  }
+  function handCardHtml(d, state){
+    var costVal = (state === 'played') ? d.onactivateenergy : (state === 'hand' ? d.onbuildenergy : '');
+    var costHtml = (costVal && costVal !== '0')
+      ? '<span class="hc-cost">' + escapeHtml(costVal) +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
+      : '';
+    var chargesVal = (d.charges || '').trim();
+    var chargesHtml = (chargesVal !== '')
+      ? '<span class="hc-charges">' + escapeHtml(chargesVal) +
+        '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg></span>'
+      : '';
+    return '<div class="hc-head">' + costHtml +
+        '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
+      '</div>' +
+      (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
+      '<div class="hc-secs">' +
+        (d.onbuild || d.onbuildenergy ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
+        (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
+        (d.onactivate ? '<div class="hc-sec"><b>' + energyLabel('On Activate', d.onactivateenergy) + '</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
+      '</div>' +
+      '<div class="hc-foot">' +
+        '<span class="hc-tags">' + (d.type || '') +
+          '<span class="hc-state" data-state="' + state + '">' + state + '</span>' +
+        '</span>' + chargesHtml +
+      '</div>';
+  }
+  function wireHandCardInteractions(el, onActivate, roomSync){
+    var charges = el.querySelector('.hc-charges');
+    if(charges){
+      charges.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(el._onChargeDelta) el._onChargeDelta(1);
+      });
+      charges.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(el._onChargeDelta) el._onChargeDelta(-1);
+      });
+    }
+    el.addEventListener('mouseenter', function(){
+      var popped = el.parentNode ? el.parentNode.querySelector('.hand-card.popped') : null;
+      if(popped && popped !== el) popped.classList.remove('popped');
+      if(roomSync) roomSync();
+    });
+    el.addEventListener('mouseleave', function(){
+      if(roomSync) setTimeout(roomSync, 0);
+    });
+    el.addEventListener('click', function(){
+      var popped = el.parentNode ? el.parentNode.querySelector('.hand-card.popped') : null;
+      if(popped && popped !== el) popped.classList.remove('popped');
+      el.classList.toggle('popped');
+      if(roomSync) roomSync();
+    });
+    el.addEventListener('dblclick', function(e){
+      e.preventDefault();
+      if(onActivate) onActivate();
+    });
+  }
+  function canUseHandPopout(){
+    return !!(window.frigateElectron && window.frigateElectron.openHandWindow);
+  }
+  function openHandPopout(){
+    if(!canUseHandPopout()){
+      alert('Transparent hand popout requires running this sheet through the Electron wrapper.');
+      return;
+    }
+    broadcastHandSnapshot();
+    window.frigateElectron.openHandWindow();
+  }
+  function setupHandChannel(){
+    if(!window.BroadcastChannel) return;
+    HAND_CHANNEL = new BroadcastChannel(HAND_CHANNEL_NAME);
+    HAND_CHANNEL.onmessage = function(event){
+      var msg = event && event.data ? event.data : null;
+      if(!msg || msg.source === HAND_INSTANCE_ID) return;
+      if(msg.type === 'request-snapshot'){
+        broadcastHandSnapshot();
+        return;
+      }
+      if(msg.type === 'set-hand-controls'){
+        HAND_SORT = msg.handSort || 'az';
+        applyHandFilters(msg.handFilters);
+        var sortSel = document.getElementById('handSort');
+        if(sortSel) sortSel.value = HAND_SORT;
+        updateFilterUI();
+        refreshHand();
+        return;
+      }
+      if(msg.type === 'set-tech-state'){
+        applyHandPopoutStateChange(msg);
+        return;
+      }
+      if(msg.type === 'set-tech-charges'){
+        applyHandPopoutChargeChange(msg);
+      }
+    };
+  }
+  function postHandMessage(type, payload){
+    if(!HAND_CHANNEL) return;
+    var msg = payload || {};
+    msg.type = type;
+    msg.source = HAND_INSTANCE_ID;
+    HAND_CHANNEL.postMessage(msg);
+  }
+  function collectHandSnapshot(){
+    var tech = readTech();
+    for(var i=0;i<tech.length;i++){
+      tech[i].sourceIndex = i;
+    }
+    return {
+      theme: document.documentElement.getAttribute('data-theme') || 'dark',
+      shipName: (document.getElementById('shipName') || {}).value || '',
+      handSort: HAND_SORT,
+      handFilters: copyHandFilters(),
+      tech: tech
+    };
+  }
+  function broadcastHandSnapshot(){
+    if(!HAND_CHANNEL) return;
+    postHandMessage('snapshot', { snapshot: collectHandSnapshot() });
+  }
+  function applyHandPopoutStateChange(msg){
+    var grid = document.getElementById('techGrid');
+    if(!grid) return;
+    var idx = msg.index;
+    if(typeof idx !== 'number' || idx < 0 || idx >= grid.children.length) return;
+    setTechState(grid.children[idx], msg.state);
+    refreshHand();
+  }
+  function applyHandPopoutChargeChange(msg){
+    var grid = document.getElementById('techGrid');
+    if(!grid) return;
+    var idx = msg.index;
+    if(typeof idx !== 'number' || idx < 0 || idx >= grid.children.length) return;
+    adjustTechCharges(grid.children[idx], msg.delta);
+  }
+  var FILTER_CATS = [
+    {key:'hand', label:'Hand', options:[
+      {value:'', label:'N/A'},
+      {value:'hand', label:'In hand'},
+      {value:'nothand', label:'Not in hand'},
+      {value:'played', label:'Played'},
+      {value:'exhausted', label:'Exhausted'},
+      {value:'trashed', label:'Trash'}
+    ]},
+    {key:'type', label:'Type', options:[
+      {value:'', label:'N/A'},
+      {value:'offense', label:'Offense'},
+      {value:'defense', label:'Defense'},
+      {value:'movement', label:'Movement'},
+      {value:'science', label:'Science'}
+    ]},
+    {key:'energy', label:'Energy', options:[
+      {value:'', label:'N/A'},
+      {value:'has', label:'Has cost'},
+      {value:'none', label:'No cost'}
+    ]},
+    {key:'trait', label:'Trait', options:[
+      {value:'', label:'N/A'},
+      {value:'has', label:'Has trait'},
+      {value:'none', label:'No trait'}
+    ]}
+  ];
+  function filterCatMeta(key){
+    for(var i=0;i<FILTER_CATS.length;i++){ if(FILTER_CATS[i].key === key) return FILTER_CATS[i]; }
+    return null;
+  }
+  function filterValueLabel(key){
+    var cat = filterCatMeta(key);
+    if(!cat) return 'N/A';
+    var val = HAND_FILTERS[key];
+    for(var i=0;i<cat.options.length;i++){
+      if(cat.options[i].value === val) return cat.options[i].label;
+    }
+    return 'N/A';
+  }
+  function buildFilterMenu(){
+    var menu = document.getElementById('handFilterMenu');
+    if(!menu) return;
+    menu.innerHTML = '';
+    FILTER_CATS.forEach(function(cat){
+      var row = document.createElement('div');
+      row.className = 'filter-row';
+      row.setAttribute('data-cat', cat.key);
+
+      var name = document.createElement('span');
+      name.className = 'filter-cat';
+      name.textContent = cat.label;
+      row.appendChild(name);
+
+      var val = document.createElement('span');
+      val.className = 'filter-val';
+      row.appendChild(val);
+
+      var sel = document.createElement('select');
+      sel.setAttribute('data-cat', cat.key);
+      sel.setAttribute('aria-label', cat.label + ' filter');
+      cat.options.forEach(function(o){
+        var opt = document.createElement('option');
+        opt.value = o.value;
+        opt.textContent = o.label;
+        sel.appendChild(opt);
+      });
+      sel.value = HAND_FILTERS[cat.key];
+      sel.onchange = function(){
+        HAND_FILTERS[cat.key] = sel.value;
+        updateFilterUI();
+        refreshHand();
+      };
+      row.appendChild(sel);
+      menu.appendChild(row);
+    });
+    var clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'filter-clear';
+    clear.textContent = 'Clear all';
+    clear.onclick = clearFilters;
+    menu.appendChild(clear);
+    updateFilterUI();
+  }
+  function activeFilterCount(){
+    var n = 0;
+    for(var k in HAND_FILTERS){
+      if(HAND_FILTERS.hasOwnProperty(k) && HAND_FILTERS[k]) n++;
+    }
+    return n;
+  }
+  function updateFilterUI(){
+    var n = activeFilterCount();
+    var rows = document.querySelectorAll('#handFilterMenu .filter-row');
+    for(var i=0;i<rows.length;i++){
+      var key = rows[i].getAttribute('data-cat');
+      var valEl = rows[i].querySelector('.filter-val');
+      if(valEl) valEl.textContent = filterValueLabel(key);
+      rows[i].classList.toggle('off', !HAND_FILTERS[key]);
+      var sel = rows[i].querySelector('select');
+      if(sel) sel.value = HAND_FILTERS[key];
+    }
+    var btn = document.getElementById('handFilterBtn');
+    if(btn) btn.classList.toggle('active', n > 0);
+    var count = document.getElementById('handFilterCount');
+    if(count) count.textContent = n;
+  }
+  function clearFilters(){
+    for(var k in HAND_FILTERS){
+      if(HAND_FILTERS.hasOwnProperty(k)) HAND_FILTERS[k] = '';
+    }
+    updateFilterUI();
+    refreshHand();
+  }
+  function toggleFilterMenu(e){
+    e.stopPropagation();
+    var menu = document.getElementById('handFilterMenu');
+    if(menu) menu.classList.toggle('open');
+  }
+  function closeFilterMenu(){
+    var menu = document.getElementById('handFilterMenu');
+    if(menu) menu.classList.remove('open');
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('handFilterMenu');
+    if(menu && menu.classList.contains('open') && !menu.contains(e.target)){
+      menu.classList.remove('open');
+    }
+  });
+  function onHandSortChange(){
+    HAND_SORT = document.getElementById('handSort').value;
+    refreshHand();
+  }
+  function openHandSelect(id){
+    var sel = document.getElementById(id);
+    if(!sel) return;
+    if(sel.showPicker){
+      try{ sel.showPicker(); }catch(e){ sel.focus(); }
+    } else {
+      sel.focus();
+    }
+  }
+  function handCardPasses(card){
+    var d = techCardViewData(card);
+
+    if(HAND_FILTERS.hand){
+      var st = techState(card);
+      if(HAND_FILTERS.hand === 'nothand'){
+        if(st === 'hand') return false;
+      } else if(st !== HAND_FILTERS.hand){
+        return false;
+      }
+    }
+    if(HAND_FILTERS.type){
+      if(card.querySelector('.tticker').getAttribute('data-tt') !== HAND_FILTERS.type) return false;
+    }
+    if(HAND_FILTERS.energy){
+      var e = d.onbuildenergy;
+      var hasCost = !!(e && e.trim() !== '' && parseFloat(e) > 0);
+      if((HAND_FILTERS.energy === 'has') !== hasCost) return false;
+    }
+    if(HAND_FILTERS.trait){
+      if((HAND_FILTERS.trait === 'has') !== !!d.traits) return false;
+    }
+    return true;
+  }
+  function handSortCards(cards){
+    cards.sort(function(a,b){
+      var da = techCardViewData(a);
+      var db = techCardViewData(b);
+      if(HAND_SORT === 'trait'){
+        var ta = (da.traits || '').toLowerCase();
+        var tb = (db.traits || '').toLowerCase();
+        if(ta !== tb) return ta < tb ? -1 : 1;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      if(HAND_SORT === 'type'){
+        var oa = HAND_TYPE_ORDER[a.querySelector('.tticker').getAttribute('data-tt')];
+        var ob = HAND_TYPE_ORDER[b.querySelector('.tticker').getAttribute('data-tt')];
+        if(oa === undefined) oa = 99;
+        if(ob === undefined) ob = 99;
+        if(oa !== ob) return oa - ob;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      if(HAND_SORT === 'energy'){
+        var ea = parseFloat(da.onbuildenergy);
+        var eb = parseFloat(db.onbuildenergy);
+        if(isNaN(ea)) ea = Infinity;
+        if(isNaN(eb)) eb = Infinity;
+        if(ea !== eb) return ea - eb;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      return (da.name || '').localeCompare(db.name || '');
+    });
+  }
+  function refreshHand(){
+    var grid = document.getElementById('techGrid');
+    var handEl = document.getElementById('hand');
+    var countEl = document.getElementById('handCount');
+    if(!handEl || !countEl) return;
+    var cards = [];
+    for(var i=0;i<grid.children.length;i++){
+      if(handCardPasses(grid.children[i])) cards.push(grid.children[i]);
+    }
+    handSortCards(cards);
+    handEl.innerHTML = '';
+    if(cards.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'hand-empty';
+      empty.textContent = activeFilterCount() ? 'No techs match' : 'No techs';
+      handEl.appendChild(empty);
+    } else {
+      for(var j=0;j<cards.length;j++){
+        var d = techCardViewData(cards[j]);
+        var el = document.createElement('div');
+        el.className = 'hand-card';
+        el.setAttribute('data-state', techState(cards[j]));
+        el.innerHTML = handCardHtml(d, techState(cards[j]));
+        el._sourceIndex = Array.prototype.indexOf.call(grid.children, cards[j]);
+        el._onChargeDelta = (function(card){
+          return function(delta){
+            adjustTechCharges(card, delta);
+          };
+        })(cards[j]);
+        wireHandCardInteractions(el, (function(card){
+          return function(){
+            setTechState(card, nextHandCardState(techState(card)));
+            refreshHand();
+          };
+        })(cards[j]), syncHandRoom);
+        handEl.appendChild(el);
+      }
+    }
+    countEl.textContent = cards.length;
+    updateHandSpread();
+    updateHandSlider();
+    broadcastHandSnapshot();
+  }
+  /* Cards overlap by 33% when the hand is small and there is room to fan out,
+     tightening to 66% as the hand fills the strip. */
+  /* The layer sits flush with the card tops; it only needs the extra height
+     while a card is hovered or popped, so add it just for that moment. */
+  function syncHandRoom(){
+    var view = document.querySelector('.hand-view');
+    var strip = document.getElementById('hand');
+    if(!view || !strip) return;
+    var up = strip.querySelector('.hand-card.popped') || strip.querySelector('.hand-card:hover');
+    view.classList.toggle('roomy', !!up);
+  }
+  function updateHandSpread(){
+    var view = document.querySelector('.hand-view');
+    var strip = document.getElementById('hand');
+    if(!view || !strip) return;
+    var n = strip.querySelectorAll('.hand-card').length;
+    var cardW = parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue('--hand-card-w')) || 190;
+    var loose = cardW * 0.67;   /* 33% overlap */
+    var tight = cardW * 0.34;   /* 66% overlap */
+    var step = loose;
+    if(n > 1){
+      var cs = getComputedStyle(strip);
+      var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      var avail = view.clientWidth - pad;
+      var needed = (avail - cardW) / (n - 1);
+      step = Math.max(tight, Math.min(loose, needed));
+    }
+    strip.style.setProperty('--hand-step', step + 'px');
+  }
+  /* The native scrollbar sits at the bottom edge of .hand-view, which the bar
+     covers, so scroll position is mirrored onto a slider drawn on the bar. */
+  function updateHandSlider(){
+    var view = document.querySelector('.hand-view');
+    var slider = document.getElementById('handSlider');
+    var thumb = document.getElementById('handSliderThumb');
+    if(!view || !slider || !thumb) return;
+    var sw = view.scrollWidth, cw = view.clientWidth;
+    if(sw <= cw + 1){
+      slider.classList.remove('on');
+      return;
+    }
+    slider.classList.add('on');
+    var track = slider.querySelector('.hand-slider-track');
+    var trackW = track.offsetWidth;
+    var w = Math.max(28, (cw / sw) * trackW);
+    var maxLeft = trackW - w;
+    var maxScroll = sw - cw;
+    var left = maxScroll > 0 ? (view.scrollLeft / maxScroll) * maxLeft : 0;
+    thumb.style.width = w + 'px';
+    thumb.style.left = (12 + left) + 'px';
+  }
+  function syncHandBarHeight(){
+    var bar = document.querySelector('.hand-bar');
+    if(!bar) return;
+    document.documentElement.style.setProperty('--hand-bar-h', bar.offsetHeight + 'px');
+  }
+  function wireHandSlider(){
+    var view = document.querySelector('.hand-view');
+    var slider = document.getElementById('handSlider');
+    if(!view || !slider) return;
+    syncHandBarHeight();
+    window.addEventListener('resize', syncHandBarHeight);
+    window.addEventListener('resize', updateHandSpread);
+    view.addEventListener('scroll', updateHandSlider);
+    window.addEventListener('resize', updateHandSlider);
+    var dragging = false;
+    function scrollToPointer(clientX){
+      var track = slider.querySelector('.hand-slider-track');
+      var r = track.getBoundingClientRect();
+      var thumb = document.getElementById('handSliderThumb');
+      var w = thumb.offsetWidth;
+      var maxLeft = r.width - w;
+      if(maxLeft <= 0) return;
+      var pos = clientX - r.left - w / 2;
+      pos = Math.max(0, Math.min(maxLeft, pos));
+      view.scrollLeft = (pos / maxLeft) * (view.scrollWidth - view.clientWidth);
+    }
+    slider.addEventListener('pointerdown', function(e){
+      dragging = true;
+      slider.classList.add('dragging');
+      slider.setPointerCapture(e.pointerId);
+      scrollToPointer(e.clientX);
+      e.preventDefault();
+    });
+    slider.addEventListener('pointermove', function(e){
+      if(dragging) scrollToPointer(e.clientX);
+    });
+    function endDrag(){
+      dragging = false;
+      slider.classList.remove('dragging');
+    }
+    slider.addEventListener('pointerup', endDrag);
+    slider.addEventListener('pointercancel', endDrag);
+  }
+  function toggleHand(){
+    var dock = document.getElementById('handDock');
+    var willExpand = !dock.classList.contains('expanded');
+    dock.classList.toggle('expanded', willExpand);
+    if(willExpand){
+      refreshHand();
+      setTimeout(function(){
+        updateHandSpread();
+        updateHandSlider();
+      }, 240);
+    }
   }
   function setTechType(el, key){
     var meta = techTypeMeta(key);
@@ -1458,8 +2477,19 @@
     for(var i=0;i<secs.length;i++){
       var field = secs[i].querySelector('textarea');
       var hasText = field && field.value.trim() !== '';
-      secs[i].classList.toggle('hid', !hasText && !editing);
-      if(field) field.disabled = !editing;
+      var diamond = secs[i].querySelector('.tdiamond');
+      var hasCost = diamond && !!diamond.querySelector('input') && diamond.querySelector('input').value.trim() !== '';
+      if(secs[i].classList.contains('onbuild')){
+        secs[i].classList.toggle('hid', !hasText && !hasCost && !editing);
+      } else {
+        secs[i].classList.toggle('hid', !hasText && !editing);
+      }
+      if(field){
+        field.disabled = !editing;
+        if(secs[i].classList.contains('onbuild')){
+          field.placeholder = editing ? 'On Play...' : '';
+        }
+      }
         var diamond = secs[i].querySelector('.tdiamond');
         if(diamond){
           var inp = diamond.querySelector('input');
@@ -1514,14 +2544,6 @@
     btn.textContent = card.classList.contains('editing') ? 'Done' : 'Edit';
     refreshTechSections(card);
   }
-  function toggleTechExhaust(btn){
-    var card = btn.closest('.tech-card');
-    var on = btn.getAttribute('data-exhaust') === 'true';
-    on = !on;
-    btn.setAttribute('data-exhaust', on ? 'true' : 'false');
-    btn.textContent = on ? 'Refresh' : 'Exhaust';
-    card.classList.toggle('exhausted', on);
-  }
   var DEPLOY_STATES = [
     {key:'normal', icon:'◉', svg:'', label:'Normal'},
     {key:'deployable', icon:'⍙', svg:'<svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="var(--icon-amber)" stroke-width="1.6"/><circle cx="8" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="8" r="1.4" fill="var(--icon-amber)"/><circle cx="12" cy="12" r="1.4" fill="var(--icon-amber)"/><circle cx="8" cy="16" r="1.4" fill="var(--icon-amber)"/><circle cx="16" cy="16" r="1.4" fill="var(--icon-amber)"/></svg>', label:'Deployable'},
@@ -1555,21 +2577,84 @@
   var CLASS_PRESETS = {
     'Support Class': {
       stats: {hull:2, shield:2, storage:2},
-      techName: 'Repulsor Field',
-      modName: 'Repulsor Field'
+      techName: 'Repulsor Unit',
+      modName: 'Repulsor Unit'
     },
     'Jump Class': {
+      stats: {speed:2},
+      skills: {Sensors:1},
       techName: 'Phantom'
     },
     'Discovery Class': {
-      stats: {storage:4},
+      stats: {storage:2},
+      skills: {Logistics:2, Science:1},
       techName: 'Experimental Reconnaissance'
     },
     'Striker Class': {
       stats: {storage:2},
-      techName: 'Targeting Computer'
+      skills: {Leadership:2},
+      techName: 'Decomp Strikes'
+    },
+    'Bulwark Class': {
+      stats: {hull:4},
+      crewTraits: ['Citadel']
     }
   };
+  function classStatsSummary(stats){
+    if(!stats) return '<span>No stat increases.</span>';
+    var parts = [];
+    if(stats.hull) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.hull)) + ' Hull</span>');
+    if(stats.shield) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.shield)) + ' Shield</span>');
+    if(stats.storage) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.storage)) + ' Storage</span>');
+    if(stats.speed) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>+' + escapeHtml(String(stats.speed)) + ' Speed</span>');
+    return parts.length ? parts.join('') : '<span>No stat increases.</span>';
+  }
+  function classSkillSummary(skills){
+    if(!skills) return '';
+    var parts = [];
+    if(skills.Sensors) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 16c2.2-3 4.9-4.5 8-4.5s5.8 1.5 8 4.5" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><path d="M7 12.5c1.4-1.8 3.1-2.7 5-2.7s3.6.9 5 2.7" stroke="var(--cyan)" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.6" fill="var(--cyan)"/></svg>+' + escapeHtml(String(skills.Sensors)) + ' Sensors</span>');
+    if(skills.Leadership) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.5" r="3" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M6.5 19c.7-3.2 3-5 5.5-5s4.8 1.8 5.5 5" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round"/></svg>+' + escapeHtml(String(skills.Leadership)) + ' Leadership</span>');
+    if(skills.Logistics) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.6" stroke-linejoin="round"/></svg>+' + escapeHtml(String(skills.Logistics)) + ' Logistics</span>');
+    if(skills.Science) parts.push('<span class="class-stat-chip"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="11" height="15" rx="1.8" stroke="var(--icon-shield)" stroke-width="1.6"/><path d="M8 8h5M8 11h5M8 14h3" stroke="var(--icon-shield)" stroke-width="1.4" stroke-linecap="round"/><path d="M9 20h10V7" stroke="var(--icon-shield)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>+' + escapeHtml(String(skills.Science)) + ' Science</span>');
+    return parts.join('');
+  }
+  function renderClassInfo(){
+    var list = document.getElementById('classInfoList');
+    if(!list) return;
+    list.innerHTML = '';
+    var order = ['Support Class', 'Jump Class', 'Striker Class', 'Discovery Class', 'Bulwark Class'];
+    for(var i = 0; i < order.length; i++){
+      var name = order[i];
+      var preset = CLASS_PRESETS[name];
+      if(!preset) continue;
+      var item = document.createElement('div');
+      item.className = 'class-info-item';
+      var skillHtml = classSkillSummary(preset.skills || null);
+      var html = '<b>' + escapeHtml(name) + '</b>' +
+        '<p><strong>Stats:</strong></p><p class="class-stat-line">' + classStatsSummary(preset.stats || null) + '</p>';
+      if(skillHtml){
+        html += '<p><strong>Crew Skills:</strong></p><p class="class-stat-line">' + skillHtml + '</p>';
+      }
+      html += '<p><strong>Tech:</strong> ' + escapeHtml(preset.techName || 'None') + '</p>';
+      if(preset.modName){
+        html += '<p><strong>Module:</strong> ' + escapeHtml(preset.modName) + '</p>';
+      }
+      if(preset.crewTraits && preset.crewTraits.length){
+        html += '<p><strong>Traits:</strong> ' + escapeHtml(preset.crewTraits.join(', ')) + '</p>';
+      }
+      item.innerHTML = html;
+      list.appendChild(item);
+    }
+  }
+  function openClassInfo(){
+    renderClassInfo();
+    var modal = document.getElementById('classInfoModal');
+    if(modal) modal.classList.add('open');
+  }
+  function closeClassInfo(){
+    var modal = document.getElementById('classInfoModal');
+    if(modal) modal.classList.remove('open');
+  }
   function findTechByName(name){
     for(var i=0;i<TECHP_RESETS.length;i++){
       if(TECHP_RESETS[i].name === name) return TECHP_RESETS[i];
@@ -1606,6 +2691,14 @@
       bumpStat('shieldMax', s.shield);
     }
     if(s.storage) bumpStat('storage', s.storage);
+    if(s.speed){
+      bumpStat('speedCur', s.speed);
+      bumpStat('speedMax', s.speed);
+    }
+    var skills = preset.skills || {};
+    Object.keys(skills).forEach(function(name){
+      bumpStat('skill-' + name + '-pts', skills[name]);
+    });
     if(preset.techName){
       var t = findTechByName(preset.techName);
       if(t) addTechFromData(t);
@@ -1614,6 +2707,13 @@
       var m = findModByName(preset.modName);
       if(m) pickModPreset(m);
     }
+    (preset.crewTraits || []).forEach(function(traitName){
+      var found = null;
+      for(var k = 0; k < PRESETS.length; k++){
+        if(PRESETS[k].name === traitName){ found = PRESETS[k]; break; }
+      }
+      if(found) pickPreset(found);
+    });
   }
   document.addEventListener('click', function(e){
     var menu = document.getElementById('techPresetMenu');
@@ -1667,19 +2767,20 @@
     var card = document.createElement('div');
     card.className = 'mod-card';
     card.innerHTML =
-      '<div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="mexhaust-btn" data-exhaust="false" onclick="toggleModExhaust(this)" title="Exhaust this module">Exhaust</button><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="mhead"><button type="button" class="mshape-btn" data-shape="" title="Shape"></button><input class="mname" placeholder="TITLE"><button type="button" class="mexhaust-btn" data-exhaust="false" onclick="toggleModExhaust(this)" title="Exhaust this module">Exhaust</button><button type="button" class="m-delete" onclick="removeModCard(this)" title="Delete this module">🗑</button><button type="button" class="msecedit" onclick="toggleModEdit(this)" title="Edit sections">Edit</button></div>' +
       '<div class="msub"><input class="mreq" placeholder="REQUIREMENTS"></div>' +
       '<div class="msecs">' +
-        '<div class="msec onbuild hid"><div class="msec-head"><span>On Build</span></div><textarea placeholder="On Build..."></textarea></div>' +
+        '<div class="msec onbuild hid"><div class="msec-head"><span>On Play</span></div><textarea placeholder="On Play..."></textarea></div>' +
         '<div class="msec passive hid"><div class="msec-head"><span>Passive</span></div><textarea placeholder="Passive..."></textarea></div>' +
         '<div class="msec onactivate hid"><div class="msec-head"><span>On Activate</span><span class="mcost" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcost-input" maxlength="2"></span></div><textarea placeholder="On Activate..."></textarea></div>' +
       '</div>' +
       '<div class="mfoot">' +
+        '<span class="mticker" data-mt="offense" title="Tech type: Offense">⚔</span>' +
         '<button type="button" class="mtype-btn" data-mtype="module" title="Module"></button>' +
         '<span class="mspeed" title="Speed"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 20V5M6 11l6-6 6 6" stroke="var(--icon-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><input class="mspeed-input" maxlength="4"></span>' +
         '<span class="mdur" title="Duration"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="var(--icon-amber)" stroke-width="1.8"/><path d="M12 13V8M15 13h-3" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 3h6" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mdur-input" maxlength="4"></span>' +
-        '<span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>' +
-        '<span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mcharges-input" maxlength="4"></span>' +
+        '<span class="mhull" title="Hull"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-9.2C.7 7.9 2.7 4 6.4 4c2 0 3.6 1.1 5.6 3.4C14 5.1 15.6 4 17.6 4c3.7 0 5.7 3.9 3.9 7.8C19 16.65 12 21 12 21Z" stroke="var(--icon-hull)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="mhull-input" maxlength="4"></span>' +
+        '<span class="mcharges hid" title="Charges"><svg class="kw-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="mcharges-input" maxlength="4"></span>' +
       '</div>';
     grid.appendChild(card);
     setModType(card.querySelector('.mtype-btn'), 'module');
@@ -1761,6 +2862,28 @@
     }
     refreshModSlotControls();
   }
+  function removeModCard(btn){
+    var card = btn.closest('.mod-card');
+    if(!card) return;
+    var grid = document.getElementById('modGrid');
+    if(grid.children.length <= 1){
+      addModSlot();
+    }
+    grid.removeChild(card);
+    refreshModSlotControls();
+  }
+  function setModTechType(el, key){
+    var meta = techTypeMeta(key);
+    el.setAttribute('data-mt', meta.key);
+    el.textContent = meta.icon;
+    el.title = 'Tech type: ' + meta.label;
+  }
+  function cycleModTechType(el){
+    var keys = TECH_TYPES.map(function(t){return t.key;});
+    var idx = keys.indexOf(el.getAttribute('data-mt'));
+    var next = keys[(idx + 1) % keys.length];
+    setModTechType(el, next);
+  }
   function setModType(el, type){
     var meta = (type === 'deployable') ? DEPLOY_STATES[1] : DEPLOY_STATES[2];
     el.setAttribute('data-mtype', meta.key);
@@ -1807,16 +2930,29 @@
     setModuleShape(el, MOD_SHAPES[(idx + 1) % MOD_SHAPES.length].key);
   }
   var MOD_PRESETS = [
-    {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay  2 ⚡ to Target an object:\nRange: 4 from self, Attacks: 2, Dmg: 2 💥', onactivateenergy:'2'},
-    {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'Gain +2 Speed.', onactivate:'', onactivateenergy:''},
-    {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'0', type:'deployable', onbuild:'', passive:'', onactivate:'Remove this deployable to Target an object:\nRange: 8 from self, Check: Sensors,\nDmg: 3 (SHIELD ONLY)', onactivateenergy:''},
-    {name:'P.D.', req:'Adjacent to any', hull:'1', type:'module', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'Exhaust and pay 2 ⚡ to Target an object:\nRange: 1 from self, Attacks: 3, Dmg: 2 💥', onactivateenergy:'2'},
-    {name:'Repulsor Field', req:'Adjacent to any', hull:'4', charges:'0', type:'module', onbuild:'', passive:'', onactivate:'Exhaust and pay 2E to add a charge to this OR remove a charge and give 4 shield to a ship within Sensor range from this.', onactivateenergy:'2'}
+    {name:'Armor', req:'Adjacent to any, 2 spaces from Core', hull:'2', type:'module', tt:'defense', onbuild:'', passive:'', onactivate:'', onactivateenergy:''},
+    {name:'Cannon', req:'Adjacent to Core', hull:'1', type:'module', tt:'offense', onbuild:'', passive:'', onactivate:'Exhaust to Target an object:\nRange: 6 from self, Attacks: 2, Dmg: 2 💥', onactivateenergy:'2'},
+    {name:'Comms Unit', req:'Adjacent to any', hull:'2', type:'module', tt:'science', onbuild:'', passive:'Allies within Sensor range of this gain a +2 bonus on all Checks and Saves.', onactivate:'', onactivateenergy:''},
+    {name:'Graviton Engine', req:'Adjacent to any', hull:'1', type:'module', tt:'movement', onbuild:'', passive:'Gain 1 Speed per non Engine module on your ship (if you later gain/lose modules adjust Speed).', onactivate:'', onactivateenergy:''},
+    {name:'Ion Torpedo', req:'', hull:'1', duration:'1', speed:'12', type:'deployable', tt:'offense', onbuild:'Exhaust', passive:'', onactivate:'You may move this deployable up to 12 spaces, then Target an object:\nRange: 1 from self, Check: Sensors, Dmg: 3💥\n\nAfter activating remove this deployable.', onactivateenergy:''},
+    {name:'P.D.', req:'Adjacent to core', hull:'1', type:'module', tt:'offense', onbuild:'', passive:'If a Deployable Targets any Module within Range 1 from self, you may immediately use the Active ability on that deployable for free.', onactivate:'Exhaust to Target an object:\nRange: 2 from self, Attacks: 3, Dmg: 2 💥', onactivateenergy:'2'},
+    {name:'Repulsor Unit', req:'Adjacent to any', hull:'4', charges:'0', type:'module', tt:'defense', onbuild:'', passive:'', onactivate:'Exhaust to add 2 charges to this OR remove 2 charges and give 4 shield to an allied ship within Sensor range from this.', onactivateenergy:'2'},
+    {name:'Shuttle Craft I', req:'', hull:'1', speed:'2', charges:'1', type:'deployable', tt:'science', onbuild:'This gains 1 charge. This charge acts as a shield.', passive:'', onactivate:'Exhaust to Move 2, and choose one of the following:\n- Target an Object: Range: 1, Attacks: 1, Dmg: 1; OR\n- Make a Sensor Check to Scan', onactivateenergy:''},
+    {name:'Tug Craft I', req:'', hull:'1', speed:'2', charges:'1', type:'deployable', tt:'movement', onbuild:'This gains 1 charge. This charge acts as a shield.', passive:'', onactivate:'Exhaust to Move 2, choose one of the following:\n- Target an Object: Range: 1, Attacks: 1, Dmg: 1; OR\n- Target an Object: Range: 1, Save: Piloting (On hit Move the object 1 space)', onactivateenergy:''}
   ];
   MOD_PRESETS.sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
   function buildModPresetMenu(){
     var menu = document.getElementById('modPresetMenu');
     menu.innerHTML = '';
+    var blankItem = document.createElement('button');
+    blankItem.type = 'button';
+    blankItem.className = 'preset-item';
+    blankItem.textContent = 'Blank';
+    blankItem.onclick = function(){
+      addModSlot();
+      closeModPresetMenu();
+    };
+    menu.appendChild(blankItem);
     MOD_PRESETS.forEach(function(p){
       var item = document.createElement('button');
       item.type = 'button';
@@ -1856,6 +2992,7 @@
     card.querySelector('.msec.onactivate textarea').value = p.onactivate || '';
     card.querySelector('.mcost-input').value = (p.onactivateenergy !== undefined && p.onactivateenergy !== null) ? p.onactivateenergy : '';
     setModType(card.querySelector('.mtype-btn'), p.type || 'module');
+    setModTechType(card.querySelector('.mticker'), p.tt || 'offense');
     setModuleShape(card.querySelector('.mshape-btn'), p.shape || '');
     refreshModSections(card);
   }
@@ -1870,6 +3007,8 @@
     if(sh){ cycleModuleShape(sh); return; }
     var bt = e.target.closest('.mtype-btn');
     if(bt){ toggleModType(bt); return; }
+    var mt = e.target.closest('.mticker');
+    if(mt){ cycleModTechType(mt); return; }
     var hl = e.target.closest('.mhull, .mdur');
     var ch = e.target.closest('.mcharges');
     if(ch && !e.target.closest('input')){
@@ -1897,6 +3036,9 @@
       refreshModSections(e.target.closest('.mod-card'));
     }
   });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeClassInfo();
+  });
   buildModPresetMenu();
   refreshModSlotControls();
 
@@ -1918,6 +3060,7 @@
         onactivate: card.querySelector('.msec.onactivate textarea').value,
         onactivateenergy: card.querySelector('.mcost-input').value,
         type: card.querySelector('.mtype-btn').getAttribute('data-mtype'),
+        tt: card.querySelector('.mticker').getAttribute('data-mt'),
         shape: card.querySelector('.mshape-btn').getAttribute('data-shape'),
         exhaust: card.querySelector('.mexhaust-btn').getAttribute('data-exhaust') === 'true'
       });
@@ -1951,6 +3094,7 @@
       card.querySelector('.msec.onactivate textarea').value = item.onactivate || '';
       card.querySelector('.mcost-input').value = item.onactivateenergy || '';
       setModType(card.querySelector('.mtype-btn'), item.type || 'module');
+      setModTechType(card.querySelector('.mticker'), item.tt || 'offense');
       setModuleShape(card.querySelector('.mshape-btn'), item.shape || '');
       applyModExhaust(card, item.exhaust === true);
       refreshModSections(card);
@@ -1984,7 +3128,8 @@
       out.push({
         name: card.querySelector('.cname').value,
         text: card.querySelector('textarea').value,
-        combat: card.querySelector('.crew-tag-btn').getAttribute('data-combat') === '1'
+        combat: card.querySelector('.crew-tag-btn').getAttribute('data-combat') === '1',
+        type: card.querySelector('.cticker').getAttribute('data-ctype')
       });
     }
     return out;
@@ -2001,6 +3146,7 @@
       card.querySelector('.cname').value = item.name || '';
       card.querySelector('textarea').value = item.text || '';
       setCombatTag(card.querySelector('.crew-tag-btn'), item.combat === true);
+      setCrewType(card.querySelector('.cticker'), item.type);
     }
     relabelSlots();
   }
@@ -2022,17 +3168,10 @@
         hull: card.querySelector('.thull-input').value,
         charges: card.querySelector('.tcharges-input').value,
         deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy'),
-        exhaust: card.querySelector('.texhaust-btn').getAttribute('data-exhaust') === 'true'
+        state: techState(card)
       });
     }
     return out;
-  }
-  function applyTechExhaust(card, on){
-    var btn = card.querySelector('.texhaust-btn');
-    if(!btn) return;
-    btn.setAttribute('data-exhaust', on ? 'true' : 'false');
-    btn.textContent = on ? 'Refresh' : 'Exhaust';
-    card.classList.toggle('exhausted', on);
   }
   function writeTech(tech){
     var grid = document.getElementById('techGrid');
@@ -2055,9 +3194,21 @@
       card.querySelector('.tcharges-input').value = item.charges || '';
       setTechType(card.querySelector('.tticker'), item.techType);
       setTechDeploy(card.querySelector('.tdepbtn'), item.deploy);
-      applyTechExhaust(card, item.exhaust === true);
+      var state = 'played';
+      if(item.state !== undefined && item.state !== null && item.state !== ''){
+        state = item.state;
+      } else if(item.exhaust === true){
+        state = 'exhausted';
+      } else if(item.built === false){
+        state = 'hand';
+      } else {
+        state = 'played';
+      }
+    if(!isTechState(state)) state = 'played';
+      setTechState(card, state);
       refreshTechSections(card);
     }
+    refreshHand();
   }
   function collectSheet(){
     function v(id){ var el = document.getElementById(id); return el ? el.value : ''; }
@@ -2071,7 +3222,7 @@
         hullCur: v('hullCur'), hullMax: v('hullMax'),
         shieldCur: v('shieldCur'), shieldMax: v('shieldMax'),
         energyCur: v('energyCur'), energyMax: v('energyMax'),
-        storage: v('storage'), speed: v('speed')
+        storage: v('storage'), speedCur: v('speedCur'), speedMax: v('speedMax')
       },
       skills: readSkills(),
       crew: readCrew(),
@@ -2093,7 +3244,7 @@
     set('hullCur', s.hullCur); set('hullMax', s.hullMax);
     set('shieldCur', s.shieldCur); set('shieldMax', s.shieldMax);
     set('energyCur', s.energyCur); set('energyMax', s.energyMax);
-    set('storage', s.storage); set('speed', s.speed);
+    set('storage', s.storage); set('speedCur', s.speedCur); set('speedMax', s.speedMax);
     writeSkills(json.skills);
     writeCrew(json.crew);
     writeTech(json.tech);
@@ -2134,11 +3285,14 @@
     input.click();
   }
   (function(){
+    setupHandChannel();
     var cards = document.querySelectorAll('.tech-card');
     for(var i=0;i<cards.length;i++){
       setTechDeploy(cards[i].querySelector('.tdepbtn'), cards[i].querySelector('.tdepbtn').getAttribute('data-deploy'));
+      syncTechStateUI(cards[i]);
       refreshTechSections(cards[i]);
     }
+    refreshHand();
     var mods = document.querySelectorAll('.mod-card .mtype-btn');
     for(var m=0;m<mods.length;m++){
       setModType(mods[m], mods[m].getAttribute('data-mtype'));
@@ -2153,9 +3307,63 @@
     }
     refreshModSlotControls();
     wireSkillTooltips();
+    var containers = document.querySelectorAll('.grid, .row2');
+    for(var g=0;g<containers.length;g++){
+      syncGridCollapse(containers[g]);
+    }
   })();
 </script>
 <div id="skillPopover"></div>
 <div class="preset-menu" id="slotPicker"></div>
+<div class="class-info-modal" id="classInfoModal" onclick="if(event.target===this) closeClassInfo()">
+  <div class="class-info-card">
+    <div class="class-info-head">
+      <div class="class-info-title">Class Info</div>
+      <button type="button" class="class-info-close" onclick="closeClassInfo()">Close</button>
+    </div>
+    <div class="class-info-list" id="classInfoList"></div>
+  </div>
+</div>
+<div class="hand-dock" id="handDock">
+  <div class="hand-bar">
+    <div class="hand-slider" id="handSlider">
+      <div class="hand-slider-track"></div>
+      <div class="hand-slider-thumb" id="handSliderThumb"></div>
+    </div>
+    <button type="button" class="hand-tab" id="handTab" onclick="toggleHand()">
+      <span class="hand-label">Tech Hand</span>
+      <span class="hand-count" id="handCount">0</span>
+      <span class="hand-caret">▴</span>
+    </button>
+    <div class="hand-sort">
+      <label for="handSort">Sort</label>
+      <span class="sort-wrap">
+        <select id="handSort" onchange="onHandSortChange()">
+          <option value="az">Name</option>
+          <option value="trait">Trait</option>
+          <option value="type">Type</option>
+          <option value="energy">Energy</option>
+        </select>
+        <button type="button" class="hand-icon-btn" id="handSortBtn" onclick="openHandSelect('handSort')" title="Sort hand">⇵</button>
+      </span>
+      <div class="slot-menu-wrap">
+        <button type="button" class="hand-filter-btn" id="handFilterBtn" onclick="toggleFilterMenu(event)" title="Filter hand">
+          <span class="fico" aria-hidden="true">ᯤ</span>
+          <span class="flabel">Filter</span>
+          <span class="fcount" id="handFilterCount">0</span>
+        </button>
+        <div class="preset-menu filter-menu" id="handFilterMenu"></div>
+      </div>
+    </div>
+  </div>
+  <div class="hand-view">
+    <div class="hand" id="hand"></div>
+  </div>
+</div>
+<script>
+  buildFilterMenu();
+  wireHandSlider();
+  refreshHand();
+</script>
 </body>
 </html>

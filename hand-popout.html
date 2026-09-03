@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Hand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="dark"]{
+    --void:#080b13;
+    --panel:#10151f;
+    --panel-alt:#141b28;
+    --line:#28334a;
+    --line-bright:#3d4d6e;
+    --cyan:#4fd8c9;
+    --cyan-dim:#2b6e68;
+    --amber:#e8a94a;
+    --brown:#9a6636;
+    --ink:#d7e2f2;
+    --ink-dim:#89a1c4;
+    --stat-bg:rgba(255,255,255,.02);
+    --icon-energy:#764795;
+    --icon-charged:#e88ab4;
+    --hand-card-h:210px;
+    --hand-card-w:190px;
+    --hand-panel-w:1800px;
+    --mono:'JetBrains Mono', monospace;
+    --disp:'Orbitron', sans-serif;
+    --body:'Rajdhani', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:transparent;
+    color:var(--ink);
+    font-family:var(--body);
+    overflow:hidden;
+  }
+  .menu-toggle{
+    display:flex;align-items:center;gap:8px;
+    background:var(--panel);
+    border:1px solid var(--line-bright);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    padding:6px 12px;
+    cursor:pointer;
+    text-transform:uppercase;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .menu-toggle:hover{border-color:var(--cyan);color:var(--cyan);}
+  .menu-toggle,
+  .hand-popout-title,
+  .hand-filter-btn,
+  .hc-name,
+  .hc-traits,
+  .hc-sec,
+  .hc-foot,
+  .hc-tags,
+  .hc-state{
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  .hand-sort{
+    display:flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-dim);
+    text-transform:uppercase;
+  }
+  .hand-sort .sort-wrap,
+  .hand-sort .hand-icon-btn{
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  .hand-sort select{
+    background:var(--panel-alt);border:1px solid var(--line-bright);color:var(--ink);
+    font-family:var(--mono);font-size:10px;text-transform:uppercase;
+    padding:2px 6px;cursor:pointer;
+  }
+  .hand-sort select:focus{outline:none;border-color:var(--cyan);}
+  .hand-icon-btn{
+    display:none;
+    align-items:center;justify-content:center;
+    background:none;border:1px solid var(--line-bright);color:var(--ink-dim);
+    cursor:pointer;font-size:14px;line-height:1;padding:3px 8px;
+  }
+  .hand-icon-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .sort-wrap{position:relative;display:inline-flex;align-items:center;}
+  .slot-menu-wrap{position:relative;}
+  .preset-menu{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    min-width:250px;
+    max-height:320px;
+    overflow-y:auto;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    box-shadow:0 12px 28px rgba(0,0,0,.5);
+    z-index:50;
+    display:none;
+    padding:6px;
+  }
+  .preset-menu.open{display:block;}
+  .hand-filter-btn{
+    display:flex;align-items:center;gap:6px;
+    background:none;border:1px solid var(--line-bright);color:var(--ink-dim);
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 9px;cursor:pointer;line-height:1;
+  }
+  .hand-filter-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .hand-filter-btn.active{color:var(--cyan);border-color:var(--cyan);}
+  .hand-filter-btn .fico{display:none;font-size:15px;line-height:1;flex:none;}
+  .hand-filter-btn .fcount{
+    display:none;align-items:center;justify-content:center;
+    min-width:15px;height:15px;padding:0 4px;border-radius:8px;
+    background:var(--cyan);color:var(--void);font-weight:700;font-size:9px;
+  }
+  .hand-filter-btn.active .fcount{display:inline-flex;}
+  .filter-menu{z-index:1400;}
+  .filter-row{
+    position:relative;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:9px 10px;
+    cursor:pointer;
+  }
+  .filter-row:hover{background:var(--stat-bg);}
+  .filter-row + .filter-row{border-top:1px solid var(--line);}
+  .filter-cat{
+    font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  .filter-val{
+    font-family:var(--body);font-weight:700;font-size:13.5px;color:var(--cyan);
+  }
+  .filter-row.off .filter-val{color:var(--ink-dim);font-weight:600;}
+  .filter-row > select{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    opacity:0;border:0;padding:0;margin:0;cursor:pointer;z-index:2;
+  }
+  .filter-clear{
+    width:100%;
+    margin-top:4px;
+    background:none;border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 0;cursor:pointer;
+  }
+  .filter-clear:hover{color:var(--cyan);border-color:var(--cyan);}
+  .hand-popout-shell{
+    position:fixed;inset:0;z-index:300;
+    display:flex;
+    padding:14px;
+    pointer-events:none;
+  }
+  .hand-popout-panel{
+    min-height:0;
+    max-height:100%;
+    width:min(100%, var(--hand-panel-w));
+    margin-top:auto;
+    display:flex;flex-direction:column;gap:10px;
+    pointer-events:auto;
+  }
+  .hand-popout-bar{
+    position:relative;
+    z-index:1200;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    min-height:44px;
+    padding:10px 14px;
+    background:rgba(16,21,31,.84);
+    border:1px solid rgba(61,77,110,.92);
+    border-radius:10px;
+    box-shadow:0 10px 28px rgba(0,0,0,.45);
+    backdrop-filter:blur(10px);
+    -webkit-app-region:drag;
+  }
+  .hand-resize-hit{
+    position:absolute;
+    top:0;bottom:0;
+    width:22px;
+    z-index:1600;
+    cursor:ew-resize;
+    -webkit-app-region:no-drag;
+  }
+  .hand-resize-hit.left{left:0;}
+  .hand-resize-hit.right{right:0;}
+  .hand-popout-title{
+    display:flex;align-items:center;gap:10px;
+    min-width:0;
+    font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.12em;
+    color:var(--ink);text-transform:uppercase;
+  }
+  .hand-count{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:22px;height:18px;padding:0 6px;
+    font-family:var(--mono);font-size:10px;font-weight:700;
+    color:var(--void);background:var(--cyan);
+  }
+  .title-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hand-popout-actions{
+    display:flex;align-items:center;gap:8px;
+    -webkit-app-region:no-drag;
+  }
+  .hand-slider{
+    position:absolute;left:0;right:0;top:0;
+    height:8px;
+    display:none;
+    cursor:pointer;
+    touch-action:none;
+    -webkit-app-region:no-drag;
+  }
+  .hand-slider.on{display:block;}
+  .hand-slider-track{
+    position:absolute;left:12px;right:12px;top:3px;
+    height:3px;
+    background:var(--line);
+  }
+  .hand-slider-thumb{
+    position:absolute;top:2px;
+    height:5px;
+    min-width:28px;
+    background:var(--line-bright);
+    border-radius:3px;
+  }
+  .hand-slider:hover .hand-slider-thumb,
+  .hand-slider.dragging .hand-slider-thumb{background:var(--cyan);}
+  .hand-popout-view{
+    min-height:0;
+    max-height:calc(100vh - 96px);
+    overflow-x:auto;overflow-y:auto;
+    padding:78px 18px 28px;
+    background:linear-gradient(180deg, rgba(8,11,19,0) 0%, rgba(8,11,19,.16) 100%);
+    border-radius:18px;
+    scrollbar-width:none;
+  }
+  .hand-popout-view::-webkit-scrollbar{display:none;}
+  .hand{
+    display:flex;align-items:flex-end;
+    justify-content:flex-start;
+    padding:0 12px 18px;
+    width:max-content;
+    min-width:100%;
+  }
+  .hand-card{
+    position:relative;
+    width:var(--hand-card-w);height:var(--hand-card-h);flex:none;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    border-radius:6px;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);
+    padding:12px 12px 10px;
+    cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease, z-index .16s ease;
+    display:flex;flex-direction:column;gap:6px;
+    margin-right:calc(var(--hand-step, 67px) - var(--hand-card-w));
+  }
+  .hand-card:last-child{margin-right:0;}
+  .hand-card:hover,
+  .hand-card.popped{
+    transform:translateY(-55px) scale(1.06);
+    box-shadow:0 18px 40px rgba(0,0,0,.6);
+    border-color:var(--cyan);
+    z-index:500;
+  }
+  .hand-card[data-state="trashed"]{
+    background:
+      linear-gradient(180deg, rgba(154,102,54,.26) 0%, rgba(154,102,54,.15) 100%),
+      linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border-color:var(--brown);
+  }
+  .hand-card[data-state="exhausted"]{
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,.34) 100%),
+      linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+  }
+  .hc-head{display:flex;align-items:flex-start;gap:6px;}
+  .hc-name{
+    flex:1;min-width:0;
+    font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.03em;
+    color:var(--cyan);text-transform:uppercase;line-height:1.2;
+  }
+  .hc-traits{
+    font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  .hc-secs{display:flex;flex-direction:column;gap:6px;overflow:hidden;flex:1;}
+  .hc-sec{font-size:11px;line-height:1.3;color:var(--ink);white-space:pre-wrap;}
+  .hc-sec b{
+    display:block;font-family:var(--mono);font-size:8.5px;color:var(--ink-dim);
+    letter-spacing:.12em;text-transform:uppercase;margin-bottom:1px;
+  }
+  .hc-cost-inline{
+    display:inline-flex;align-items:center;gap:3px;
+    margin-left:4px;color:var(--icon-energy);
+  }
+  .hc-cost-inline svg{width:11px;height:11px;flex:none;}
+  .hc-foot{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:8px;
+    margin-top:auto;
+  }
+  .hc-tags{
+    display:flex;align-items:center;gap:4px;
+    font-size:16px;line-height:1;color:var(--ink);
+  }
+  .hc-state{
+    font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--line-bright);color:var(--ink-dim);
+    padding:1px 4px;margin-left:6px;
+  }
+  .hc-state[data-state="exhausted"]{color:var(--amber);border-color:var(--amber);}
+  .hc-state[data-state="played"]{color:var(--cyan);border-color:var(--cyan-dim);}
+  .hc-state[data-state="trashed"]{color:var(--brown);border-color:var(--brown);}
+  .hc-cost{
+    flex:none;
+    display:flex;align-items:center;justify-content:center;gap:2px;
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-energy);
+    border:1px solid var(--icon-energy);
+    padding:1px 4px;line-height:1.1;
+  }
+  .hc-cost svg{width:13px;height:13px;flex:none;}
+  .hc-charges{
+    flex:none;
+    display:flex;align-items:center;justify-content:center;gap:2px;
+    min-width:22px;
+    font-family:var(--mono);font-weight:700;font-size:12px;color:var(--icon-charged);
+    border:1px solid var(--icon-charged);
+    padding:1px 4px;line-height:1.1;
+  }
+  .hc-charges svg{width:13px;height:13px;flex:none;}
+  .hand-empty{
+    align-self:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  @media (max-width:640px){
+    .hand-popout-shell{padding:10px;}
+    .hand-popout-bar{padding:8px 10px;}
+    .hand-popout-view{
+      max-height:calc(100vh - 76px);
+      padding:74px 10px 22px;
+    }
+    .hand-sort label{display:none;}
+    .sort-wrap > select{
+      position:absolute;top:0;left:0;width:100%;height:100%;
+      opacity:0;border:0;padding:0;z-index:2;
+    }
+    .hand-icon-btn{display:inline-flex;}
+    .hand-filter-btn{padding:5px 8px;}
+    .hand-filter-btn .flabel{display:none;}
+    .hand-filter-btn .fico{display:inline-block;}
+  }
+</style>
+</head>
+<body>
+<div class="hand-popout-shell">
+  <div class="hand-popout-panel">
+    <div class="hand-popout-bar">
+      <div class="hand-resize-hit left" id="handResizeLeft" title="Drag to resize"></div>
+      <div class="hand-resize-hit right" id="handResizeRight" title="Drag to resize"></div>
+      <div class="hand-slider" id="handPopoutSlider">
+        <div class="hand-slider-track"></div>
+        <div class="hand-slider-thumb" id="handPopoutSliderThumb"></div>
+      </div>
+      <div class="hand-popout-title">
+        <span class="hand-count" id="handPopoutCount">0</span>
+        <span class="title-text" id="handPopoutTitleText">Tech Hand</span>
+      </div>
+      <div class="hand-popout-actions">
+        <div class="hand-sort">
+          <span class="sort-wrap">
+            <select id="handPopoutSort" onchange="onHandSortChange()">
+              <option value="az">Name</option>
+              <option value="trait">Trait</option>
+              <option value="type">Type</option>
+              <option value="energy">Energy</option>
+            </select>
+            <button type="button" class="hand-icon-btn" onclick="openHandSelect('handPopoutSort')" title="Sort hand">⇵</button>
+          </span>
+          <div class="slot-menu-wrap">
+            <button type="button" class="hand-filter-btn" id="handPopoutFilterBtn" onclick="toggleFilterMenu(event)" title="Filter hand">
+              <span class="fico" aria-hidden="true">ᯤ</span>
+              <span class="flabel">Filter</span>
+              <span class="fcount" id="handPopoutFilterCount">0</span>
+            </button>
+            <div class="preset-menu filter-menu" id="handPopoutFilterMenu"></div>
+          </div>
+        </div>
+        <button type="button" class="menu-toggle" onclick="closeHandPopout()">Close</button>
+      </div>
+    </div>
+    <div class="hand-popout-view" id="handPopoutView">
+      <div class="hand" id="handPopout"></div>
+    </div>
+  </div>
+</div>
+<script>
+  var HAND_CHANNEL_NAME = 'frigate-hand-sync';
+  var HAND_CHANNEL = null;
+  var HAND_INSTANCE_ID = 'hand-' + Math.random().toString(36).slice(2);
+  var HAND_SNAPSHOT = null;
+  var HAND_SORT = 'az';
+  var HAND_TYPE_ORDER = { offense:0, defense:1, movement:2, science:3 };
+  var HAND_FILTERS = { hand:'', type:'', energy:'', trait:'' };
+  var TECH_TYPES = [
+    {key:'offense', icon:'⚔', label:'Offense'},
+    {key:'defense', icon:'🛡', label:'Defense'},
+    {key:'movement', icon:'➤', label:'Movement'},
+    {key:'science', icon:'⚛︎', label:'Science'}
+  ];
+  var FILTER_CATS = [
+    {key:'hand', label:'Hand', options:[
+      {value:'', label:'N/A'},
+      {value:'hand', label:'In hand'},
+      {value:'nothand', label:'Not in hand'},
+      {value:'played', label:'Played'},
+      {value:'exhausted', label:'Exhausted'},
+      {value:'trashed', label:'Trash'}
+    ]},
+    {key:'type', label:'Type', options:[
+      {value:'', label:'N/A'},
+      {value:'offense', label:'Offense'},
+      {value:'defense', label:'Defense'},
+      {value:'movement', label:'Movement'},
+      {value:'science', label:'Science'}
+    ]},
+    {key:'energy', label:'Energy', options:[
+      {value:'', label:'N/A'},
+      {value:'has', label:'Has cost'},
+      {value:'none', label:'No cost'}
+    ]},
+    {key:'trait', label:'Trait', options:[
+      {value:'', label:'N/A'},
+      {value:'has', label:'Has trait'},
+      {value:'none', label:'No trait'}
+    ]}
+  ];
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function techTypeMeta(key){
+    for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
+    return TECH_TYPES[0];
+  }
+  function copyHandFilters(){
+    return {
+      hand: HAND_FILTERS.hand || '',
+      type: HAND_FILTERS.type || '',
+      energy: HAND_FILTERS.energy || '',
+      trait: HAND_FILTERS.trait || ''
+    };
+  }
+  function applyHandFilters(filters){
+    filters = filters || {};
+    HAND_FILTERS.hand = filters.hand || '';
+    HAND_FILTERS.type = filters.type || '';
+    HAND_FILTERS.energy = filters.energy || '';
+    HAND_FILTERS.trait = filters.trait || '';
+  }
+  function nextHandCardState(cur){
+    return (cur === 'played') ? 'exhausted' : 'played';
+  }
+  function handItemViewData(item){
+    var meta = techTypeMeta(item.techType);
+    return {
+      name: (item.name || '').trim(),
+      type: meta.icon,
+      traits: (item.traits || '').trim(),
+      onbuild: item.onbuild || '',
+      passive: item.passive || '',
+      onactivate: item.onactivate || '',
+      onbuildenergy: item.onbuildenergy || '',
+      onactivateenergy: item.onactivateenergy || '',
+      charges: item.charges || ''
+    };
+  }
+  function energyLabel(label, cost){
+    if(cost && cost !== '0'){
+      return label + ' <span class="hc-cost-inline">' + escapeHtml(cost) +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>';
+    }
+    return label;
+  }
+  function handCardHtml(d, state){
+    var costVal = (state === 'played') ? d.onactivateenergy : (state === 'hand' ? d.onbuildenergy : '');
+    var costHtml = (costVal && costVal !== '0')
+      ? '<span class="hc-cost">' + escapeHtml(costVal) +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
+      : '';
+    var chargesVal = (d.charges || '').trim();
+    var chargesHtml = (chargesVal !== '')
+      ? '<span class="hc-charges">' + escapeHtml(chargesVal) +
+        '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg></span>'
+      : '';
+    return '<div class="hc-head">' + costHtml +
+        '<div class="hc-name">' + escapeHtml(d.name || 'UNTITLED TECH') + '</div>' +
+      '</div>' +
+      (d.traits ? '<div class="hc-traits">' + escapeHtml(d.traits) + '</div>' : '') +
+      '<div class="hc-secs">' +
+        (d.onbuild || d.onbuildenergy ? '<div class="hc-sec"><b>' + energyLabel('On Play', d.onbuildenergy) + '</b>' + escapeHtml(d.onbuild) + '</div>' : '') +
+        (d.passive ? '<div class="hc-sec"><b>Passive</b>' + escapeHtml(d.passive) + '</div>' : '') +
+        (d.onactivate ? '<div class="hc-sec"><b>' + energyLabel('On Activate', d.onactivateenergy) + '</b>' + escapeHtml(d.onactivate) + '</div>' : '') +
+      '</div>' +
+      '<div class="hc-foot">' +
+        '<span class="hc-tags">' + (d.type || '') +
+          '<span class="hc-state" data-state="' + state + '">' + state + '</span>' +
+        '</span>' + chargesHtml +
+      '</div>';
+  }
+  function openHandSelect(id){
+    var sel = document.getElementById(id);
+    if(!sel) return;
+    if(sel.showPicker){
+      try{ sel.showPicker(); }catch(e){ sel.focus(); }
+    } else {
+      sel.focus();
+    }
+  }
+  function closeHandPopout(){
+    if(window.frigateElectron && window.frigateElectron.closeCurrentWindow){
+      window.frigateElectron.closeCurrentWindow();
+    } else {
+      window.close();
+    }
+  }
+  function setWindowClickThrough(enabled){
+    if(window.frigateElectron && window.frigateElectron.setClickThrough){
+      window.frigateElectron.setClickThrough(enabled);
+    }
+  }
+  function syncClickThrough(target){
+    var panel = document.querySelector('.hand-popout-panel');
+    if(!panel) return;
+    var interactive = !!(target && target.closest && target.closest('.hand-popout-panel'));
+    setWindowClickThrough(!interactive);
+  }
+  function filterCatMeta(key){
+    for(var i=0;i<FILTER_CATS.length;i++){ if(FILTER_CATS[i].key === key) return FILTER_CATS[i]; }
+    return null;
+  }
+  function filterValueLabel(key){
+    var cat = filterCatMeta(key);
+    if(!cat) return 'N/A';
+    var val = HAND_FILTERS[key];
+    for(var i=0;i<cat.options.length;i++){
+      if(cat.options[i].value === val) return cat.options[i].label;
+    }
+    return 'N/A';
+  }
+  function buildFilterMenu(){
+    var menu = document.getElementById('handPopoutFilterMenu');
+    if(!menu) return;
+    menu.innerHTML = '';
+    FILTER_CATS.forEach(function(cat){
+      var row = document.createElement('div');
+      row.className = 'filter-row';
+      row.setAttribute('data-cat', cat.key);
+      row.innerHTML = '<span class="filter-cat">' + escapeHtml(cat.label) + '</span><span class="filter-val"></span>';
+      var sel = document.createElement('select');
+      sel.setAttribute('data-cat', cat.key);
+      sel.setAttribute('aria-label', cat.label + ' filter');
+      cat.options.forEach(function(o){
+        var opt = document.createElement('option');
+        opt.value = o.value;
+        opt.textContent = o.label;
+        sel.appendChild(opt);
+      });
+      sel.value = HAND_FILTERS[cat.key];
+      sel.onchange = function(){
+        HAND_FILTERS[cat.key] = sel.value;
+        updateFilterUI();
+        sendHandControls();
+        refreshHand();
+      };
+      row.appendChild(sel);
+      menu.appendChild(row);
+    });
+    var clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'filter-clear';
+    clear.textContent = 'Clear all';
+    clear.onclick = clearFilters;
+    menu.appendChild(clear);
+    updateFilterUI();
+  }
+  function activeFilterCount(){
+    var n = 0;
+    for(var k in HAND_FILTERS){
+      if(HAND_FILTERS.hasOwnProperty(k) && HAND_FILTERS[k]) n++;
+    }
+    return n;
+  }
+  function updateFilterUI(){
+    var rows = document.querySelectorAll('#handPopoutFilterMenu .filter-row');
+    for(var i=0;i<rows.length;i++){
+      var key = rows[i].getAttribute('data-cat');
+      var valEl = rows[i].querySelector('.filter-val');
+      if(valEl) valEl.textContent = filterValueLabel(key);
+      rows[i].classList.toggle('off', !HAND_FILTERS[key]);
+      var sel = rows[i].querySelector('select');
+      if(sel) sel.value = HAND_FILTERS[key];
+    }
+    var n = activeFilterCount();
+    var btn = document.getElementById('handPopoutFilterBtn');
+    if(btn) btn.classList.toggle('active', n > 0);
+    var count = document.getElementById('handPopoutFilterCount');
+    if(count) count.textContent = n;
+  }
+  function clearFilters(){
+    for(var k in HAND_FILTERS){
+      if(HAND_FILTERS.hasOwnProperty(k)) HAND_FILTERS[k] = '';
+    }
+    updateFilterUI();
+    sendHandControls();
+    refreshHand();
+  }
+  function toggleFilterMenu(e){
+    e.stopPropagation();
+    var menu = document.getElementById('handPopoutFilterMenu');
+    if(menu) menu.classList.toggle('open');
+  }
+  function closeFilterMenu(){
+    var menu = document.getElementById('handPopoutFilterMenu');
+    if(menu) menu.classList.remove('open');
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('handPopoutFilterMenu');
+    if(menu && menu.classList.contains('open') && !menu.contains(e.target)){
+      menu.classList.remove('open');
+    }
+  });
+  function onHandSortChange(){
+    HAND_SORT = document.getElementById('handPopoutSort').value;
+    sendHandControls();
+    refreshHand();
+  }
+  function handSortCards(cards){
+    cards.sort(function(a,b){
+      var da = handItemViewData(a);
+      var db = handItemViewData(b);
+      if(HAND_SORT === 'trait'){
+        var ta = (da.traits || '').toLowerCase();
+        var tb = (db.traits || '').toLowerCase();
+        if(ta !== tb) return ta < tb ? -1 : 1;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      if(HAND_SORT === 'type'){
+        var oa = HAND_TYPE_ORDER[a.techType];
+        var ob = HAND_TYPE_ORDER[b.techType];
+        if(oa === undefined) oa = 99;
+        if(ob === undefined) ob = 99;
+        if(oa !== ob) return oa - ob;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      if(HAND_SORT === 'energy'){
+        var ea = parseFloat(da.onbuildenergy);
+        var eb = parseFloat(db.onbuildenergy);
+        if(isNaN(ea)) ea = Infinity;
+        if(isNaN(eb)) eb = Infinity;
+        if(ea !== eb) return ea - eb;
+        return (da.name || '').localeCompare(db.name || '');
+      }
+      return (da.name || '').localeCompare(db.name || '');
+    });
+  }
+  function snapshotItemPasses(item){
+    var d = handItemViewData(item);
+    if(HAND_FILTERS.hand){
+      var st = item.state || 'played';
+      if(HAND_FILTERS.hand === 'nothand'){
+        if(st === 'hand') return false;
+      } else if(st !== HAND_FILTERS.hand){
+        return false;
+      }
+    }
+    if(HAND_FILTERS.type && item.techType !== HAND_FILTERS.type) return false;
+    if(HAND_FILTERS.energy){
+      var e = d.onbuildenergy;
+      var hasCost = !!(e && e.trim() !== '' && parseFloat(e) > 0);
+      if((HAND_FILTERS.energy === 'has') !== hasCost) return false;
+    }
+    if(HAND_FILTERS.trait){
+      if((HAND_FILTERS.trait === 'has') !== !!d.traits) return false;
+    }
+    return true;
+  }
+  function updatePopoutHandSpread(){
+    var view = document.getElementById('handPopoutView');
+    var strip = document.getElementById('handPopout');
+    if(!view || !strip) return;
+    var n = strip.querySelectorAll('.hand-card').length;
+    var cardW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hand-card-w')) || 190;
+    var loose = cardW * 0.67;
+    var tight = cardW * 0.34;
+    var step = loose;
+    if(n > 1){
+      var cs = getComputedStyle(strip);
+      var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      var avail = view.clientWidth - pad;
+      var needed = (avail - cardW) / (n - 1);
+      step = Math.max(tight, Math.min(loose, needed));
+    }
+    strip.style.setProperty('--hand-step', step + 'px');
+  }
+  function updatePopoutHandSlider(){
+    var view = document.getElementById('handPopoutView');
+    var slider = document.getElementById('handPopoutSlider');
+    var thumb = document.getElementById('handPopoutSliderThumb');
+    if(!view || !slider || !thumb) return;
+    var sw = view.scrollWidth, cw = view.clientWidth;
+    if(sw <= cw + 1){
+      slider.classList.remove('on');
+      return;
+    }
+    slider.classList.add('on');
+    var track = slider.querySelector('.hand-slider-track');
+    var trackW = track.offsetWidth;
+    var w = Math.max(28, (cw / sw) * trackW);
+    var maxLeft = trackW - w;
+    var maxScroll = sw - cw;
+    var left = maxScroll > 0 ? (view.scrollLeft / maxScroll) * maxLeft : 0;
+    thumb.style.width = w + 'px';
+    thumb.style.left = (12 + left) + 'px';
+  }
+  function wirePopoutHandSlider(){
+    var view = document.getElementById('handPopoutView');
+    var slider = document.getElementById('handPopoutSlider');
+    if(!view || !slider) return;
+    view.addEventListener('scroll', updatePopoutHandSlider);
+    window.addEventListener('resize', updatePopoutHandSlider);
+    var dragging = false;
+    function scrollToPointer(clientX){
+      var track = slider.querySelector('.hand-slider-track');
+      var r = track.getBoundingClientRect();
+      var thumb = document.getElementById('handPopoutSliderThumb');
+      var w = thumb.offsetWidth;
+      var maxLeft = r.width - w;
+      if(maxLeft <= 0) return;
+      var pos = clientX - r.left - w / 2;
+      pos = Math.max(0, Math.min(maxLeft, pos));
+      view.scrollLeft = (pos / maxLeft) * (view.scrollWidth - view.clientWidth);
+    }
+    slider.addEventListener('pointerdown', function(e){
+      dragging = true;
+      slider.classList.add('dragging');
+      slider.setPointerCapture(e.pointerId);
+      scrollToPointer(e.clientX);
+      e.preventDefault();
+    });
+    slider.addEventListener('pointermove', function(e){
+      if(dragging) scrollToPointer(e.clientX);
+    });
+    function endDrag(){
+      dragging = false;
+      slider.classList.remove('dragging');
+    }
+    slider.addEventListener('pointerup', endDrag);
+    slider.addEventListener('pointercancel', endDrag);
+  }
+  var HAND_PANEL_MIN_W = 520;
+  function currentPanelWidth(){
+    var raw = getComputedStyle(document.documentElement).getPropertyValue('--hand-panel-w');
+    var px = parseFloat(raw);
+    return isNaN(px) ? 1800 : px;
+  }
+  function setPanelWidth(px){
+    var shell = document.querySelector('.hand-popout-shell');
+    var shellStyle = shell ? getComputedStyle(shell) : null;
+    var shellPad = shellStyle ? ((parseFloat(shellStyle.paddingLeft) || 0) + (parseFloat(shellStyle.paddingRight) || 0)) : 28;
+    var maxW = Math.max(HAND_PANEL_MIN_W, window.innerWidth - shellPad);
+    var next = Math.max(HAND_PANEL_MIN_W, Math.min(maxW, Math.round(px)));
+    document.documentElement.style.setProperty('--hand-panel-w', next + 'px');
+    updatePopoutHandSpread();
+    updatePopoutHandSlider();
+  }
+  function wirePanelResize(){
+    var panel = document.querySelector('.hand-popout-panel');
+    var left = document.getElementById('handResizeLeft');
+    var right = document.getElementById('handResizeRight');
+    if(!panel || !left || !right) return;
+    function beginResize(side, e){
+      var startX = e.clientX;
+      var startW = panel.getBoundingClientRect().width;
+      var pointerId = e.pointerId;
+      setWindowClickThrough(false);
+      function onMove(ev){
+        var delta = ev.clientX - startX;
+        var next = (side === 'right') ? (startW + delta) : (startW - delta);
+        setPanelWidth(next);
+      }
+      function end(ev){
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', end);
+        window.removeEventListener('pointercancel', end);
+        if(ev && ev.target && ev.target.releasePointerCapture){
+          try{ ev.target.releasePointerCapture(pointerId); }catch(err){}
+        }
+        syncClickThrough(document.elementFromPoint(ev.clientX, ev.clientY));
+      }
+      if(e.target && e.target.setPointerCapture){
+        try{ e.target.setPointerCapture(pointerId); }catch(err){}
+      }
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', end);
+      window.addEventListener('pointercancel', end);
+      e.preventDefault();
+    }
+    left.addEventListener('pointerdown', function(e){ beginResize('left', e); });
+    right.addEventListener('pointerdown', function(e){ beginResize('right', e); });
+  }
+  function syncHandRoom(){
+    var view = document.getElementById('handPopoutView');
+    var strip = document.getElementById('handPopout');
+    if(!view || !strip) return;
+    var up = strip.querySelector('.hand-card.popped') || strip.querySelector('.hand-card:hover');
+    view.classList.toggle('roomy', !!up);
+  }
+  function wireHandCardInteractions(el, onActivate){
+    var charges = el.querySelector('.hc-charges');
+    if(charges){
+      charges.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(el._onChargeDelta) el._onChargeDelta(1);
+      });
+      charges.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(el._onChargeDelta) el._onChargeDelta(-1);
+      });
+    }
+    el.addEventListener('mouseenter', function(){
+      var popped = el.parentNode ? el.parentNode.querySelector('.hand-card.popped') : null;
+      if(popped && popped !== el) popped.classList.remove('popped');
+      syncHandRoom();
+    });
+    el.addEventListener('mouseleave', function(){
+      setTimeout(syncHandRoom, 0);
+    });
+    el.addEventListener('click', function(){
+      var popped = el.parentNode ? el.parentNode.querySelector('.hand-card.popped') : null;
+      if(popped && popped !== el) popped.classList.remove('popped');
+      el.classList.toggle('popped');
+      syncHandRoom();
+    });
+    el.addEventListener('dblclick', function(e){
+      e.preventDefault();
+      if(onActivate) onActivate();
+    });
+  }
+  function refreshHand(){
+    var handEl = document.getElementById('handPopout');
+    var countEl = document.getElementById('handPopoutCount');
+    var titleEl = document.getElementById('handPopoutTitleText');
+    var popSort = document.getElementById('handPopoutSort');
+    if(!handEl || !countEl) return;
+    if(popSort && popSort.value !== HAND_SORT) popSort.value = HAND_SORT;
+    updateFilterUI();
+    var tech = HAND_SNAPSHOT && Array.isArray(HAND_SNAPSHOT.tech) ? HAND_SNAPSHOT.tech.slice() : [];
+    tech = tech.filter(snapshotItemPasses);
+    handSortCards(tech);
+    handEl.innerHTML = '';
+    if(tech.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'hand-empty';
+      empty.textContent = activeFilterCount() ? 'No techs match' : 'No techs';
+      handEl.appendChild(empty);
+    } else {
+      for(var i=0;i<tech.length;i++){
+        var item = tech[i];
+        var d = handItemViewData(item);
+        var el = document.createElement('div');
+        el.className = 'hand-card';
+        el.setAttribute('data-state', item.state || 'played');
+        el._sourceIndex = typeof item.sourceIndex === 'number' ? item.sourceIndex : i;
+        el.innerHTML = handCardHtml(d, item.state || 'played');
+        el._onChargeDelta = (function(index){
+          return function(delta){
+            postHandMessage('set-tech-charges', { index: index, delta: delta });
+          };
+        })(typeof item.sourceIndex === 'number' ? item.sourceIndex : i);
+        wireHandCardInteractions(el, (function(index, state){
+          return function(){
+            postHandMessage('set-tech-state', { index: index, state: nextHandCardState(state || 'played') });
+          };
+        })(typeof item.sourceIndex === 'number' ? item.sourceIndex : i, item.state));
+        handEl.appendChild(el);
+      }
+    }
+    countEl.textContent = tech.length;
+    if(titleEl){
+      var shipName = HAND_SNAPSHOT && HAND_SNAPSHOT.shipName ? HAND_SNAPSHOT.shipName.trim() : '';
+      titleEl.textContent = shipName ? shipName + ' // Tech Hand' : 'Tech Hand';
+    }
+    updatePopoutHandSpread();
+    updatePopoutHandSlider();
+    syncHandRoom();
+  }
+  function postHandMessage(type, payload){
+    if(!HAND_CHANNEL) return;
+    var msg = payload || {};
+    msg.type = type;
+    msg.source = HAND_INSTANCE_ID;
+    HAND_CHANNEL.postMessage(msg);
+  }
+  function sendHandControls(){
+    postHandMessage('set-hand-controls', {
+      handSort: HAND_SORT,
+      handFilters: copyHandFilters()
+    });
+  }
+  function applyHandSnapshot(snapshot){
+    HAND_SNAPSHOT = snapshot;
+    if(!snapshot) return;
+    document.documentElement.setAttribute('data-theme', snapshot.theme || 'dark');
+    HAND_SORT = snapshot.handSort || 'az';
+    applyHandFilters(snapshot.handFilters);
+    refreshHand();
+  }
+  function applyHandPopoutChargeSync(msg){
+    var handEl = document.getElementById('handPopout');
+    if(!handEl) return;
+    var idx = msg.index;
+    if(typeof idx !== 'number' || idx < 0) return;
+    var cards = handEl.querySelectorAll('.hand-card');
+    for(var i=0;i<cards.length;i++){
+      if(cards[i]._sourceIndex !== idx) continue;
+      var span = cards[i].querySelector('.hc-charges');
+      if(span && span.firstChild && span.firstChild.nodeType === 3){
+        span.firstChild.nodeValue = msg.value || '';
+      } else {
+        refreshHand();
+      }
+      return;
+    }
+  }
+  function requestHandSnapshot(){
+    postHandMessage('request-snapshot', {});
+  }
+  function setupHandChannel(){
+    if(!window.BroadcastChannel) return;
+    HAND_CHANNEL = new BroadcastChannel(HAND_CHANNEL_NAME);
+    HAND_CHANNEL.onmessage = function(event){
+      var msg = event && event.data ? event.data : null;
+      if(!msg || msg.source === HAND_INSTANCE_ID) return;
+      if(msg.type === 'snapshot'){
+        applyHandSnapshot(msg.snapshot || null);
+      }
+      if(msg.type === 'sync-tech-charges'){
+        applyHandPopoutChargeSync(msg);
+      }
+    };
+  }
+  document.addEventListener('mousemove', function(e){
+    syncClickThrough(e.target);
+  });
+  document.addEventListener('mouseover', function(e){
+    syncClickThrough(e.target);
+  });
+  window.addEventListener('blur', function(){
+    setWindowClickThrough(true);
+  });
+  window.addEventListener('resize', function(){
+    setPanelWidth(currentPanelWidth());
+  });
+  buildFilterMenu();
+  wirePopoutHandSlider();
+  wirePanelResize();
+  setupHandChannel();
+  requestHandSnapshot();
+  refreshHand();
+  setWindowClickThrough(true);
+</script>
+</body>
+</html>

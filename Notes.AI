@@ -1,22 +1,25 @@
 # Notes for Editing frigate.html (AI Scratchpad)
 
 ## What this is
-`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently ~2100 lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
+`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently **3369** lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
+
+There is also a **`hex-grid-generator.html`** static page (a standalone flat-top hex map generator). `serve.py` serves it at `http://localhost:8000/hex/`.
 
 This is a **private passion project** (the owner designed the TTRPG). Treat all game terminology and flavor as intentional. Do not add dependencies, frameworks, or build tools. Keep it self-contained.
 
 ## File layout (top to bottom)
-1. `<head>` → `<style>` block (the entire CSS, lines ~9–795).
-2. `<body>` → static HTML:
+1. `<head>` → `<style>` block (the entire CSS, lines **9–851**). Section markers are `/* ===== ... ===== */`.
+2. `<body>` → static HTML (`<!-- XXXX -->` markers):
    - `<nav class="menu-bar">` — Export / Import / theme toggle buttons.
    - Header (`.topbar`) — ship name, captain, commissioned, ship class, DC hex.
    - `.grid` (Row 1) — **Classification/Stats** panel + **Skills** panel.
    - `.row2` (Row 2) — **Traits & Crew**, **Technologies**.
-   - **Modules/Deployables** panel (the most recently added section, before footer).
+   - **Modules/Deployables** panel.
    - `<footer>`.
-3. `<script>` block (lines ~1073–2090) — all logic.
+3. `<script>` block (**lines 1342–3315**) — all logic.
+4. After `</script>` (lines 3316–3369) — floating chrome elements: `#skillPopover`, `.preset-menu#slotPicker`, and the `#handDock` (the tech-hand dock lives here, not in the `<body>` flow above).
 
-The CSS and HTML both follow COMMENTED section markers (e.g. `/* ===== skills panel ===== */`, `<!-- TECHNOLOGIES -->`). Use those to navigate.
+Line numbers below are approximate; navigate via the commented section markers.
 
 ## Design / visual language
 - **"Panel"** = the signature corner-bracket box (`.panel` with `.bl`/`.br` corner divs, cyan corner accents). Clone this for any new top-level section.
@@ -26,54 +29,85 @@ The CSS and HTML both follow COMMENTED section markers (e.g. `/* ===== skills pa
   - `.tech-grid` → `.tech-card`
   - `.mod-grid` → `.mod-card`
   These use `repeat(auto-fit, minmax(...))` so they wrap responsively.
-- **Slot controls** (`.slot-controls` / `.slot-btn`) = the `− / + / ☰` buttons at a panel header. `−` removes a slot (opens a picker), `+` adds an empty slot, `☰` opens a **preset menu** (`.preset-menu`).
+- **Slot controls** (`.slot-controls` / `.slot-btn`) = the `− / + / ☰` buttons at a panel header. `−` opens the shared **slot picker** (`#slotPicker`, "Remove which slot?") via `showSlotPicker(e, btn, gridId, nameSel)`, `+` adds an empty slot, `☰` opens a **preset menu** (`.preset-menu`).
+- **Section collapse**: Crew Skills, Traits & Crew, Technologies, and Modules/Deployables panels each have an **👁 eye button** (`.slot-btn.panel-collapse-btn`, first/left of `−`) calling `togglePanelCollapse(btn)`, which toggles `.collapsed` on the `.panel`. When collapsed, only the header/banner row (title + controls) shows; the content is hidden via `.panel.collapsed .crew-grid/.tech-grid/.mod-grid/.skills{display:none}` and the eye button is highlighted cyan.
 - **Theme**: `[data-theme="dark"]` (default) and `[data-theme="light"]` on `<html>`. Colors come from CSS custom properties (`--cyan`, `--amber`, `--ink`, `--line`, etc.). New inline SVG icons use `stroke="var(--icon-...)"`.
 - Fonts: `--disp` (Orbitron, titles), `--body` (Rajdhani), `--mono` (JetBrains Mono, labels/values/traits).
 
 ## Core sections & their markup patterns
 
 ### Stats (Row 1 `.grid`)
-- `.stat-strip` of `.stat` cards: Hull HP, Base Shield, Energy, Storage, Speed.
-- Many stat icons are clickable `decrementStat('id')` (e.g. hull/shield/energy). Values are `<input>`s.
+- `.stat-strip` of `.stat` cards: Hull HP, Base Shield, Energy (each cur/max), Storage, Speed.
+- Hull/Shield/Energy icons are clickable `decrementStat('id')` (decrement cur only). Values are `<input>`s.
+- **Turn rules blocks**: two collapsible `.rules-block`s directly under the stat strip — "At the start of your turn" (`#turnBox`) and "During your turn" (`#duringBox`). Header click → `toggleTurnBox(rhead)` toggles `.collapsed` (collapses the `<ul>`). Each block has one-click rule buttons:
+  - `rechargeEnergy()` — sets `energyCur` = `energyMax`.
+  - `refreshAllTechs()` — resets every tech from `exhausted` back to `built` (`setTechState(card,'built')`) and clears exhaust on every mod (`applyModExhaust(card,false)`).
 
 ### Skills
 - A `table.skills` with 9 fixed skills; each has a Point and Penalty input (`id="skill-<Name>-pts"` / `-pen`).
-- **Skill hover tooltips**: hovering a skill name shows a popup (`#skillPopover`) with its description from the `SKILL_DESCRIPTIONS` object (wired by `wireSkillTooltips()` in the init block; rendering in `showSkillInfo()`/`skillDescription()`). Keys are skill names (e.g. `Science`, `Sensors`); `{SCIENCE}` is substituted with the live Science value. To add/edit a skill's tooltip, edit/append its entry in `SKILL_DESCRIPTIONS` — don't rely on the native `title` attribute for skills.
+- **Skill hover tooltips**: hovering a skill name shows a popup (`#skillPopover`) with its description from the `SKILL_DESCRIPTIONS` object (wired by `wireSkillTooltips()` in the init block; rendering in `showSkillInfo()`/`skillDescription()`). Keys are skill names (currently only `Science` and `Sensors` have entries); `{SCIENCE}` is substituted with the live Science value (`skillValue()`). To add/edit a skill's tooltip, edit/append its entry in `SKILL_DESCRIPTIONS` — don't rely on the native `title` attribute for skills.
+
+### Hull Classification (class presets)
+The class `<select id="shipClass">` ("Unclassified" / Support / Jump / Striker / Discovery) triggers `onShipClassChange()` on change. `CLASS_PRESETS` maps each class to stat bumps + a signature technology:
+- **Support** — `stats:{hull+2, shield+2, storage+2}`, tech `Repulsor Unit`, AND auto-adds the **Repulsor Unit module** (`modName`).
+- **Jump** — tech `Phantom`.
+- **Discovery** — `stats:{storage+4}`, tech `Experimental Reconnaissance`.
+- **Striker** — `stats:{storage+2}`, tech `Decomp Strikes`.
+
+After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max (hull/shield) or single-value stats (storage); `findTechByName()` / `findModByName()` resolve the signature tech/mod in the preset arrays, and `addTechFromData()` / `pickModPreset()` add them.
 
 ### Traits & Crew
-- Panel header controls → `addCrewSlot()`, `showSlotPicker(..., 'crewGrid', '.cname')`, and `☰` → `presetMenu` (built from the `PRESETS` array).
-- Cards are `.crew-card` with class header "Slot 0N", a name (`input.cname`) + combat tag button (`.crew-tag-btn` ⚔), and a role/effect textarea.
+- The panel starts with **1 empty slot** by default (the static HTML has a single `.crew-card`, "Slot 01"); more slots are added with the `+` control / preset catalog.
+- Panel header controls → `addCrewSlot()`, `removeCrewSlot()`, and `☰` → `buildPresetMenu()` from the `PRESETS` array (sorted by name; `combat_only` presets get a "combat" tag in the menu). Presets may also define a `type` (`offense`/`defense`/`movement`/`science`); when present, the menu shows the matching ⚔/🛡/➤/⚛︎ icon via `crewTypeIcon()` (from the `CREW_TYPES` array).
+- Cards are `.crew-card` with class header "Slot 0N" (`.ch`), a name (`input.cname`) + combat tag button (`.crew-tag-btn` ⚔, `toggleCombatTag`/`setCombatTag`), a role/effect textarea, and a footer `.cfoot` whose `.cticker` shows the crew type icon at bottom-left (default `offense` ⚔, click to cycle via `cycleCrewType`; `setCrewType(el, key)` sets it and the tooltip. Type is persisted as `type` on each crew record via `readCrew`/`writeCrew`, and set from a preset's `type` in `pickPreset`).
+- Slot removal is shared: `showSlotPicker(e, btn, 'crewGrid', '.cname')` → `deleteSlotAt('crewGrid', idx)` which also calls `relabelSlots()` so Slot numbers stay sequential.
 
-### Technologies (the template the Mods section was modeled on)
+### Technologies
 - `.tech-card` per tech:
-  - `.thead`: `input.tname` + **Edit** button (`.tsecedit`, `toggleTechEdit`).
+  - `.thead`: `input.tname` + **⇅ state toggle** (`.tbuilt-btn`, see Hand section) + **Edit** button (`.tsecedit`, `toggleTechEdit`) + a **🗑 delete** button (`.t-delete`, edit-mode-only, `removeTechCard(btn)` removes that specific card).
   - `.tsub`: `.ttraits` input (traits line).
   - `.tsecs`: three collapsible **sections** — On Build / Passive / On Activate — each a `.tsec` with a `.tsec-head` and a `<textarea>`. On Build & On Activate have an energy-cost **diamond** (`.tdiamond`) for the cost.
-  - `.tfoot`: tech-type toggle (`.tticker`, cycles Offense/Defense/Movement/Science), storage, hull, charges, and deploy-state toggle (`.tdepbtn`).
-- **Edit pattern**: clicking Edit adds `.editing` to the card; empty sections that were hidden (`.hid`) become visible/editable; inputs/textarea get enabled. `refreshTechSections(card)` toggles visibility + disabled exclusively based on `card.classList.contains('editing')` and whether fields have content.
-- Preset catalog = `TECHP_RESETS` array; menu built by `buildTechPresetMenu()`.
-- Deploy states in `DEPLOY_STATES` = `normal` / `deployable` / `module` (with SVG for the latter two).
+  - `.tfoot`: tech-type toggle (`.tticker`, cycles Offense/Defense/Movement/Science), storage (`.tstorage`), hull (`.thull`, `.hid` default), charges (`.tcharges`, `.hid` default), and deploy-state toggle (`.tdepbtn`).
+- **State**: each `.tech-card` has a single `data-state` = `hand` | `built` | `exhausted` (`built` default). `hand` and `exhausted` dim the card (CSS `.tech-card.state-hand{opacity:.6}` / `.state-exhausted{opacity:.55}`); `built` is not dimmed. The `⇅` `.tbuilt-btn` cycles `hand → built → exhausted → …` via `toggleTechState()` (see Hand section). There is NO separate exhaust button for techs anymore.
+- **Edit pattern**: clicking Edit adds `.editing` to the card; empty `.hid` elements become visible/editable. `refreshTechSections(card)` toggles visibility + disabled exclusively based on `card.classList.contains('editing')` and whether fields have content. It also tags each `.tsec` with `.mod` / `.dep` when its text matches `/create\s+module/i` / `/create\s+deployable/i` — CSS tints those section backgrounds green/amber as a visual aid. Hull (`.thull`) and charges (`.tcharges`) are click-decremented/incremented on the grid (delegated `#techGrid` click listener).
+- Preset catalog = `TECHP_RESETS` array; menu built by `buildTechPresetMenu()`; picking calls `addTechFromData(t)` (also used in `pickTechPreset`, class presets, and import).
+- Deploy states in `DEPLOY_STATES` = `normal` / `deployable` / `module` (with SVG for the latter two); `setTechDeploy()` / `cycleTechDeploy()`.
 
-### Modules / Deployables (MOST RECENT — most likely to be edited next)
-A panel mirroring Technologies, added per user request. Structure of a `.mod-card`:
-- `.mhead`: `.mshape-btn` (Shape toggle, left, see below) + `input.mname` (Title) + `.msecedit` Edit button.
+### Modules / Deployables
+A panel mirroring Technologies. Structure of a `.mod-card`:
+- `.mhead`: `.mshape-btn` (Shape toggle, left) + `input.mname` (Title) + `.mexhaust-btn` (Exhaust/Refresh, edit-mode-only like techs) + `.msecedit` Edit button + a **🗑 delete** button (`.m-delete`, edit-mode-only, `removeModCard(btn)` removes that specific card).
 - `.msub`: `input.mreq` (Requirements field, same style as tech `.ttraits`).
-- `.msecs`: three sections like tech — `.msec.onbuild`, `.msec.passive`, `.msec.onactivate` (each `.hid` by default). On Activate has an energy-cost **diamond** (`.mcost` with `.mcost-input`).
-- `.mfoot` (bottom bar): `.mtype-btn` (the Module⇄Deployable SVG toggle, LEFT-moust/first), then `.mspeed`, `.mdur`, `.mhull` value icons/inputs.
+- `.msecs`: three sections like tech — `.msec.onbuild`, `.msec.passive`, `.msec.onactivate` (each `.hid` by default). **Only On Activate** has an energy-cost **diamond** (`.mcost` with `.mcost-input`); On Build has no cost field.
+- `.mfoot` (bottom bar): `.mtype-btn` (Module⇄Deployable SVG toggle, leftmost/first), then `.mspeed`, `.mdur`, `.mhull`, and `.mcharges` (charges, `.hid` default) value icons/inputs.
 
 **JS for mods** (section at `/* ===== Modules / Deployables ===== */`):
-- `MOD_PRESETS` = catalog (Cannon, Graviton Engine, Ion Torpedo, P.D.) shown in the `modPresetMenu`.
+- `MOD_PRESETS` = catalog (Armor, Cannon, Comms Unit, Graviton Engine, Ion Torpedo, P.D., Repulsor Unit, Shuttle Craft I, Tug Craft I) shown in the `modPresetMenu`. Presets may define optional `duration`, `speed`, `charges`, and `shape` in addition to `req`/`hull`/`type`/texts; `pickModPreset()` applies all of them.
 - `MOD_SHAPES` = shape catalog with emoji/glyph icons (see below); `setModuleShape` / `cycleModuleShape`.
 - `addModSlot()`, `removeModSlot()`, `refreshModSlotControls()`, `relabelMods()`.
+- `toggleModExhaust` / `applyModExhaust` — same pattern as tech exhaust (`.exhausted` dims the card).
 - `toggleModEdit()` + `refreshModSections(card)` — the hide/show + disable edit mechanism (mirrors `refreshTechSections`).
 - `setModType` / `toggleModType` — toggles `data-mtype` between `module` and `deployable`, rendering the matching SVG from `DEPLOY_STATES`.
-- Click/input event listeners on `#modGrid` handle: shape cycle, type toggle, and hull/duration decrement-on-click.
+- Click/input event listeners on `#modGrid` handle: shape cycle, type toggle, charges increment (+1), and hull/duration decrement-on-click.
+
+### Tech Hand / Deck (bottom bar)
+A fixed bottom "hand" UI (`#handDock`) that pops up over **38vh** when expanded, showing a fan of overlapping tech cards (like a card-game hand). This is a VIEW of the tech grid, grouped by the single `data-state` attribute:
+- Each `.tech-card` carries a `data-state` = `hand` | `built` | `exhausted` (`built` default). Persisted as `state` in `readTech`/`writeTech`; on import an old sheet's `exhaust`/`built` fields are mapped (`exhaust===true`→`exhausted`, `built===false`→`hand`, else `built`).
+- The hand shows ONLY techs whose state is `hand`. Cards overlap via negative `margin-right`, and on `:hover` (or when `.popped`) they `translateY(-55px) scale(1.06)` to "pop out" for full viewing (the view padding leaves headroom above the fan).
+- **Click behavior**: a single click pops the card (adds `.popped`, same visual as hover); a **second click within the 260ms timer (i.e. a double-click)** builds it by calling `setTechState(card,'built')` → it disappears from the hand and appears undimmed in the grid. A `dblclick` listener prevents default text-selection. The `⇅` button (`.tbuilt-btn`) on a tech card header cycles a tech `hand → built → exhausted` (via `toggleTechState`); `hand` and `exhausted` dim the card, `built` does not.
+- Key functions (near the `/* ===== Technologies ===== */` block): `techState(card)`, `setTechState(card,state)`, `syncTechStateUI(card)`, `toggleTechState(btn)`, `TECH_STATE_ORDER` (`['hand','built','exhausted']`), `refreshHand()`, `techCardViewData(card)`, `escapeHtml(s)`, `toggleHand()`. `refreshHand()` is called after any tech-grid change (add/remove/preset/pick/import/init) so the count (`#handCount`) stays live. `refreshAllTechs()` resets any `exhausted` tech back to `built`.
+- **Charge changes do NOT rebuild the whole hand**: `adjustTechCharges()` (charge +/− on a tech) updates the tapped card's charge number in place instead of calling `refreshHand()`. Both the on-page hand (`#hand`) and the separate popout window (`hand-popout.html`, a standalone page sharing state over a BroadcastChannel) update just that one card's count via `syncHandCardCharges()` / a `sync-tech-charges` message. Hand cards are tagged with `_sourceIndex` so the matching card can be located without rebuilding. Only if the matching `.hc-charges` span is missing does it fall back to a full `refreshHand()`.
+- **Sorting**: a `#handSort` `<select>` sits on the top banner bar (`.hand-bar`) to the right of the "TECH HAND" label, and sorts the hand via `onHandSortChange()` + `handSortCards(cards)`. Modes are `az` (by name), `trait` (alphabetical by trait field, name tiebreak), `type` (offense→defense→movement→science via `HAND_TYPE_ORDER`, name tiebreak), and `energy` (by on-build energy cost, ascending; empty/unset cost sorts last, name tiebreak). A second **Filter** `#handFilter` select (default `all`) shows only matching cards; values are `type:<offense|defense|movement|science>`, `energy:<has|none>` (has = non-empty, non-zero on-build cost), `trait:<has|none>`. Current sort/filter are held in the runtime `HAND_SORT`/`HAND_FILTER` vars (not persisted to sheet); both are controlled by native `<select>` elements on all screen sizes. On narrow screens (`@media max-width:640px`) the `<select>`s' labels are hidden and the selects themselves become transparent zero-visual overlays positioned over two icon buttons — **⇵** (sort) and **ᯤ** (filter) (`.hand-icon-btn`) — so tapping the icon directly clicks/opens the same native select's OS dropdown (no JS popup; `openHandSelect(id)` using `showPicker()` is a fallback).
+- **Hand card footer**: `.hc-foot` at the bottom of each hand card shows the **tech-type glyph** (`.hc-tags`, bottom-left — the `.tticker` icon, e.g. ⚔) and an **energy diamond** (`.hc-cost`, bottom-right) with the On Build energy cost (from `.tcost-onbuild`); the diamond renders empty when there's no non-zero on-build cost. Data comes from `techCardViewData()`.
+- `escapeHtml()` must be used whenever rendering user text into `innerHTML` (hand cards render names/traits/section text this way).
+- Relevant CSS is under the `/* ===== Hand Dock (bottom tech hand) ===== */` block (before `</style>`). Body `padding-bottom` is 110px so the fixed dock doesn't cover the footer. The dock is hidden in `@media print`. The dock markup itself lives AFTER `</script>` (`#handDock` with `#handTab`, `#handCount`, the sort overlay, and `#hand`).
 
 ### Export / Import (the `/* ===== Export / Import ===== */` section)
 - Each data domain has a `read<X>` / `write<X>` pair (Skills, Crew, Tech, Mods).
 - `collectSheet()` gathers everything into one object; `applySheet(json)` restores it.
-- `exportSheet()` / `importSheet()` do file download / upload of the JSON.
-- **IMPORTANT: whenever you add a new field to a card, you MUST update BOTH its `read<X>` and `write<X>` functions** (and ideally `MOD_PRESETS` + preset pick) or the field won't survive save/load.
+- `readTech`/`writeTech` fields: name, traits, onbuild, passive, onactivate, onbuildenergy, onactivateenergy, techType, storage, hull, charges, deploy, **state** (`hand`/`built`/`exhausted`, defaults to `built` when missing; old `exhaust`/`built` fields are mapped on import).
+- `readMods`/`writeMods` fields: name, req, hull, duration, speed, charges, onbuild, passive, onactivate, onactivateenergy, **type**, **shape**, **exhaust**.
+- `exportSheet()` names the downloaded file after the ship name (sanitized, `frigate-sheet` fallback); `importSheet()` reads a `.json` file and `alert()`s on success/failure.
+- **IMPORTANT: whenever you add a new field to a card, you MUST update BOTH its `read<X>` and `write<X>` functions** (and ideally the preset catalog + preset pick) or the field won't survive save/load.
 
 ## How we handle new ideas / features (workflow)
 The user iterates feature-by-feature in small steps. General workflow when asked to change something:
@@ -83,7 +117,7 @@ The user iterates feature-by-feature in small steps. General workflow when asked
 4. Wire any new UI to the existing event listeners (grid-level `click`/`input` delegation on `#crewGrid` / `#techGrid` / `#modGrid`) OR add a matching listener.
 5. If a field should be "empty→hidden, shown in edit mode", follow the `.hid` + `refreshXSection(s)` pattern.
 6. Always update the corresponding `read<X>`/`write<X>` (export/import).
-7. Initialize any new default/static render in the bottom `(function(){ ... })()` init block (it sets initial types/shapes/sections on load). Static cards in HTML also need their inline defaults rendered here.
+7. Initialize any new default/static render in the bottom `(function(){ ... })()` init block (it sets initial types/shapes/sections/built-state on load and wires skill tooltips). Static cards in HTML also need their inline defaults rendered here.
 
 ## The Shape field (specifically)
 `.mshape-btn` in the mod card header. It's a **toggle**: clicking cycles through shapes, with an **empty default first**. When shape is empty:
@@ -95,11 +129,22 @@ The user iterates feature-by-feature in small steps. General workflow when asked
 Current `MOD_SHAPES` (order matters – cycling wraps): None(empty), Square `◼`, Triangle `▲`, Hexagon `⬡`, Pentagon `⬟`, Rectangle `▬`, Circle `◎`, Star `☆`, Diamond `◆`, Crescent `☾`, Arrow `➤`, White Square `◻`, Bar `▰`, Quadrant `◖`, Heart `♡`, Cross `♰`.
 NOTE: The user is particular about glyph sizing/vertical alignment (e.g. `■` sat too low, `⬛` too large, settled on `◼`). When changing a shape's glyph, mention alignment/size tradeoffs.
 
+## CSS consolidation (tech/mod "twins", 2026-08-30)
+The Technologies and Modules/Deployables sections intentionally mirror each other, which produced ~100 lines of duplicate CSS. These have now been **merged into grouped selectors** (e.g. `.tsec,.msec{...}`, `.tfoot,.mfoot{...}`, `.tstorage,.thull,.tcharges,.mspeed,.mdur,.mhull,.mcharges{...}`, `.tdiamond,.mcost{...}`, `.t-delete,.m-delete{...}`) and the duplicate mod-only blocks were deleted.
+
+Rules to keep in mind when editing card CSS:
+- **Don't re-split these groups** — if a tech rule needs a one-off property, add it as a separate tech-only rule after the group (this is already done for `.tdiamond{margin-left:auto;flex:none}` and `.mspeed,.mdur,.mhull,.mcharges{flex:none}`).
+- Grouped rules are only safe when both families share identical computed values; the tiny intentional differences are kept as standalone follow-up rules.
+- Naming: `.t*` = tech, `.m*` = mod (`ticon` = tech icon, `kw-icon` = mod icon, both 14px inline in the foot). These deliberately stay separate.
+- Delete/Edit buttons, foot icons, `.hid` behavior, and section heads/textareas are shared via the groups above — a structural change to one family's foot should be checked against the other.
+- After edits, CSS braces must stay balanced and the JS must pass `node --check` (command below).
+
 ## Gotchas / things to be careful about
 - **Keep the sheet self-contained**: no external JS libs. Google Fonts is the only external resource and it's loaded via `<link>` but the sheet still works offline with fallbacks.
 - **No auto-save.** Persistence relies on Export/Import JSON.
 - All JavaScript uses `var`, ES5-style (no arrow functions, no modules) — keep new code in that style for consistency.
-- Inline `onclick="..."` attributes are used heavily; new interactive cards built via JS `innerHTML` use inline `onclick` for their Edit buttons and delegated grid listeners for toggles.
+- Inline `onclick="..."` attributes are used heavily; new interactive cards built via JS `innerHTML` use inline `onclick` for their Edit/Exhaust/Build buttons and delegated grid listeners for toggles.
 - When adding fields to cards built in JS, update BOTH the static HTML sample card AND the `innerHTML` template string in the `add<X>Slot()` function, or they'll drift.
 - Sections show `.hid` when empty; the Edit button reveals them. Don't break the edit/hidden toggle when adding new card fields.
+- The `.tbuilt-btn` and `.mexhaust-btn` are hidden until EDIT MODE (CSS `display:none` default, shown via `.editing`), so card header items only appear editable while editing.
 - Verify JS after edits with: `python3 -c "import re,io; html=open('frigate.html').read(); m=re.search(r'<script>(.*)</script>',html,re.S); io.open('/tmp/s.js','w').write(m.group(1))" && node --check /tmp/s.js`
