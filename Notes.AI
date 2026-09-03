@@ -1,7 +1,9 @@
 # Notes for Editing frigate.html (AI Scratchpad)
 
 ## What this is
-`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently **2489** lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
+`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently **3369** lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
+
+There is also a **`hex-grid-generator.html`** static page (a standalone flat-top hex map generator). `serve.py` serves it at `http://localhost:8000/hex/`.
 
 This is a **private passion project** (the owner designed the TTRPG). Treat all game terminology and flavor as intentional. Do not add dependencies, frameworks, or build tools. Keep it self-contained.
 
@@ -14,8 +16,8 @@ This is a **private passion project** (the owner designed the TTRPG). Treat all 
    - `.row2` (Row 2) — **Traits & Crew**, **Technologies**.
    - **Modules/Deployables** panel.
    - `<footer>`.
-3. `<script>` block (**lines 1117–2444**) — all logic.
-4. After `</script>` (lines 2445–2489) — floating chrome elements: `#skillPopover`, `.preset-menu#slotPicker`, and the `#handDock` (the tech-hand dock lives here, not in the `<body>` flow above).
+3. `<script>` block (**lines 1342–3315**) — all logic.
+4. After `</script>` (lines 3316–3369) — floating chrome elements: `#skillPopover`, `.preset-menu#slotPicker`, and the `#handDock` (the tech-hand dock lives here, not in the `<body>` flow above).
 
 Line numbers below are approximate; navigate via the commented section markers.
 
@@ -47,14 +49,15 @@ Line numbers below are approximate; navigate via the commented section markers.
 
 ### Hull Classification (class presets)
 The class `<select id="shipClass">` ("Unclassified" / Support / Jump / Striker / Discovery) triggers `onShipClassChange()` on change. `CLASS_PRESETS` maps each class to stat bumps + a signature technology:
-- **Support** — `stats:{hull+2, shield+2, storage+2}`, tech `Repulsor Field`, AND auto-adds the **Repulsor Field module** (`modName`).
+- **Support** — `stats:{hull+2, shield+2, storage+2}`, tech `Repulsor Unit`, AND auto-adds the **Repulsor Unit module** (`modName`).
 - **Jump** — tech `Phantom`.
 - **Discovery** — `stats:{storage+4}`, tech `Experimental Reconnaissance`.
-- **Striker** — `stats:{storage+2}`, tech `Targeting Strikes`.
+- **Striker** — `stats:{storage+2}`, tech `Decomp Strikes`.
 
 After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max (hull/shield) or single-value stats (storage); `findTechByName()` / `findModByName()` resolve the signature tech/mod in the preset arrays, and `addTechFromData()` / `pickModPreset()` add them.
 
 ### Traits & Crew
+- The panel starts with **1 empty slot** by default (the static HTML has a single `.crew-card`, "Slot 01"); more slots are added with the `+` control / preset catalog.
 - Panel header controls → `addCrewSlot()`, `removeCrewSlot()`, and `☰` → `buildPresetMenu()` from the `PRESETS` array (sorted by name; `combat_only` presets get a "combat" tag in the menu). Presets may also define a `type` (`offense`/`defense`/`movement`/`science`); when present, the menu shows the matching ⚔/🛡/➤/⚛︎ icon via `crewTypeIcon()` (from the `CREW_TYPES` array).
 - Cards are `.crew-card` with class header "Slot 0N" (`.ch`), a name (`input.cname`) + combat tag button (`.crew-tag-btn` ⚔, `toggleCombatTag`/`setCombatTag`), a role/effect textarea, and a footer `.cfoot` whose `.cticker` shows the crew type icon at bottom-left (default `offense` ⚔, click to cycle via `cycleCrewType`; `setCrewType(el, key)` sets it and the tooltip. Type is persisted as `type` on each crew record via `readCrew`/`writeCrew`, and set from a preset's `type` in `pickPreset`).
 - Slot removal is shared: `showSlotPicker(e, btn, 'crewGrid', '.cname')` → `deleteSlotAt('crewGrid', idx)` which also calls `relabelSlots()` so Slot numbers stay sequential.
@@ -78,7 +81,7 @@ A panel mirroring Technologies. Structure of a `.mod-card`:
 - `.mfoot` (bottom bar): `.mtype-btn` (Module⇄Deployable SVG toggle, leftmost/first), then `.mspeed`, `.mdur`, `.mhull`, and `.mcharges` (charges, `.hid` default) value icons/inputs.
 
 **JS for mods** (section at `/* ===== Modules / Deployables ===== */`):
-- `MOD_PRESETS` = catalog (Cannon, Graviton Engine, Ion Torpedo, P.D., **Repulsor Field**) shown in the `modPresetMenu`. Presets may define optional `duration`, `speed`, `charges`, and `shape` in addition to `req`/`hull`/`type`/texts; `pickModPreset()` applies all of them.
+- `MOD_PRESETS` = catalog (Armor, Cannon, Comms Unit, Graviton Engine, Ion Torpedo, P.D., Repulsor Unit, Shuttle Craft I, Tug Craft I) shown in the `modPresetMenu`. Presets may define optional `duration`, `speed`, `charges`, and `shape` in addition to `req`/`hull`/`type`/texts; `pickModPreset()` applies all of them.
 - `MOD_SHAPES` = shape catalog with emoji/glyph icons (see below); `setModuleShape` / `cycleModuleShape`.
 - `addModSlot()`, `removeModSlot()`, `refreshModSlotControls()`, `relabelMods()`.
 - `toggleModExhaust` / `applyModExhaust` — same pattern as tech exhaust (`.exhausted` dims the card).
@@ -92,6 +95,7 @@ A fixed bottom "hand" UI (`#handDock`) that pops up over **38vh** when expanded,
 - The hand shows ONLY techs whose state is `hand`. Cards overlap via negative `margin-right`, and on `:hover` (or when `.popped`) they `translateY(-55px) scale(1.06)` to "pop out" for full viewing (the view padding leaves headroom above the fan).
 - **Click behavior**: a single click pops the card (adds `.popped`, same visual as hover); a **second click within the 260ms timer (i.e. a double-click)** builds it by calling `setTechState(card,'built')` → it disappears from the hand and appears undimmed in the grid. A `dblclick` listener prevents default text-selection. The `⇅` button (`.tbuilt-btn`) on a tech card header cycles a tech `hand → built → exhausted` (via `toggleTechState`); `hand` and `exhausted` dim the card, `built` does not.
 - Key functions (near the `/* ===== Technologies ===== */` block): `techState(card)`, `setTechState(card,state)`, `syncTechStateUI(card)`, `toggleTechState(btn)`, `TECH_STATE_ORDER` (`['hand','built','exhausted']`), `refreshHand()`, `techCardViewData(card)`, `escapeHtml(s)`, `toggleHand()`. `refreshHand()` is called after any tech-grid change (add/remove/preset/pick/import/init) so the count (`#handCount`) stays live. `refreshAllTechs()` resets any `exhausted` tech back to `built`.
+- **Charge changes do NOT rebuild the whole hand**: `adjustTechCharges()` (charge +/− on a tech) updates the tapped card's charge number in place instead of calling `refreshHand()`. Both the on-page hand (`#hand`) and the separate popout window (`hand-popout.html`, a standalone page sharing state over a BroadcastChannel) update just that one card's count via `syncHandCardCharges()` / a `sync-tech-charges` message. Hand cards are tagged with `_sourceIndex` so the matching card can be located without rebuilding. Only if the matching `.hc-charges` span is missing does it fall back to a full `refreshHand()`.
 - **Sorting**: a `#handSort` `<select>` sits on the top banner bar (`.hand-bar`) to the right of the "TECH HAND" label, and sorts the hand via `onHandSortChange()` + `handSortCards(cards)`. Modes are `az` (by name), `trait` (alphabetical by trait field, name tiebreak), `type` (offense→defense→movement→science via `HAND_TYPE_ORDER`, name tiebreak), and `energy` (by on-build energy cost, ascending; empty/unset cost sorts last, name tiebreak). A second **Filter** `#handFilter` select (default `all`) shows only matching cards; values are `type:<offense|defense|movement|science>`, `energy:<has|none>` (has = non-empty, non-zero on-build cost), `trait:<has|none>`. Current sort/filter are held in the runtime `HAND_SORT`/`HAND_FILTER` vars (not persisted to sheet); both are controlled by native `<select>` elements on all screen sizes. On narrow screens (`@media max-width:640px`) the `<select>`s' labels are hidden and the selects themselves become transparent zero-visual overlays positioned over two icon buttons — **⇵** (sort) and **ᯤ** (filter) (`.hand-icon-btn`) — so tapping the icon directly clicks/opens the same native select's OS dropdown (no JS popup; `openHandSelect(id)` using `showPicker()` is a fallback).
 - **Hand card footer**: `.hc-foot` at the bottom of each hand card shows the **tech-type glyph** (`.hc-tags`, bottom-left — the `.tticker` icon, e.g. ⚔) and an **energy diamond** (`.hc-cost`, bottom-right) with the On Build energy cost (from `.tcost-onbuild`); the diamond renders empty when there's no non-zero on-build cost. Data comes from `techCardViewData()`.
 - `escapeHtml()` must be used whenever rendering user text into `innerHTML` (hand cards render names/traits/section text this way).

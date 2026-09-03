@@ -22,7 +22,7 @@ The sheet is fully client-side and offline. To run it locally:
 python3 serve.py
 ```
 
-then open http://localhost:8000 (any static file server works — or just open `frigate.html` directly in a browser).
+then open http://localhost:8000 (any static file server works — or just open `frigate.html` directly in a browser). A bonus standalone **hex map generator** is served at http://localhost:8000/hex/.
 
 ### Fill it out
 1. Enter your ship's name, captain, and commissioning date.
@@ -44,6 +44,8 @@ A good workflow: fill out the sheet, **Export** it, and re-import before each se
 
 ## Files
 - `frigate.html` — the entire app (markup, styles, and logic)
-- `serve.py` — optional minimal local server (port 8000)
+- `hand-popout.html` — a standalone "tech hand" popup that syncs with `frigate.html` over a BroadcastChannel
+- `hex-grid-generator.html` — standalone hex map generator (served at `/hex/`)
+- `serve.py` — optional minimal local server (port 8000; also serves the hex page at `/hex/`)
 - `README.md` — this file
 - `Notes.AI` — developer scratchpad describing the app's structure for AI-assisted editing (keep in sync when the sheet changes)
