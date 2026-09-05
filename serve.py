@@ -9,6 +9,7 @@ HEX_PAGE = "hex-grid-generator.html"
 ADMIN_PAGE = "admin.html"
 
 JS_PAGES = ("tech-presets.js", "crew-presets.js", "mod-presets.js")
+CSS_PAGES = ("style.css", "frigate.css", "admin.css")
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -23,6 +24,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if last in JS_PAGES:
             page = last
             content_type = "application/javascript"
+        elif last in CSS_PAGES:
+            page = last
+            content_type = "text/css"
         with open(page, "rb") as f:
             body = f.read()
         self.send_response(200)
@@ -39,4 +43,5 @@ with http.server.ThreadingHTTPServer(("0.0.0.0", PORT), Handler) as httpd:
     print(f"Serving {HEX_PAGE} at http://localhost:{PORT}/hex/")
     print(f"Serving {ADMIN_PAGE} at http://localhost:{PORT}/admin/")
     print(f"Serving JS presets at http://localhost:{PORT}/[{', '.join(JS_PAGES)}]")
+    print(f"Serving CSS at http://localhost:{PORT}/[{', '.join(CSS_PAGES)}]")
     httpd.serve_forever()

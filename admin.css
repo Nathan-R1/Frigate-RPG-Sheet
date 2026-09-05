@@ -1,0 +1,190 @@
+/* === admin.html layout (load after style.css) ===*/
+
+.panel.collapsed .tech-grid,.panel.collapsed .player-grid{
+display:none;
+  }
+.preset-tag.preset-deploy svg{
+width:12px;height:12px;flex:none;display:block;
+  }
+.preset-tag.preset-storage svg{
+width:12px;height:12px;flex:none;display:block;
+  }
+.tech-preset-menu{
+z-index:80;
+  }
+/* ===== Players ===== */
+  .player-grid{
+
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+    margin-top:12px;
+  
+  }
+.player-panel .eyebrow{
+color:var(--amber);
+  }
+.player-panel .eyebrow::before{
+background:var(--amber);box-shadow:0 0 6px var(--amber);
+  }
+.player-panel .eyebrow{
+flex:1;min-width:0;
+  }
+input.player-title{
+
+    flex:1;min-width:100px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink);
+    border-bottom:1px dashed var(--line-bright);
+    padding:1px 4px 2px;
+  
+  }
+input.player-title::placeholder{
+color:var(--ink-dim);
+  }
+input.player-title:focus{
+color:var(--cyan);border-bottom-color:var(--cyan);
+  }
+/* ===== Technology cards ===== */
+  .tech-grid{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:12px;
+  
+  }
+.tech-card input:disabled, .tech-card textarea:disabled{
+
+    opacity:1;cursor:default;-webkit-text-fill-color:currentColor;color:currentColor;
+  
+  }
+.tsecs{
+display:flex;flex-direction:column;flex:1;min-height:0;
+  }
+.tsec{
+border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;
+  }
+.tsec.hid{
+display:none;
+  }
+.tsec-head{
+
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:5px 10px 2px;
+  
+  }
+.tsec textarea{
+
+    flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
+  
+  }
+.tsecedit{
+
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 7px;border-radius:3px;margin-left:auto;
+  
+  }
+.tsecedit:hover{
+color:var(--cyan);border-color:var(--cyan);
+  }
+.t-delete{
+
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:11px;line-height:1;
+    color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 6px;border-radius:3px;display:none;
+  
+  }
+.t-delete:hover{
+color:#e5534b;border-color:#e5534b;
+  }
+.tech-card.editing .t-delete{
+display:inline-flex;
+  }
+.tech-card.editing .tsec.hid{
+display:flex;
+  }
+.tech-card .ttraits.hid,.tech-card .tstorage.hid{
+display:none;
+  }
+.tfoot{
+
+    display:flex;align-items:center;gap:8px;
+    padding:6px 8px 8px;border-top:1px solid var(--line);
+  
+  }
+.tticker{
+
+    flex:none;cursor:pointer;font-size:15px;line-height:1;
+  
+  }
+.tstorage,.thull,.tcharges{
+
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);
+  
+  }
+.thull,.tcharges{
+cursor:pointer;
+  }
+.tstorage .ticon,.thull .ticon,.tcharges .ticon{
+width:14px;height:14px;flex:none;margin:0;
+  }
+.thull.hid,.tcharges.hid{
+display:none;
+  }
+.tstorage input,.thull input,.tcharges input{
+
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  
+  }
+.tdepbtn svg{
+
+    width:14px;height:14px;flex:none;display:block;margin:0;
+  
+  }
+.tdiamond{
+
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    width:24px;height:24px;
+    border:1px solid var(--icon-energy);color:var(--icon-energy);
+    transform:rotate(45deg);
+  
+  }
+.tdiamond.hid{
+display:none;
+  }
+.tdiamond .ticon,.tdiamond input{
+transform:rotate(-45deg);
+  }
+.tdiamond .ticon{
+width:11px;height:11px;flex:none;
+  }
+.tdiamond input{
+
+    width:13px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
+    background:transparent;border:none;padding:0;
+  
+  }
+.player-count{
+
+    color:var(--ink-mid);
+    font-size:10px;
+  
+  }
+/* === admin overrides on shared rules ===*/
+
+.preset-menu{
+    min-width:260px;
+  }
+.preset-tag.preset-deploy{
+    display:inline-flex;align-items:center;
+  }
+.tdepbtn{
+    opacity:1;
+  }
