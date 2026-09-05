@@ -1640,7 +1640,7 @@
     {key:'movement', icon:'➤', label:'Movement'},
     {key:'science', icon:'⚛︎', label:'Science'}
   ];
-  var TECHP_RESETS = [
+  var TECH_PRESETS = [
     {name:'Armor Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Armor', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'defense', storage:'0', deploy:'module'},
     {name:'Flame Cannon', traits:'active 1', onbuild:'', passive:'', onactivate:'Exhaust to:\n\nYour Cannons and P.D. Modules gain +1 Dmg and +2 Range until the start of your next turn.', tt:'offense', onactivateenergy:'1', storage:'0', deploy:false},
     {name:'Cannon Builder', traits:'[Module]', onbuild:'', onactivate:'Exhaust to Create Module Cannon', onbuildenergy:'', onactivateenergy:'2', passive:'', tt:'offense', storage:'0', deploy:'module'},
@@ -1793,7 +1793,7 @@
       closeTechPresetMenu();
     };
     menu.appendChild(blankItem);
-    var sorted = TECHP_RESETS.slice().sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
+    var sorted = TECH_PRESETS.slice().sort(function(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase());});
     sorted.forEach(function(p){
       var item = document.createElement('button');
       item.type = 'button';
@@ -2656,8 +2656,8 @@
     if(modal) modal.classList.remove('open');
   }
   function findTechByName(name){
-    for(var i=0;i<TECHP_RESETS.length;i++){
-      if(TECHP_RESETS[i].name === name) return TECHP_RESETS[i];
+    for(var i=0;i<TECH_PRESETS.length;i++){
+      if(TECH_PRESETS[i].name === name) return TECH_PRESETS[i];
     }
     return null;
   }
