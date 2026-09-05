@@ -93,6 +93,8 @@
         item.innerHTML += presetDeployTag(p);
         item.innerHTML += presetStorageTag(p);
         item.innerHTML += '<span class="preset-tag preset-type">' + techTypeMeta(p.tt).icon + '</span>';
+        var ft = item.querySelector('.preset-tag');
+        if(ft) ft.style.marginLeft = 'auto';
         item.onclick = function(){
           addTechToPanel(panel, p);
           closeTechPresetMenus();

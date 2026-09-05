@@ -1833,6 +1833,7 @@
       var dtag = document.createElement('span');
       dtag.className = 'preset-tag preset-deploy';
       dtag.innerHTML = (p.type === 'deployable') ? DEPLOY_STATES[1].svg : DEPLOY_STATES[2].svg;
+      dtag.style.marginLeft = 'auto';
       item.appendChild(dtag);
       item.onclick = function(){
         pickModPreset(p);
