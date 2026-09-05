@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="dark"]{
+    --void:#080b13;
+    --panel:#10151f;
+    --panel-alt:#141b28;
+    --line:#28334a;
+    --line-bright:#3d4d6e;
+    --cyan:#4fd8c9;
+    --cyan-dim:#2b6e68;
+    --amber:#e8a94a;
+    --red:#d75b4e;
+    --red-dim:#5e2a26;
+    --brown:#9a6636;
+    --brown-dim:#4a3018;
+    --ink:#eef2f8;
+    --ink-mid:#9aa8c4;
+    --ink-dim:#5a6684;
+    --stat-bg:var(--void);
+    --crew-bg:var(--void);
+    --icon-hull:#7fd88a;
+    --icon-shield:#59b9e8;
+    --icon-energy:#c98ee8;
+    --icon-charged:#e88ab4;
+    --icon-amber:#e8a94a;
+    --icon-cyan:#4fd8c9;
+    --bg-radial:
+      radial-gradient(ellipse at 20% -10%, #142032 0%, transparent 55%),
+      radial-gradient(ellipse at 100% 110%, #131c2c 0%, transparent 50%);
+    --bg-grid-color: rgba(79,216,201,0.035);
+    --mono: 'JetBrains Mono', monospace;
+    --disp: 'Orbitron', sans-serif;
+    --body: 'Rajdhani', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background-color:var(--void);
+    background-image:
+      var(--bg-radial),
+      linear-gradient(var(--bg-grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 1px);
+    background-size:auto, 34px 34px, 34px 34px;
+    font-family:var(--body);
+    color:var(--ink);
+    padding:28px 18px 110px;
+  }
+  .sheet{max-width:1220px;margin:0 auto;}
+
+  input, textarea{
+    background:transparent;
+    border:none;
+    color:var(--ink);
+    font-family:inherit;
+    outline:none;
+  }
+  input::placeholder, textarea::placeholder{color:var(--ink-dim);}
+  input:focus, textarea:focus{color:var(--cyan);}
+
+  /* ===== corner-bracket panel, the signature device ===== */
+  .panel{
+    position:relative;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line);
+    padding:20px 22px 22px;
+    display:flex;flex-direction:column;
+  }
+  .panel::before, .panel::after,
+  .panel .bl, .panel .br{
+    content:"";
+    position:absolute;
+    width:14px;height:14px;
+    border:2px solid var(--cyan-dim);
+    opacity:.85;
+  }
+  .panel::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .panel::after{top:-1px;right:-1px;border-left:none;border-bottom:none;}
+  .panel .bl{bottom:-1px;left:-1px;border-right:none;border-top:none;}
+  .panel .br{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+  .panel:hover::before,.panel:hover::after,.panel:hover .bl,.panel:hover .br{border-color:var(--cyan);}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.22em;
+    color:var(--cyan);
+    text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:6px;
+  }
+  .eyebrow::before{content:"";width:6px;height:6px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+  .panel-title{
+    font-family:var(--disp);
+    font-weight:700;
+    letter-spacing:.06em;
+    font-size:15px;
+    color:var(--ink);
+    text-transform:uppercase;
+  }
+
+  .slot-controls{display:flex;gap:6px;}
+  .slot-btn{
+    width:24px;height:24px;
+    background:var(--stat-bg);
+    border:1px solid var(--line-bright);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
+  }
+  .slot-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .slot-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .slot-btn:disabled:hover{border-color:var(--line-bright);color:var(--ink);}
+  .panel-collapse-btn{font-size:14px;}
+  .panel.collapsed .slot-controls .panel-collapse-btn{color:var(--cyan);border-color:var(--cyan);}
+  .panel.collapsed .tech-grid,.panel.collapsed .player-grid{display:none;}
+
+  .preset-menu{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    min-width:260px;
+    max-height:320px;
+    overflow-y:auto;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+    border:1px solid var(--line-bright);
+    box-shadow:0 12px 28px rgba(0,0,0,.5);
+    z-index:50;
+    display:none;
+    padding:6px;
+  }
+  .preset-menu.open{display:block;}
+  #slotPicker.preset-menu{
+    position:fixed;
+    top:auto;right:auto;
+    max-height:280px;
+  }
+  .slot-picker-title{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:4px 8px 6px;
+  }
+  .preset-item{
+    width:100%;
+    display:flex;align-items:center;gap:8px;
+    padding:7px 8px;
+    background:transparent;
+    border:none;
+    color:var(--ink);
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    text-align:left;
+    cursor:pointer;
+  }
+  .preset-item:hover{background:var(--stat-bg);color:var(--cyan);}
+
+  /* ===== Players ===== */
+  .player-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+    margin-top:12px;
+  }
+  .player-panel .eyebrow{color:var(--amber);}
+  .player-panel .eyebrow::before{background:var(--amber);box-shadow:0 0 6px var(--amber);}
+
+  /* ===== Technology cards ===== */
+  .tech-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:12px;
+  }
+  .tech-card{
+    background:var(--crew-bg);
+    border:1px solid var(--line);
+    min-height:210px;
+    display:flex;flex-direction:column;
+  }
+  .tech-card .thead{
+    display:flex;align-items:center;gap:8px;padding:10px 10px 2px;
+  }
+  .tech-card input.tname{
+    flex:1;min-width:0;
+    font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--cyan);
+    text-transform:uppercase;letter-spacing:.02em;
+  }
+  .tech-card input:disabled, .tech-card textarea:disabled{
+    opacity:1;cursor:default;-webkit-text-fill-color:currentColor;color:currentColor;
+  }
+  .tsub{
+    display:flex;align-items:center;gap:6px;
+    padding-right:10px;
+  }
+  .tsub input.ttraits{
+    flex:1;min-width:0;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-mid);
+    padding:2px 10px 6px;
+  }
+  .tsecs{display:flex;flex-direction:column;flex:1;min-height:0;}
+  .tsec{border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1;min-height:0;}
+  .tsec.hid{display:none;}
+  .tsec-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
+    text-transform:uppercase;padding:5px 10px 2px;
+  }
+  .tsec textarea{
+    flex:1;resize:none;padding:2px 10px 6px;font-size:12.5px;line-height:1.5;color:var(--ink-mid);
+  }
+  .tsecedit{
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 7px;border-radius:3px;margin-left:auto;
+  }
+  .tsecedit:hover{color:var(--cyan);border-color:var(--cyan);}
+  .t-delete{
+    flex:none;cursor:pointer;font-family:var(--mono);font-size:11px;line-height:1;
+    color:var(--ink-dim);background:none;border:1px solid var(--line);
+    padding:2px 6px;border-radius:3px;display:none;
+  }
+  .t-delete:hover{color:#e5534b;border-color:#e5534b;}
+  .tech-card.editing .t-delete{display:inline-flex;}
+  .tech-card.editing .tsec.hid{display:flex;}
+  .tech-card .ttraits.hid,.tech-card .tstorage.hid{display:none;}
+  .tfoot{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 8px 8px;border-top:1px solid var(--line);
+  }
+  .tticker{
+    flex:none;cursor:pointer;font-size:15px;line-height:1;
+  }
+  .tstorage,.thull,.tcharges{
+    display:flex;align-items:center;gap:3px;
+    font-size:12px;color:var(--ink-dim);
+  }
+  .thull,.tcharges{cursor:pointer;}
+  .tstorage .ticon,.thull .ticon,.tcharges .ticon{width:14px;height:14px;flex:none;margin:0;}
+  .thull.hid,.tcharges.hid{display:none;}
+  .tstorage input,.thull input,.tcharges input{
+    width:22px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--ink);
+    background:var(--stat-bg);border:1px solid var(--line);padding:1px;
+  }
+  .tdepbtn{
+    flex:none;cursor:pointer;font-size:14px;line-height:1;opacity:0;transition:opacity .15s;
+  }
+  .tdepbtn.on{opacity:1;}
+  .tech-card.editing .tdepbtn{opacity:1;}
+  .tdiamond{
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    width:24px;height:24px;
+    border:1px solid var(--icon-energy);color:var(--icon-energy);
+    transform:rotate(45deg);
+  }
+  .tdiamond{margin-left:auto;flex:none;}
+  .tdiamond.hid{display:none;}
+  .tdiamond .ticon,.tdiamond input{transform:rotate(-45deg);}
+  .tdiamond .ticon{width:11px;height:11px;flex:none;}
+  .tdiamond input{
+    width:13px;text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--icon-energy);
+    background:transparent;border:none;padding:0;
+  }
+  .tech-card.state-exhausted{opacity:.55;}
+  .tech-card.state-trashed{
+    background:
+      linear-gradient(180deg, rgba(154,102,54,.26) 0%, rgba(154,102,54,.15) 100%),
+      var(--crew-bg);
+    border-color:var(--brown);
+    opacity:.85;
+  }
+  .tbuilt-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:11px;color:var(--ink-dim);line-height:1.4;
+    border:1px solid var(--line-bright);background:var(--panel);
+    padding:1px 6px;cursor:pointer;margin-left:4px;
+  }
+  .tbuilt-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .tech-card.state-exhausted .tbuilt-btn{color:var(--amber);border-color:var(--amber);}
+  .tech-card.state-trashed .tbuilt-btn{color:var(--brown);border-color:var(--brown);}
+
+  .menu-bar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    margin:0 auto 16px;
+    max-width:1220px;
+    padding:10px 16px;
+    background:var(--panel);
+    border:1px solid var(--line-bright);
+  }
+  .menu-brand{
+    font-family:var(--disp);font-weight:700;letter-spacing:.08em;
+    font-size:13px;color:var(--ink);text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
+  }
+  .menu-brand::before{content:"";width:8px;height:8px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+  .player-count{
+    color:var(--ink-mid);
+    font-size:10px;
+  }
+</style>
+</head>
+<body>
+<nav class="menu-bar">
+  <div class="menu-brand">Admin</div>
+</nav>
+<div class="sheet">
+
+  <!-- PLAYERS -->
+  <div class="panel players-panel">
+    <div class="bl"></div><div class="br"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="eyebrow" style="margin-bottom:0;">Players <span class="player-count" id="playerCount"></span></div>
+      <div class="slot-controls">
+        <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
+        <button type="button" class="slot-btn" id="playerRemoveBtn" onclick="showSlotPicker(event, this, 'playerGrid', '.player-title', 'Player')" title="Remove a Player">−</button>
+        <button type="button" class="slot-btn" onclick="addPlayerSection()" title="Add a Player">+</button>
+      </div>
+    </div>
+    <div class="player-grid" id="playerGrid">
+    </div>
+  </div>
+
+</div>
+
+<div id="slotPicker" class="preset-menu"></div>
+
+<script>
+  var TECH_TYPES = [
+    {key:'offense', icon:'⚔', label:'Offense'},
+    {key:'defense', icon:'🛡', label:'Defense'},
+    {key:'movement', icon:'➤', label:'Movement'},
+    {key:'science', icon:'⚛︎', label:'Science'}
+  ];
+  var TECH_STATE_ORDER = ['hand','played','exhausted','trashed'];
+  var DEPLOY_STATES = [
+    {key:'normal', icon:'◉', label:'Normal'},
+    {key:'deployable', icon:'⍙', label:'Deployable'},
+    {key:'module', icon:'⬡', label:'Module'}
+  ];
+
+  function techTypeMeta(key){
+    for(var i=0;i<TECH_TYPES.length;i++){ if(TECH_TYPES[i].key===key) return TECH_TYPES[i]; }
+    return TECH_TYPES[0];
+  }
+  function labelNum(n){ return '0' + n; }
+
+  /* ===== collapse (as in frigate.html) ===== */
+  function togglePanelCollapse(btn){
+    var panel = btn.closest('.panel');
+    if(!panel) return;
+    panel.classList.toggle('collapsed');
+  }
+
+  /* ===== Players sections ===== */
+  function addPlayerSection(){
+    var grid = document.getElementById('playerGrid');
+    var n = grid.children.length + 1;
+    var panel = document.createElement('div');
+    panel.className = 'panel player-panel';
+    panel.innerHTML =
+      '<div class="bl"></div><div class="br"></div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<div class="eyebrow" style="margin-bottom:0;">Player <span class="player-index">' + labelNum(n) + '</span></div>' +
+        '<div class="slot-controls">' +
+          '<button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>' +
+          '<button type="button" class="slot-btn techRemoveBtn" onclick="showSlotPicker(event, this, \'techGrid\', \'.tname\', \'Technology\')" title="Remove a Technology">−</button>' +
+          '<button type="button" class="slot-btn" onclick="addTechCard(this)" title="Add a Technology">+</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tech-grid" style="margin-top:12px;"></div>';
+    grid.appendChild(panel);
+    refreshPlayerControls();
+  }
+  function removePlayerAt(idx){
+    var grid = document.getElementById('playerGrid');
+    if(grid.children.length <= 1) return;
+    var panel = grid.children[idx];
+    if(panel) grid.removeChild(panel);
+    relabelPlayers();
+    refreshPlayerControls();
+  }
+  function relabelPlayers(){
+    var grid = document.getElementById('playerGrid');
+    var spans = grid.querySelectorAll('.player-index');
+    for(var i=0;i<spans.length;i++){
+      spans[i].textContent = labelNum(i + 1);
+    }
+  }
+  function refreshPlayerControls(){
+    var grid = document.getElementById('playerGrid');
+    var count = grid.children.length;
+    document.getElementById('playerRemoveBtn').disabled = count <= 1;
+    document.getElementById('playerCount').textContent = '(' + count + ')';
+  }
+
+  /* ===== Technology cards ===== */
+  function addTechCard(btn){
+    var grid = btn.closest('.player-panel').querySelector('.tech-grid');
+    var card = document.createElement('div');
+    card.className = 'tech-card';
+    card.setAttribute('data-state', 'played');
+    card.innerHTML = techCardHTML();
+    grid.appendChild(card);
+    refreshTechSections(card);
+    syncTechStateUI(card);
+  }
+  function removeTechCard(btn){
+    var card = btn.closest('.tech-card');
+    if(!card) return;
+    var grid = card.parentNode;
+    if(grid.children.length <= 1) addTechSlot(grid);
+    grid.removeChild(card);
+  }
+  function addTechSlot(grid){
+    var card = document.createElement('div');
+    card.className = 'tech-card';
+    card.setAttribute('data-state', 'played');
+    card.innerHTML = techCardHTML();
+    grid.appendChild(card);
+    refreshTechSections(card);
+    syncTechStateUI(card);
+  }
+  function techCardHTML(){
+    return '' +
+      '<div class="thead"><input class="tname" placeholder="TECH NAME"><button type="button" class="tbuilt-btn" data-state="played" onclick="toggleTechState(this)" title="Cycle state: hand / played / exhausted / trash">⇅</button><button type="button" class="t-delete" onclick="removeTechCard(this)" title="Delete this tech">🗑</button><button type="button" class="tsecedit" onclick="toggleTechEdit(this)" title="Edit sections">Edit</button></div>' +
+      '<div class="tsub"><input class="ttraits" placeholder="TRAITS"></div>' +
+      '<div class="tsecs">' +
+        '<div class="tsec onbuild hid"><div class="tsec-head"><span>On Play</span><span class="tdiamond" title="On Play energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onbuild" maxlength="2"></span></div><textarea placeholder="On Play..."></textarea></div>' +
+        '<div class="tsec passive hid"><div class="tsec-head"><span>Passive</span></div><textarea placeholder="Passive..."></textarea></div>' +
+        '<div class="tsec onactivate hid"><div class="tsec-head"><span>On Activate</span><span class="tdiamond" title="On Activate energy"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="var(--icon-energy)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tcost-onactivate" maxlength="2"></span></div><textarea placeholder="On Activate..."></textarea></div>' +
+      '</div>' +
+      '<div class="tfoot">' +
+        '<span class="tticker" data-tt="offense" title="Tech type: Offense" onclick="cycleTechType(this)">⚔</span>' +
+        '<span class="tstorage" title="Storage cost"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 8h20l-2-4H4L2 8Z" stroke="var(--icon-amber)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="tstorage-input" maxlength="3"></span>' +
+        '<span class="thull hid" title="Hull"><svg class="ticon" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="var(--icon-shield)" stroke-width="1.8" stroke-linejoin="round"/></svg><input class="thull-input" maxlength="4"></span>' +
+        '<span class="tcharges hid" title="Charges"><svg class="ticon" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2.5" stroke="var(--icon-charged)" stroke-width="1.8"/><path d="M21 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/><path d="M6 10.5v3M10 10.5v3M14 10.5v3" stroke="var(--icon-charged)" stroke-width="1.8" stroke-linecap="round"/></svg><input class="tcharges-input" maxlength="4"></span>' +
+        '<span class="tdepbtn" data-deploy="normal" title="Normal: Deployed" onclick="cycleTechDeploy(this)">◉</span>' +
+      '</div>';
+  }
+  function isTechState(s){ return TECH_STATE_ORDER.indexOf(s) !== -1; }
+  function techState(card){
+    var s = card ? (card.getAttribute('data-state') || 'played') : 'played';
+    if(!isTechState(s)) s = 'played';
+    return s;
+  }
+  function setTechState(card, state){
+    if(!card) return;
+    if(!isTechState(state)) state = 'played';
+    card.setAttribute('data-state', state);
+    syncTechStateUI(card);
+  }
+  function syncTechStateUI(card){
+    if(!card) return;
+    card.classList.remove('state-hand','state-played','state-exhausted','state-trashed');
+    card.classList.add('state-' + techState(card));
+    var btn = card.querySelector('.tbuilt-btn');
+    if(btn){
+      btn.setAttribute('data-state', techState(card));
+      btn.textContent = (techState(card) === 'hand') ? '🂱' : '⇅';
+    }
+  }
+  function toggleTechState(btn){
+    var card = btn.closest ? btn.closest('.tech-card') : null;
+    if(!card) return;
+    var cur = techState(card);
+    var next = TECH_STATE_ORDER[(TECH_STATE_ORDER.indexOf(cur) + 1) % TECH_STATE_ORDER.length];
+    setTechState(card, next);
+  }
+  function setTechType(el, key){
+    var meta = techTypeMeta(key);
+    el.setAttribute('data-tt', meta.key);
+    el.textContent = meta.icon;
+    el.title = 'Tech type: ' + meta.label;
+  }
+  function cycleTechType(el){
+    var keys = TECH_TYPES.map(function(t){return t.key;});
+    var idx = keys.indexOf(el.getAttribute('data-tt'));
+    var next = keys[(idx + 1) % keys.length];
+    setTechType(el, next);
+  }
+  function cycleTechDeploy(el){
+    var keys = DEPLOY_STATES.map(function(d){return d.key;});
+    var idx = keys.indexOf(el.getAttribute('data-deploy'));
+    var next = keys[(idx + 1) % keys.length];
+    var meta = DEPLOY_STATES[(idx + 1) % keys.length];
+    el.setAttribute('data-deploy', next);
+    el.textContent = meta.icon;
+    el.title = meta.label;
+  }
+  function refreshTechSections(card){
+    if(!card) return;
+    var editing = card.classList.contains('editing');
+    var secs = card.querySelectorAll('.tsec');
+    for(var i=0;i<secs.length;i++){
+      var field = secs[i].querySelector('textarea');
+      var hasText = field && field.value.trim() !== '';
+      var diamond = secs[i].querySelector('.tdiamond');
+      var hasCost = diamond && !!diamond.querySelector('input') && diamond.querySelector('input').value.trim() !== '';
+      if(secs[i].classList.contains('onbuild')){
+        secs[i].classList.toggle('hid', !hasText && !hasCost && !editing);
+      } else {
+        secs[i].classList.toggle('hid', !hasText && !editing);
+      }
+      if(field){
+        field.disabled = !editing;
+        if(secs[i].classList.contains('onbuild')){
+          field.placeholder = editing ? 'On Play...' : '';
+        }
+      }
+      if(diamond){
+        var inp = diamond.querySelector('input');
+        var hasVal = inp && inp.value.trim() !== '';
+        diamond.classList.toggle('hid', !hasVal && !editing);
+      }
+    }
+    var traits = card.querySelector('.ttraits');
+    if(traits){
+      traits.classList.toggle('hid', traits.value.trim() === '' && !editing);
+      traits.disabled = !editing;
+    }
+    var tname = card.querySelector('.tname');
+    if(tname){ tname.disabled = !editing; }
+    var storage = card.querySelector('.tstorage');
+    if(storage){
+      var sInp = storage.querySelector('.tstorage-input');
+      var sVal = sInp ? parseInt(sInp.value,10) : 0;
+      var isZero = isNaN(sVal) || sVal === 0;
+      storage.classList.toggle('hid', isZero && !editing);
+      if(sInp) sInp.disabled = !editing;
+    }
+    var hull = card.querySelector('.thull');
+    if(hull){
+      var hInp = hull.querySelector('.thull-input');
+      var hEmpty = !hInp || hInp.value.trim() === '';
+      hull.classList.toggle('hid', hEmpty && !editing);
+      if(hInp) hInp.disabled = !editing;
+    }
+    var charges = card.querySelector('.tcharges');
+    if(charges){
+      var cInp = charges.querySelector('.tcharges-input');
+      var cEmpty = !cInp || cInp.value.trim() === '';
+      charges.classList.toggle('hid', cEmpty && !editing);
+      if(cInp) cInp.disabled = !editing;
+    }
+    var diamonds = card.querySelectorAll('.tdiamond input');
+    for(var d=0; d<diamonds.length; d++){
+      diamonds[d].disabled = !editing;
+    }
+  }
+  function toggleTechEdit(btn){
+    var card = btn.closest('.tech-card');
+    card.classList.toggle('editing');
+    btn.textContent = card.classList.contains('editing') ? 'Done' : 'Edit';
+    refreshTechSections(card);
+  }
+
+  /* ===== slot picker (remove which one, as in frigate.html) ===== */
+  function gridFor(target, gridId){
+    if(gridId === 'playerGrid') return document.getElementById(gridId);
+    if(gridId === 'techGrid') return target.closest('.player-panel').querySelector('.tech-grid');
+    return null;
+  }
+  function showSlotPicker(e, btn, gridId, nameSel, label){
+    e.stopPropagation();
+    var grid = gridFor(btn, gridId);
+    if(!grid || grid.children.length <= 1) return;
+    var menu = document.getElementById('slotPicker');
+    menu._gridId = gridId;
+    menu._btn = btn;
+    menu.innerHTML = '';
+    var title = document.createElement('div');
+    title.className = 'slot-picker-title';
+    title.textContent = 'Remove which ' + (label || 'slot') + '?';
+    menu.appendChild(title);
+    function displayFor(gridId, i){
+      if(gridId === 'playerGrid'){
+        var idx = grid.children[i].querySelector('.player-index');
+        return 'Player ' + (idx ? idx.textContent : labelNum(i+1));
+      }
+      var nameEl = grid.children[i].querySelector(nameSel);
+      var n = ((nameEl && nameEl.value.trim()) ? nameEl.value.trim() : '');
+      if(n) return n;
+      return labelNum(i + 1);
+    }
+    for(var i = 0; i < grid.children.length; i++){
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'preset-item';
+      var span = document.createElement('span');
+      span.textContent = '#' + (i + 1) + '  ' + displayFor(gridId, i);
+      item.appendChild(span);
+      item.onclick = (function(idx){
+        return function(){
+          deleteSlotAt(idx);
+          closeSlotPicker();
+        };
+      })(i);
+      menu.appendChild(item);
+    }
+    var r = btn.getBoundingClientRect();
+    menu.style.left = r.left + 'px';
+    menu.style.top = (r.bottom + 6) + 'px';
+    menu.classList.add('open');
+  }
+  function deleteSlotAt(idx){
+    var menu = document.getElementById('slotPicker');
+    var gridId = menu._gridId;
+    var btn = menu._btn;
+    var grid = gridFor(btn, gridId);
+    if(!grid) return;
+    if(gridId === 'techGrid'){
+      if(grid.children.length <= 1) addTechSlot(grid);
+      if(grid.children[idx]) grid.removeChild(grid.children[idx]);
+    } else {
+      removePlayerAt(idx);
+    }
+  }
+  function closeSlotPicker(){
+    document.getElementById('slotPicker').classList.remove('open');
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('slotPicker');
+    if(menu.classList.contains('open') && !menu.contains(e.target)){
+      closeSlotPicker();
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', function(){
+    addPlayerSection();
+    refreshPlayerControls();
+  });
+</script>
+</body>
+</html>
