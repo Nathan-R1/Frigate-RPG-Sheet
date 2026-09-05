@@ -1,5 +1,10 @@
 # Frigate RPG Sheet
 
+## Pages
+- 🚀 [frigate.html](https://nathan-r1.github.io/Frigate-RPG-Sheet/frigate.html) — The main single-file character sheet: stats, crew skills, technologies, modules, and a tech-hand dock for commanding your ship.
+- 🎛️ [admin.html](https://nathan-r1.github.io/Frigate-RPG-Sheet/admin.html) — The player roster manager: add, edit, export, and import individual player sheets.
+- 🗺️ [hex-grid-generator.html](https://nathan-r1.github.io/Frigate-RPG-Sheet/hex-grid-generator.html) — A standalone flat-top hex map generator for space combat layouts.
+
 A single-file, web-based character sheet for a tabletop RPG I designed, centered on commanding a **Starship Frigate** in space combat. Everything lives in `frigate.html` — no build step, no dependencies, no server required.
 
 ## What it tracks
