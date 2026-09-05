@@ -361,3 +361,12 @@ color:var(--brown);border-color:var(--brown);
 .menu-brand::before{
 content:"";width:8px;height:8px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);
   }
+.menu-toggle{
+display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line-bright);color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:border-color .15s ease, color .15s ease;
+  }
+.menu-toggle:hover{
+border-color:var(--cyan);color:var(--cyan);
+  }
+.menu-actions{
+display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  }

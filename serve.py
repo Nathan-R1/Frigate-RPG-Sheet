@@ -8,8 +8,16 @@ HEX_PAGE = "hex-grid-generator.html"
 
 ADMIN_PAGE = "admin.html"
 
-JS_PAGES = ("tech-presets.js", "crew-presets.js", "mod-presets.js")
-CSS_PAGES = ("style.css", "frigate.css", "admin.css")
+JS_PAGES = {
+    "tech-presets.js": "presets/tech-presets.js",
+    "crew-presets.js": "presets/crew-presets.js",
+    "mod-presets.js": "presets/mod-presets.js",
+}
+CSS_PAGES = {
+    "style.css": "css/style.css",
+    "frigate.css": "css/frigate.css",
+    "admin.css": "css/admin.css",
+}
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -22,10 +30,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             page = ADMIN_PAGE
         last = path.rsplit("/", 1)[-1]
         if last in JS_PAGES:
-            page = last
+            page = JS_PAGES[last]
             content_type = "application/javascript"
         elif last in CSS_PAGES:
-            page = last
+            page = CSS_PAGES[last]
             content_type = "text/css"
         with open(page, "rb") as f:
             body = f.read()

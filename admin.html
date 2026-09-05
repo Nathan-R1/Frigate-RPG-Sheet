@@ -6,13 +6,17 @@
 <title>Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
 
 </head>
 <body>
 <nav class="menu-bar">
   <div class="menu-brand">Admin</div>
+  <div class="menu-actions">
+    <button type="button" class="menu-toggle" onclick="exportPlayers()">⇩ Export</button>
+    <button type="button" class="menu-toggle" onclick="importPlayers()">⇧ Import</button>
+  </div>
 </nav>
 <div class="sheet">
 
@@ -23,6 +27,7 @@
       <div class="eyebrow" style="margin-bottom:0;">Players <span class="player-count" id="playerCount"></span></div>
       <div class="slot-controls">
         <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
+        <button type="button" class="slot-btn orientation-btn" id="orientationBtn" onclick="togglePlayerOrientation()" title="Orientation: Vertical">〢</button>
         <button type="button" class="slot-btn" id="playerRemoveBtn" onclick="showSlotPicker(event, this, 'playerGrid', '.player-title', 'Player')" title="Remove a Player">−</button>
         <button type="button" class="slot-btn" onclick="addPlayerSection()" title="Add a Player">+</button>
       </div>
@@ -35,7 +40,7 @@
 
 <div id="slotPicker" class="preset-menu"></div>
 
-<script src="tech-presets.js"></script>
+<script src="presets/tech-presets.js"></script>
 <script>
   var TECH_TYPES = [
     {key:'offense', icon:'⚔', label:'Offense'},
@@ -517,6 +522,104 @@
     addPlayerSection();
     refreshPlayerControls();
   });
+
+  /* ===== Players orientation ===== */
+  function togglePlayerOrientation(){
+    var panel = document.querySelector('.players-panel');
+    if(!panel) return;
+    panel.classList.toggle('horizontal');
+    var horizontal = panel.classList.contains('horizontal');
+    var btn = document.getElementById('orientationBtn');
+    if(btn){
+      btn.classList.toggle('on', horizontal);
+      btn.textContent = horizontal ? 'ᯓ' : '〢';
+      btn.title = horizontal ? 'Orientation: Horizontal' : 'Orientation: Vertical';
+    }
+  }
+
+  /* ===== Export / Import all players ===== */
+  function readTechCard(card){
+    return {
+      name: card.querySelector('.tname').value,
+      traits: card.querySelector('.ttraits').value,
+      onbuild: card.querySelector('.tsec.onbuild textarea').value,
+      passive: card.querySelector('.tsec.passive textarea').value,
+      onactivate: card.querySelector('.tsec.onactivate textarea').value,
+      onbuildenergy: card.querySelector('.tcost-onbuild').value,
+      onactivateenergy: card.querySelector('.tcost-onactivate').value,
+      techType: card.querySelector('.tticker').getAttribute('data-tt'),
+      storage: card.querySelector('.tstorage-input').value,
+      hull: card.querySelector('.thull-input').value,
+      charges: card.querySelector('.tcharges-input').value,
+      deploy: card.querySelector('.tdepbtn').getAttribute('data-deploy'),
+      state: techState(card)
+    };
+  }
+  function exportPlayers(){
+    var grid = document.getElementById('playerGrid');
+    var players = [];
+    for(var i = 0; i < grid.children.length; i++){
+      var panel = grid.children[i];
+      var nameInput = panel.querySelector('.player-title');
+      var name = nameInput ? nameInput.value.trim() : '';
+      var tech = [];
+      var tgrid = panel.querySelector('.tech-grid');
+      if(tgrid){
+        for(var k = 0; k < tgrid.children.length; k++){
+          tech.push(readTechCard(tgrid.children[k]));
+        }
+      }
+      players.push({name: name, tech: tech});
+    }
+    var blob = new Blob([JSON.stringify({players: players}, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = 'players-' + date + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function importPlayers(){
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json,.json';
+    input.onchange = function(){
+      var file = input.files[0];
+      if(!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e){
+        try{
+          var json = JSON.parse(e.target.result);
+          var players = Array.isArray(json.players) ? json.players : (Array.isArray(json) ? json : null);
+          if(!players){
+            alert('Import failed: no "players" section found in file.');
+            return;
+          }
+          var grid = document.getElementById('playerGrid');
+          while(grid.children.length < players.length) addPlayerSection();
+          while(grid.children.length > players.length) removePlayerAt(grid.children.length - 1);
+          for(var i = 0; i < grid.children.length; i++){
+            var panel = grid.children[i];
+            var p = players[i] || {};
+            var nameInput = panel.querySelector('.player-title');
+            if(nameInput && p.name !== undefined) nameInput.value = p.name;
+            var tech = Array.isArray(p.tech) ? p.tech : [];
+            writeTechToPanel(panel, tech);
+          }
+          relabelPlayers();
+          refreshPlayerControls();
+          alert('Imported ' + players.length + ' player(s).');
+        }catch(err){
+          alert('Import failed: invalid JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
 </script>
 </body>
 </html>
