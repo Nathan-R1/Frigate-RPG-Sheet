@@ -1,14 +1,20 @@
 # Notes for Editing frigate.html (AI Scratchpad)
 
 ## What this is
-`frigate.html` is a **single-file, fully client-side** character/sheet app for a tabletop space RPG ("Starship Frigate"). Everything — HTML markup, CSS, and JavaScript — lives in ONE file (currently **3369** lines). There is **no build step, no dependencies, no server required**; just open it in a browser, or `python3 serve.py` and visit http://localhost:8000.
+`frigate.html` is the **main, fully client-side** character sheet app for a tabletop space RPG ("Starship Frigate"). Markup + logic live in `frigate.html` (currently **2239** lines); the large static assets were extracted into sibling folders:
+- `css/` — `style.css` (shared base: `:root` CSS vars, `.panel`, `.eyebrow`, `.slot-btn`, `.menu-toggle`, `.menu-actions`, `.preset-item`), `frigate.css` (sheet-only: `[data-theme="light"]`, stat strip, card grids, hand dock, media queries, `.panel.collapsed` rules, Hull Classification additions), `admin.css` (admin-only, incl. `.player-grid` and its horizontal-orientation override).
+- `presets/` — `tech-presets.js` (`TECH_PRESETS`), `crew-presets.js` (`CREW_PRESETS`), `mod-presets.js` (`MOD_PRESETS`) — plain `var` globals, loaded via `<script src>` BEFORE the inline `<script>`.
 
-There is also a **`hex-grid-generator.html`** static page (a standalone flat-top hex map generator). `serve.py` serves it at `http://localhost:8000/hex/`.
+**Load order matters**: `css/style.css` first, then the page sheet; then the three preset files, then the inline logic script.
+
+There is **no build step, no dependencies, no server required**; just open `frigate.html`, or `python3 serve.py` and visit http://localhost:8000.
+
+Other pages: **`admin.html`** — player roster manager (served at `/admin/`); **`hex-grid-generator.html`** — standalone flat-top hex map generator (served at `/hex/`); **`hand-popout.html`** — a standalone "tech hand" popup that syncs with `frigate.html` over a BroadcastChannel. `serve.py` also routes the asset folders: any request path ending in `style.css`/`frigate.css`/`admin.css` (text/css) or `tech-presets.js`/`crew-presets.js`/`mod-presets.js` (application/javascript) returns the matching file with the right Content-Type, regardless of the path prefix (e.g. `/admin/css/style.css`).
 
 This is a **private passion project** (the owner designed the TTRPG). Treat all game terminology and flavor as intentional. Do not add dependencies, frameworks, or build tools. Keep it self-contained.
 
 ## File layout (top to bottom)
-1. `<head>` → `<style>` block (the entire CSS, lines **9–851**). Section markers are `/* ===== ... ===== */`.
+1. `<head>` → `<link rel="stylesheet" href="css/style.css">` then `css/frigate.css` (no inline `<style>` block anymore). Section markers inside the CSS files are `/* ==== ... ==== */` / `/* ===== ... ===== */`.
 2. `<body>` → static HTML (`<!-- XXXX -->` markers):
    - `<nav class="menu-bar">` — Export / Import / theme toggle buttons.
    - Header (`.topbar`) — ship name, captain, commissioned, ship class, DC hex.
@@ -16,8 +22,8 @@ This is a **private passion project** (the owner designed the TTRPG). Treat all 
    - `.row2` (Row 2) — **Traits & Crew**, **Technologies**.
    - **Modules/Deployables** panel.
    - `<footer>`.
-3. `<script>` block (**lines 1342–3315**) — all logic.
-4. After `</script>` (lines 3316–3369) — floating chrome elements: `#skillPopover`, `.preset-menu#slotPicker`, and the `#handDock` (the tech-hand dock lives here, not in the `<body>` flow above).
+3. `<script src="presets/tech-presets.js">`, `presets/crew-presets.js`, `presets/mod-presets.js` (lines ~273–275), then the main inline `<script>` (**lines 276–2185**) — all sheet logic.
+4. After the main `</script>` (lines 2186–2232) — floating chrome: `#skillPopover`, `.preset-menu#slotPicker`, `.class-info-modal#classInfoModal`, and the `#handDock` tech hand. A short second `<script>` (lines 2233–2237) runs final init (`buildFilterMenu(); wireHandSlider(); refreshHand();`).
 
 Line numbers below are approximate; navigate via the commented section markers.
 
@@ -58,7 +64,7 @@ After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max
 
 ### Traits & Crew
 - The panel starts with **1 empty slot** by default (the static HTML has a single `.crew-card`, "Slot 01"); more slots are added with the `+` control / preset catalog.
-- Panel header controls → `addCrewSlot()`, `removeCrewSlot()`, and `☰` → `buildPresetMenu()` from the `PRESETS` array (sorted by name; `combat_only` presets get a "combat" tag in the menu). Presets may also define a `type` (`offense`/`defense`/`movement`/`science`); when present, the menu shows the matching ⚔/🛡/➤/⚛︎ icon via `crewTypeIcon()` (from the `CREW_TYPES` array).
+- Panel header controls → `addCrewSlot()`, `removeCrewSlot()`, and `☰` → `buildPresetMenu()` from the `CREW_PRESETS` array (in `presets/crew-presets.js`, sorted by name; `combat_only` presets get a "combat" tag in the menu). Presets may also define a `type` (`offense`/`defense`/`movement`/`science`); when present, the menu shows the matching ⚔/🛡/➤/⚛︎ icon via `crewTypeIcon()` (from the `CREW_TYPES` array).
 - Cards are `.crew-card` with class header "Slot 0N" (`.ch`), a name (`input.cname`) + combat tag button (`.crew-tag-btn` ⚔, `toggleCombatTag`/`setCombatTag`), a role/effect textarea, and a footer `.cfoot` whose `.cticker` shows the crew type icon at bottom-left (default `offense` ⚔, click to cycle via `cycleCrewType`; `setCrewType(el, key)` sets it and the tooltip. Type is persisted as `type` on each crew record via `readCrew`/`writeCrew`, and set from a preset's `type` in `pickPreset`).
 - Slot removal is shared: `showSlotPicker(e, btn, 'crewGrid', '.cname')` → `deleteSlotAt('crewGrid', idx)` which also calls `relabelSlots()` so Slot numbers stay sequential.
 
@@ -70,7 +76,7 @@ After a `confirm()` prompt, `bumpStat(id, delta)` adds the bonus to both cur+max
   - `.tfoot`: tech-type toggle (`.tticker`, cycles Offense/Defense/Movement/Science), storage (`.tstorage`), hull (`.thull`, `.hid` default), charges (`.tcharges`, `.hid` default), and deploy-state toggle (`.tdepbtn`).
 - **State**: each `.tech-card` has a single `data-state` = `hand` | `built` | `exhausted` (`built` default). `hand` and `exhausted` dim the card (CSS `.tech-card.state-hand{opacity:.6}` / `.state-exhausted{opacity:.55}`); `built` is not dimmed. The `⇅` `.tbuilt-btn` cycles `hand → built → exhausted → …` via `toggleTechState()` (see Hand section). There is NO separate exhaust button for techs anymore.
 - **Edit pattern**: clicking Edit adds `.editing` to the card; empty `.hid` elements become visible/editable. `refreshTechSections(card)` toggles visibility + disabled exclusively based on `card.classList.contains('editing')` and whether fields have content. It also tags each `.tsec` with `.mod` / `.dep` when its text matches `/create\s+module/i` / `/create\s+deployable/i` — CSS tints those section backgrounds green/amber as a visual aid. Hull (`.thull`) and charges (`.tcharges`) are click-decremented/incremented on the grid (delegated `#techGrid` click listener).
-- Preset catalog = `TECHP_RESETS` array; menu built by `buildTechPresetMenu()`; picking calls `addTechFromData(t)` (also used in `pickTechPreset`, class presets, and import).
+- Preset catalog = `TECH_PRESETS` array (in `presets/tech-presets.js`); menu built by `buildTechPresetMenu()`; picking calls `addTechFromData(t)` (also used in `pickTechPreset`, class presets, and import).
 - Deploy states in `DEPLOY_STATES` = `normal` / `deployable` / `module` (with SVG for the latter two); `setTechDeploy()` / `cycleTechDeploy()`.
 
 ### Modules / Deployables
@@ -81,7 +87,7 @@ A panel mirroring Technologies. Structure of a `.mod-card`:
 - `.mfoot` (bottom bar): `.mtype-btn` (Module⇄Deployable SVG toggle, leftmost/first), then `.mspeed`, `.mdur`, `.mhull`, and `.mcharges` (charges, `.hid` default) value icons/inputs.
 
 **JS for mods** (section at `/* ===== Modules / Deployables ===== */`):
-- `MOD_PRESETS` = catalog (Armor, Cannon, Comms Unit, Graviton Engine, Ion Torpedo, P.D., Repulsor Unit, Shuttle Craft I, Tug Craft I) shown in the `modPresetMenu`. Presets may define optional `duration`, `speed`, `charges`, and `shape` in addition to `req`/`hull`/`type`/texts; `pickModPreset()` applies all of them.
+- `MOD_PRESETS` (in `presets/mod-presets.js`) = catalog (Armor, Cannon, Comms Unit, Graviton Engine, Ion Torpedo, P.D., Repulsor Unit, Shuttle Craft I, Tug Craft I) shown in the `modPresetMenu`. Presets may define optional `duration`, `speed`, `charges`, and `shape` in addition to `req`/`hull`/`type`/texts; `pickModPreset()` applies all of them.
 - `MOD_SHAPES` = shape catalog with emoji/glyph icons (see below); `setModuleShape` / `cycleModuleShape`.
 - `addModSlot()`, `removeModSlot()`, `refreshModSlotControls()`, `relabelMods()`.
 - `toggleModExhaust` / `applyModExhaust` — same pattern as tech exhaust (`.exhausted` dims the card).
@@ -99,7 +105,7 @@ A fixed bottom "hand" UI (`#handDock`) that pops up over **38vh** when expanded,
 - **Sorting**: a `#handSort` `<select>` sits on the top banner bar (`.hand-bar`) to the right of the "TECH HAND" label, and sorts the hand via `onHandSortChange()` + `handSortCards(cards)`. Modes are `az` (by name), `trait` (alphabetical by trait field, name tiebreak), `type` (offense→defense→movement→science via `HAND_TYPE_ORDER`, name tiebreak), and `energy` (by on-build energy cost, ascending; empty/unset cost sorts last, name tiebreak). A second **Filter** `#handFilter` select (default `all`) shows only matching cards; values are `type:<offense|defense|movement|science>`, `energy:<has|none>` (has = non-empty, non-zero on-build cost), `trait:<has|none>`. Current sort/filter are held in the runtime `HAND_SORT`/`HAND_FILTER` vars (not persisted to sheet); both are controlled by native `<select>` elements on all screen sizes. On narrow screens (`@media max-width:640px`) the `<select>`s' labels are hidden and the selects themselves become transparent zero-visual overlays positioned over two icon buttons — **⇵** (sort) and **ᯤ** (filter) (`.hand-icon-btn`) — so tapping the icon directly clicks/opens the same native select's OS dropdown (no JS popup; `openHandSelect(id)` using `showPicker()` is a fallback).
 - **Hand card footer**: `.hc-foot` at the bottom of each hand card shows the **tech-type glyph** (`.hc-tags`, bottom-left — the `.tticker` icon, e.g. ⚔) and an **energy diamond** (`.hc-cost`, bottom-right) with the On Build energy cost (from `.tcost-onbuild`); the diamond renders empty when there's no non-zero on-build cost. Data comes from `techCardViewData()`.
 - `escapeHtml()` must be used whenever rendering user text into `innerHTML` (hand cards render names/traits/section text this way).
-- Relevant CSS is under the `/* ===== Hand Dock (bottom tech hand) ===== */` block (before `</style>`). Body `padding-bottom` is 110px so the fixed dock doesn't cover the footer. The dock is hidden in `@media print`. The dock markup itself lives AFTER `</script>` (`#handDock` with `#handTab`, `#handCount`, the sort overlay, and `#hand`).
+- Relevant CSS is under the `/* ===== Hand Dock (bottom tech hand) ===== */` block at the end of `css/frigate.css`. Body `padding-bottom` is 110px in the style.css/frigate.css sheets so the fixed dock doesn't cover the footer. The dock is hidden in `@media print`. The dock markup itself lives AFTER the main `</script>` (`#handDock` with `#handTab`, `#handCount`, the sort overlay, and `#hand`).
 
 ### Export / Import (the `/* ===== Export / Import ===== */` section)
 - Each data domain has a `read<X>` / `write<X>` pair (Skills, Crew, Tech, Mods).
@@ -139,6 +145,14 @@ Rules to keep in mind when editing card CSS:
 - Delete/Edit buttons, foot icons, `.hid` behavior, and section heads/textareas are shared via the groups above — a structural change to one family's foot should be checked against the other.
 - After edits, CSS braces must stay balanced and the JS must pass `node --check` (command below).
 
+## The admin page (admin.html)
+A separate player-roster manager (currently **624** lines, self-contained; `serve.py` serves it at `/admin/`). It reuses `css/style.css` + `css/admin.css` and loads `presets/tech-presets.js` for the tech catalog. Key structure:
+- Top `.menu-bar` with a hamburger **☰** button (opens the tech-preset catalog menu via `buildTechPresetMenu()`) plus `menu-actions` — **Export / Import** buttons (`exportPlayers()` / `importPlayers()` / `readTechCard()`) and a theme toggle.
+- **Players panel** (`.players-panel`): a `.panel` with a 👁 collapse button, `− / +` to remove/add players (`showSlotPicker` / `addPlayerSection`), and an **Orientation** button (`togglePlayerOrientation()`). Orientation toggles `.players-panel.horizontal`, flipping `.player-grid` between a single column and `repeat(auto-fit, minmax(min(280px,100%),1fr))` so player panels become responsive columns that fill the page and wrap when full (4 players → 4 columns on a full-width sheet). The button icon reads 〢 (vertical) / ᯓ (horizontal); the `.orientation-btn.on` state is cyan. CSS lives in `css/admin.css`.
+- Player sections are `.player-panel` cards inside `#playerGrid` (`.player-grid`), each a mini frigate sheet whose tech panel mirrors `readTech`'s field keys (name, traits, onbuild, passive, onactivate, onbuildenergy, onactivateenergy, techType, storage, hull, charges, deploy, state).
+- Export writes `{players:[{name, tech:[...]}]}` JSON named `players-YYYY-MM-DD.json`; Import accepts `{players:[...]}` or a bare array and restores via `writeTechToPanel`.
+- JS is ES5-style like the main sheet and must also pass the `node --check` verification below.
+
 ## Gotchas / things to be careful about
 - **Keep the sheet self-contained**: no external JS libs. Google Fonts is the only external resource and it's loaded via `<link>` but the sheet still works offline with fallbacks.
 - **No auto-save.** Persistence relies on Export/Import JSON.
@@ -147,4 +161,4 @@ Rules to keep in mind when editing card CSS:
 - When adding fields to cards built in JS, update BOTH the static HTML sample card AND the `innerHTML` template string in the `add<X>Slot()` function, or they'll drift.
 - Sections show `.hid` when empty; the Edit button reveals them. Don't break the edit/hidden toggle when adding new card fields.
 - The `.tbuilt-btn` and `.mexhaust-btn` are hidden until EDIT MODE (CSS `display:none` default, shown via `.editing`), so card header items only appear editable while editing.
-- Verify JS after edits with: `python3 -c "import re,io; html=open('frigate.html').read(); m=re.search(r'<script>(.*)</script>',html,re.S); io.open('/tmp/s.js','w').write(m.group(1))" && node --check /tmp/s.js`
+- Verify JS after edits with: `node -e "const fs=require('fs'); for(const f of ['frigate.html','admin.html']){const h=fs.readFileSync(f,'utf8'); for(const m of h.matchAll(/<script(?! src)[^>]*>([\s\S]*?)<\/script>/g)) new Function(m[1]);} console.log('JS OK')"` and `node --check presets/*.js` after touching the preset catalogs.

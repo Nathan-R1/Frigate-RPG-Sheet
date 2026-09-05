@@ -8,26 +8,52 @@
 A single-file, web-based character sheet for a tabletop RPG I designed, centered on commanding a **Starship Frigate** in space combat. Everything lives in `frigate.html` — no build step, no dependencies, no server required.
 
 ## What it tracks
-- Ship header: name, captain, commissioned date, and hull classification (Support / Jump / Striker / Discovery)
-- Stats: hull HP, base shield, and energy (each current/max), plus storage and speed
-- Crew skills (Cyber, Diplomacy, Engineering, Leadership, Logistics, Navigation, Piloting, Sensors, Science), each with point and penalty values and hover tooltips
-- Traits & Crew: add slots, add combat-only tags, and pick from a preset catalog
-- Technologies: name, description, energy cost, tech type, traits, storage, hull, charges, and deployable flags — pick from the hamburger catalog or get class techs auto-added by selecting a hull class
-- Modules / Deployables: requirements, shape identifier, module/deployable toggle, hull/duration/speed/charges, and on-build/passive/on-activate effects
-- Exhaustion state on technologies and modules, with a refresh button (start-of-turn) that clears all of them
-- Tech Hand: a bottom dock showing your unbuilt technologies; sort them, pop them out to read them, and double-click to build one
-- Collapsible turn rules ("At the start of your turn" / "During your turn") with one-click energy recharge and exhaust refresh
-- Difficulty Class (DC) for class checks
+- 🚢 **Ship header** — name, captain, commissioning date, and hull class (Support / Jump / Striker / Discovery)
+- 💠 **Stats** — hull HP, shield, and energy (current/max), plus storage and speed
+- 🎓 **Crew skills** — nine skills with points, penalties, and hover tooltips
+- 👥 **Traits & Crew** — slots, combat-only tags, and a preset catalog
+- ⚙️ **Technologies** — costs, tech types, traits, storage, hull, charges, and deployables; pick from the catalog or get them auto-added by hull class
+- 🛡️ **Modules / Deployables** — requirements, shape identifiers, module/deployable toggle, hull/duration/speed/charges, and build/passive/activate effects
 
 ## How to use it
 
-The sheet is fully client-side and offline. To run it locally:
+### Run it online
+The sheet is fully client-side, so you can just open it in a browser:
+- 🚀 [frigate.html](https://nathan-r1.github.io/Frigate-RPG-Sheet/frigate.html) — the main character sheet
+- 🎛️ [admin.html](https://nathan-r1.github.io/Frigate-RPG-Sheet/admin.html) — the player roster manager
+- 🗺️ [hex-grid-generator.html](https://nathan-r1.github.io/Frigate-RPG-Sheet/hex-grid-generator.html) — the hex map generator
 
+### Run it locally
 ```
 python3 serve.py
 ```
+Then open http://localhost:8000 (any static file server works — or just open `frigate.html` directly in a browser). The hex page is served at http://localhost:8000/hex/ and the admin page at http://localhost:8000/admin/.
 
-then open http://localhost:8000 (any static file server works — or just open `frigate.html` directly in a browser). A bonus standalone **hex map generator** is served at http://localhost:8000/hex/.
+### Run with Electron on Windows
+```
+npm install
+npm start
+```
+This installs the Electron dependency and launches the sheet in a desktop window.
+
+<details>
+<summary><b>Tip:</b> If you get an error like "npm cannot be loaded because running scripts is disabled on this system"</summary>
+
+Windows PowerShell's default execution policy blocks `.ps1` scripts (which is what `npm`/`npm.cmd` actually invokes). Bypass it by calling the `.cmd` shim explicitly, or allow script execution for your user:
+
+```
+npm.cmd install
+npm.cmd start
+```
+
+or once, to relax the policy:
+
+```
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+then run `npm install` / `npm start` as normal.
+</details>
 
 ### Fill it out
 1. Enter your ship's name, captain, and commissioning date.
