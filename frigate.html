@@ -51,7 +51,12 @@
     <!-- CLASSIFICATION / STATS -->
     <div class="panel">
       <div class="bl"></div><div class="br"></div>
-      <div class="eyebrow">Hull Classification</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="eyebrow" style="margin-bottom:0;">Hull Classification</div>
+        <div class="slot-controls">
+          <button type="button" class="slot-btn panel-collapse-btn" onclick="togglePanelCollapse(this)" title="Collapse section">👁</button>
+        </div>
+      </div>
       <div class="class-select">
         <select id="shipClass" onchange="onShipClassChange()">
           <option selected>Unclassified</option>

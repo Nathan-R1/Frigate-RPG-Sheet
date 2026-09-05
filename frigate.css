@@ -483,7 +483,7 @@ background:rgba(79,216,201,0.03);
     gap:12px;
   
   }
-.panel.collapsed .tech-grid,.panel.collapsed .mod-grid,.panel.collapsed .crew-grid,.panel.collapsed .skills{
+.panel.collapsed .tech-grid,.panel.collapsed .mod-grid,.panel.collapsed .crew-grid,.panel.collapsed .skills,.panel.collapsed .class-select,.panel.collapsed .class-body{
 display:none;
   }
 .preset-tag.preset-storage .kw-icon{
